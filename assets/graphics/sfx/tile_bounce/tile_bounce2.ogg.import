@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/tile_bounce2.ogg-06cf1ce5c42b53ed1b2d05c20b4f22ce.oggstr"
+
+[deps]
+
+source_file="res://assets/graphics/sfx/tile_bounce/tile_bounce2.ogg"
+dest_files=[ "res://.import/tile_bounce2.ogg-06cf1ce5c42b53ed1b2d05c20b4f22ce.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

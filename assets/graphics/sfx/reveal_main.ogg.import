@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/reveal_main.ogg-d82793c6bf24f1457a85cc277feb588d.oggstr"
+
+[deps]
+
+source_file="res://assets/graphics/sfx/reveal_main.ogg"
+dest_files=[ "res://.import/reveal_main.ogg-d82793c6bf24f1457a85cc277feb588d.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

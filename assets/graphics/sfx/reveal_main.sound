@@ -1,0 +1,7 @@
+sound: "/assets/sfx/reveal_main.ogg"
+looping: 0
+group: "sound"
+gain: 0.64
+pan: 0.0
+speed: 1.0
+loopcount: 0

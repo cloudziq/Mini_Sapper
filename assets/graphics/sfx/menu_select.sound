@@ -1,0 +1,7 @@
+sound: "/assets/sfx/menu_select.wav"
+looping: 0
+group: "sound"
+gain: 0.8
+pan: 0.0
+speed: 0.4
+loopcount: 0

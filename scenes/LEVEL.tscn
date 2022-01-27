@@ -1,0 +1,19 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://scripts/level_main.gd" type="Script" id=1]
+[ext_resource path="res://scenes/tile.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/bomb.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/tile_label.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/touch_collider.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/level_BG.tscn" type="PackedScene" id=6]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource( 1 )
+_tile = ExtResource( 2 )
+_bomb = ExtResource( 3 )
+_label = ExtResource( 4 )
+_touch = ExtResource( 5 )
+
+[node name="BG" parent="." instance=ExtResource( 6 )]
+margin_right = 320.0
+margin_bottom = 577.0
