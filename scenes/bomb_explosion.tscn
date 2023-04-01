@@ -1,0 +1,113 @@
+[gd_scene load_steps=16 format=2]
+
+[ext_resource path="res://assets/graphics/bomb/smoke.png" type="Texture" id=1]
+[ext_resource path="res://assets/graphics/particles/spark.png" type="Texture" id=2]
+[ext_resource path="res://assets/graphics/bomb/explosion.png" type="Texture" id=3]
+[ext_resource path="res://scripts/bomb_explosion.gd" type="Script" id=4]
+
+[sub_resource type="CircleShape2D" id=33]
+radius = 120.0
+
+[sub_resource type="CanvasItemMaterial" id=18]
+particles_animation = true
+particles_anim_h_frames = 8
+particles_anim_v_frames = 8
+particles_anim_loop = false
+
+[sub_resource type="AtlasTexture" id=20]
+flags = 4
+atlas = ExtResource( 3 )
+region = Rect2( 256, 256, 256, 256 )
+
+[sub_resource type="Curve" id=30]
+max_value = 2.0
+_data = [ Vector2( 0, 0.210194 ), 0.0, 0.0, 0, 0, Vector2( 1, 1.93836 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="Gradient" id=28]
+colors = PoolColorArray( 0, 0, 0, 1, 0, 0, 0, 0 )
+
+[sub_resource type="CanvasItemMaterial" id=21]
+particles_animation = true
+particles_anim_h_frames = 2
+particles_anim_v_frames = 2
+particles_anim_loop = true
+
+[sub_resource type="AtlasTexture" id=27]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 256, 256 )
+
+[sub_resource type="Curve" id=22]
+min_value = -360.0
+max_value = 360.0
+bake_resolution = 20
+_data = [ Vector2( 0, -322.876 ), 0.0, 0.0, 0, 0, Vector2( 1, -360 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="Curve" id=25]
+max_value = 8.0
+_data = [ Vector2( 0, 8 ), 0.0, 0.0, 0, 0, Vector2( 0.17562, 3.28092 ), -7.823, -7.823, 0, 0, Vector2( 1, 0.512845 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="Gradient" id=24]
+offsets = PoolRealArray( 0, 0.279221 )
+colors = PoolColorArray( 0.865313, 0.647781, 0.52392, 1, 0.861406, 0.792561, 0.699893, 0 )
+
+[sub_resource type="Curve" id=23]
+max_value = 20.0
+bake_resolution = 20
+_data = [ Vector2( 0, 9.09523 ), 0.0, -30.4697, 0, 0, Vector2( 1, 0 ), -3.46956, 0.0, 0, 0 ]
+
+[node name="bomb_explosion" type="Node2D"]
+script = ExtResource( 4 )
+
+[node name="bomb_wave" type="Area2D" parent="."]
+collision_layer = 2
+
+[node name="collision" type="CollisionShape2D" parent="bomb_wave"]
+shape = SubResource( 33 )
+
+[node name="fire" type="CPUParticles2D" parent="."]
+light_mask = 0
+material = SubResource( 18 )
+amount = 1
+lifetime = 2.0
+speed_scale = 3.0
+texture = SubResource( 20 )
+gravity = Vector2( 0, 0 )
+anim_speed = 1.0
+
+[node name="smoke" type="CPUParticles2D" parent="."]
+light_mask = 0
+amount = 25
+lifetime = 3.0
+speed_scale = 1.4
+explosiveness = 0.8
+randomness = 1.0
+texture = ExtResource( 1 )
+emission_shape = 1
+emission_sphere_radius = 0.31
+direction = Vector2( 0, 0 )
+spread = 180.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 77.18
+linear_accel = 33.67
+damping = 44.3
+scale_amount = 2.0
+scale_amount_curve = SubResource( 30 )
+color_ramp = SubResource( 28 )
+
+[node name="blink" type="CPUParticles2D" parent="."]
+light_mask = 2
+material = SubResource( 21 )
+z_index = 1
+amount = 1
+texture = SubResource( 27 )
+spread = 0.0
+gravity = Vector2( 0, 0 )
+angular_velocity_curve = SubResource( 22 )
+scale_amount_curve = SubResource( 25 )
+color = Color( 1, 1, 1, 0.8 )
+color_ramp = SubResource( 24 )
+anim_speed = 12.19
+anim_speed_curve = SubResource( 23 )
+
+[node name="Tween" type="Tween" parent="."]

@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture" id=1]
+[ext_resource path="res://scripts/level_light.gd" type="Script" id=2]
+
+[node name="Node2D" type="Node2D" groups=["light"]]
+z_index = 20
+script = ExtResource( 2 )
+
+[node name="Light" type="Light2D" parent="."]
+position = Vector2( 127.5, 302 )
+scale = Vector2( 9.84933, 20.3683 )
+texture = ExtResource( 1 )
+texture_scale = 1.1
+energy = 4.66
+mode = 2
+range_height = 40.0
+range_z_min = -512
+range_z_max = 512
+
+[node name="light_pos" type="Tween" parent="."]
+
+[node name="light_col" type="Tween" parent="."]
+
+[node name="light_energy" type="Tween" parent="."]
+
+[node name="light_height" type="Tween" parent="."]
+
+[connection signal="tween_all_completed" from="light_pos" to="." method="_on_light_pos_end"]
+[connection signal="tween_all_completed" from="light_energy" to="." method="_on_light_energy_end"]
+[connection signal="tween_all_completed" from="light_height" to="." method="_on_light_height_end"]
