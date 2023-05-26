@@ -3,19 +3,20 @@ extends Node2D
 
 export(PackedScene) var _LEVEL
 
-export var tile_size_in_pixels  = 64
-export var board_max_tiles_w = 10
-export var board_max_tiles_h = 16
+export var tile_size_in_pixels  := 32
+export var board_max_tiles_w    := 10
+export var board_max_tiles_h    := 16
+export var current_level        := 1
 
 
 
 
 # rotate type:
-# 1: can be rotated only by 90
+# 1: can be rotated only by 90 degree steps
 # 2: full random rotation
 
 #   0            1               2                   3
-#   variants:    rotate_type:    ON/OFF_variants:    highlight multiplier:
+#   variants:    rotate_type:    ON/OFF_variants:    highlight brightness multiplier:
 var theme_data = [
 	[1,          1,              false,              1 ],               # 1
 	[1,          1,              false,              1 ],               # 2
@@ -91,9 +92,9 @@ var level_data = [
 
 func _ready():
 	randomize()
-	add_child(_LEVEL.instance())
-	window_prepare()
 	load_config()
+	window_prepare()
+	add_child(_LEVEL.instance())
 
 
 
@@ -105,7 +106,7 @@ var SETTINGS
 var config_path
 
 func save_config():
-	var password = "87643287643876243876243"
+	var password = "87643287643876243876241"
 	var key = password.sha256_buffer()
 	var config = ConfigFile.new()
 
@@ -119,7 +120,7 @@ func save_config():
 
 
 func load_config():
-	var password = "87643287643876243876243"
+	var password = "87643287643876243876241"
 	var key = password.sha256_buffer()
 	var config = ConfigFile.new()
 
@@ -148,8 +149,8 @@ func load_config():
 
 func window_prepare():
 	var display_size = OS.get_screen_size()
-	var window_size = OS.window_size
-	window_size.x *= 4 ; window_size.y *= 4
+	var window_size  = OS.window_size
+	window_size.x   *= 4 ; window_size.y *= 4
 
 	if display_size.y <= window_size.y:
 		var scale_ratio = window_size.y / (display_size.y - 100)
@@ -163,9 +164,9 @@ func window_prepare():
 
 
 func gen_offscreen_pos(distance):
-	var a = randi() % 4 + 1
-	var pos = Vector2()
-	var window = get_viewport_rect().size
+	var a      := randi() % 4 + 1
+	var pos    := Vector2()
+	var window := get_viewport_rect().size
 
 	match a:
 		1:    #### LEFT

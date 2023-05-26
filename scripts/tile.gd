@@ -1,10 +1,11 @@
 extends Area2D
 
 
-var dark_color = Color(.18, .20, .22, 1)
-var theme_data ; var settings
-var tween_ID ; var tween_calls
 var path = "res://assets/graphics/tiles/tile"
+var dark_color = Color(.18, .20, .22, 1)
+var theme_data
+var settings
+var tween_ID ; var tween_calls
 var texture_list
 var def_pos ; var def_rot ; var def_sca
 
@@ -17,7 +18,7 @@ func _ready():
 	$Sprite.flip_v = true if randf() > .5 else false
 	$Sprite.flip_h = true if randf() > .5 else false
 
-	yield(get_tree().create_timer(.001), "timeout")
+	yield(get_tree().create_timer(.004), "timeout")
 	theme_data = get_node("../../").theme_data
 	settings = get_node("../../").SETTINGS
 
