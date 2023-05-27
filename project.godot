@@ -111,10 +111,14 @@ _global_script_class_icons={
 [application]
 
 config/name="Mini Sapper"
-run/main_scene="res://scenes/MAIN.tscn"
+run/main_scene="res://scenes/SYS.tscn"
 boot_splash/image="res://assets/graphics/bomb/bomb.png"
 boot_splash/fullsize=false
 config/icon="res://assets/graphics/bomb/bomb.png"
+
+[debug]
+
+shapes/collision/shape_color=Color( 0.913725, 0.913725, 0.913725, 0.419608 )
 
 [display]
 
@@ -124,6 +128,10 @@ window/size/always_on_top=true
 window/handheld/orientation="portrait"
 window/stretch/mode="2d"
 window/stretch/aspect="keep"
+
+[global]
+
+coll=false
 
 [input]
 
@@ -182,11 +190,13 @@ ui_end={
 zoom+={
 "deadzone": 0.5,
 "events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":4,"pressed":false,"doubleclick":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":16777232,"unicode":0,"echo":false,"script":null)
  ]
 }
 zoom-={
 "deadzone": 0.5,
 "events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":5,"pressed":false,"doubleclick":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":16777234,"unicode":0,"echo":false,"script":null)
  ]
 }
 

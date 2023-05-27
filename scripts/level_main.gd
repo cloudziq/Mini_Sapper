@@ -6,9 +6,9 @@ export(PackedScene) var _bomb ;  var BOMB
 export(PackedScene) var _label ; var LABEL
 export(PackedScene) var _touch ; var TOUCH
 
-export var zoom_speed = .1
-export var max_zoom   = 4.00
-export var min_zoom   = 0.25
+export var zoom_step  := 0.2
+export var max_zoom   := 3
+export var min_zoom   := 0.4
 
 #export var textures_ready = false
 
@@ -46,7 +46,11 @@ var board_data         :  Array
 func _ready():
 	print("LEVEL is ready")
 	print(window)
-	board_size = Vector2(10, 16)
+
+	var level      = $"../".current_level
+	var val_1      = $"../".level_data[level][0]
+	var val_2      = $"../".level_data[level][1]
+	board_size     = Vector2(val_1, val_2)
 	generate_board()
 
 
@@ -58,15 +62,18 @@ func _process(delta):
 		hold_touch_time = 0
 
 	if $Camera2D.zoom != target_zoom:
-		$Camera2D.zoom = lerp($Camera2D.zoom, target_zoom, zoom_speed * 20 * delta)
+		var i = clamp(target_zoom.x, min_zoom, max_zoom)
+		target_zoom = Vector2(i,i)
+		$Camera2D.zoom = lerp($Camera2D.zoom, target_zoom, zoom_step * 10 * delta)
 
 
 
 
 func _input(event):
-	var tile_is_valid = true
-	var pos = get_viewport().get_mouse_position()
+	var tile_is_valid := true
+	var pos           := get_global_mouse_position()
 
+	#check if clicked tile is valid (inside board):
 	if allow_board_input and event.is_pressed():
 		var x = ceil((pos.x - (window.x - (board_size.x * tile_size)) / 2) / tile_size)
 		var y = ceil((pos.y - (window.y - (board_size.y * tile_size)) / 2) / tile_size)
@@ -79,14 +86,15 @@ func _input(event):
 			hold_touch_time = OS.get_system_time_msecs() + 444
 		elif not event.is_pressed() and hold_touch_time != 0:
 			hold_touch_time = 0
-			TOUCH = _touch.instance() ; add_child(TOUCH)
-			TOUCH.position = pos
+			TOUCH           = _touch.instance()
+			TOUCH.position  = pos
+			add_child(TOUCH)
 
 	#camera zooming:
 	if event.is_action_pressed("zoom+"):
-		target_zoom -= Vector2(zoom_speed, zoom_speed)
+		target_zoom += Vector2(zoom_step, zoom_step)
 	elif event.is_action_pressed("zoom-"):
-		target_zoom += Vector2(zoom_speed, zoom_speed)
+		target_zoom -= Vector2(zoom_step, zoom_step)
 
 
 
@@ -99,7 +107,8 @@ func check_clicked_tile():
 
 		#### CHECK TILE
 		if tile_stat == 0:
-			tile_reveal(tile_coord, null, null)
+			pass
+#			tile_reveal(tile_coord, null, null)
 #			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 #			$Sounds/TileReveal.play()
 		elif tile_stat == 1:
@@ -125,14 +134,14 @@ var near_coords = [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord, neighbours_table = [], count = 0):
-	var cx
-	var cy
-
-	tiles_left -= 1
-	if tiles_left == 0:
-		pass
-		#level_complete()
+#func tile_reveal(coord, neighbours_table = [], count = 0):
+#	var cx
+#	var cy
+#
+#	tiles_left -= 1
+#	if tiles_left == 0:
+#		pass
+#		#level_complete()
 
 
 

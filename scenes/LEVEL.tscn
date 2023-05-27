@@ -5,7 +5,7 @@
 [ext_resource path="res://scenes/bomb.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scenes/tile_label.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/touch_collider.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scenes/level_BG.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/BG.tscn" type="PackedScene" id=6]
 
 [node name="level" type="Node2D"]
 script = ExtResource( 1 )
@@ -14,12 +14,10 @@ _bomb = ExtResource( 3 )
 _label = ExtResource( 4 )
 _touch = ExtResource( 5 )
 
-[node name="BG" parent="." instance=ExtResource( 6 )]
-visible = false
-margin_right = 320.0
-margin_bottom = 577.0
-
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2( 160, 288 )
 current = true
 editor_draw_drag_margin = true
+
+[node name="BG" parent="." instance=ExtResource( 6 )]
+z_index = -1

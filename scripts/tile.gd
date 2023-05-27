@@ -66,13 +66,13 @@ func _ready():
 
 
 
-func _on_Area2D_area_shape_entered(area_rid, _area, _area_shape_index, _local_shape_index):
+func _on_Area2D_area_shape_entered(_area_rid, _area, _area_shape_index, _local_shape_index):
 	$"../".check_clicked_tile()
 
 
 
 
-func _on_tween_completed(object, key):
+func _on_tween_completed(_object, key):
 	if key == ":scale" and tween_calls > 0:
 		match tween_calls:
 			2:

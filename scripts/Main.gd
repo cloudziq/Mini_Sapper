@@ -50,12 +50,12 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[6,       6,        4,      1],        # 1
-	[6,       6,        1,      1],        # 2
-	[6,       7,        1,      1],        # 3
-	[6,       7,        1,      1],        # 4
-	[7,       7,        1,      1],        # 5
-	[7,       7,        1,      1],        # 6
+	[4,       4,        3,      0],        # 1
+	[5,       4,        1,      0],        # 2
+	[5,       5,        1,      1],        # 3
+	[5,       6,        1,      1],        # 4
+	[6,       6,        1,      1],        # 5
+	[6,       7,        1,      1],        # 6
 	[7,       8,        1,      1],        # 7
 	[7,       8,        1,      1],        # 8
 	[8,       8,        1,      2],        # 9
@@ -90,11 +90,15 @@ var level_data = [
 
 
 
+
+
 func _ready():
+	current_level -= 1
 	randomize()
 	load_config()
 	window_prepare()
 	add_child(_LEVEL.instance())
+
 
 
 
