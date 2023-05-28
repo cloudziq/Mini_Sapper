@@ -3,8 +3,7 @@ extends Area2D
 
 var path = "res://assets/graphics/tiles/tile"
 var dark_color = Color(.18, .20, .22, 1)
-var theme_data
-var settings
+var theme   ;  var theme_data    #info about tiles
 var tween_ID ; var tween_calls
 var texture_list
 var def_pos ; var def_rot ; var def_sca
@@ -19,19 +18,19 @@ func _ready():
 	$Sprite.flip_h = true if randf() > .5 else false
 
 	yield(get_tree().create_timer(.004), "timeout")
-	theme_data = get_node("../../").theme_data
-	settings = get_node("../../").SETTINGS
+	theme      = $"../../".SETTINGS.theme
+	theme_data = $"../../".theme_data[theme]
 
-	if theme_data[settings.theme][0] == 1:
-		if theme_data[settings.theme][2] == false:
-			$Sprite.texture = load(path + str(settings.theme + 1) + ".png")
+	if theme_data[0] == 1:
+		if theme_data[2] == false:
+			$Sprite.texture = load(path + str(theme) + ".png")
 		else:
-			$Sprite.texture = load(path + str(settings.theme + 1) + "_ON.png")
+			$Sprite.texture = load(path + str(theme) + "_ON.png")
 	else:
-		var num = randi() % theme_data[settings.theme][0] + 1
-		$Sprite.texture = load(path + str(settings.theme + 1) +"_"+ str(num) + ".png")
+		var num = randi() % theme_data[0] + 1
+		$Sprite.texture = load(path + str(theme) +"_"+ str(num) + ".png")
 
-	if theme_data[settings.theme][1] == 1:
+	if theme_data[1] == 1:
 		rotation_degrees = 90 if randf() > .5 else 0
 	else:
 		rotation_degrees = rand_range(0, 360)

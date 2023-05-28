@@ -15,11 +15,28 @@ func _ready():
 
 
 
+func _process(delta: float):
+	rotate(deg2rad(10 * delta))
+
+
+
+
+
+
+func _input(event: InputEvent):
+	if event.is_action_pressed("reload_BG"):
+		var _i = get_tree().reload_current_scene()
+
+
+
+
+
+
 func spawn_ball():
 	var window = get_viewport_rect().size
 	var offset = 40
 
-	for i in 8:
+	for i in 12:
 		var x       = rand_range(offset, window.x - offset)
 		var y       = rand_range(offset, window.y - offset)
 		var ball = _ball.instance()
@@ -28,9 +45,9 @@ func spawn_ball():
 		ball.linear_velocity.x                  = rand_range(  -6,  6)
 		ball.linear_velocity.y                  = rand_range( -20, 20)
 		ball.angular_velocity                   = rand_range( -.1, .1)
-		var r = rand_range(0, 1)
-		var g = rand_range(0, 1)
-		var b = rand_range(0, 1)
+		var r = rand_range(0.1, .2)
+		var g = rand_range(.1, 2)
+		var b = rand_range(.2, 4)
 #		var s = rand_range(32, 88)
 
 		ball.modulate = Color(r,g,b, .64)
@@ -47,12 +64,12 @@ func spawn_ball():
 
 
 func change_BG_scroll(init: bool = false):
-	var mat : ShaderMaterial = $CanvasLayer/BGimage.material
+	var mat : ShaderMaterial = $CanvasLayer/Sprite.material
 
 	if init:
 		mat.set_shader_param("x_scroll", 120)
 		mat.set_shader_param("y_scroll", 80)
-	else:
+	else:    #?? wyjebać czy nie
 		var x_scroll = rand_range(-60, 60)
 		var y_scroll = rand_range(-20, 60)
 		mat.set_shader_param("x_scroll", x_scroll)

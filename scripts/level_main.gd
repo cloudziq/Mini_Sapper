@@ -6,15 +6,12 @@ export(PackedScene) var _bomb ;  var BOMB
 export(PackedScene) var _label ; var LABEL
 export(PackedScene) var _touch ; var TOUCH
 
-export var zoom_step  := 0.2
-export var max_zoom   := 3
-export var min_zoom   := 0.4
 
 #export var textures_ready = false
 
 
 onready var tile_size = get_parent().tile_size_in_pixels
-onready var bombs_amount = $"../".level_data[$"../".current_level][2]
+onready var bombs_amount = $"../".level_data[$"../".SETTINGS.level][2]
 
 
 
@@ -24,7 +21,6 @@ var board_size         :  Vector2
 var tile_coord         :  Vector2
 var hold_touch_time    := 0.0
 var allow_board_input  := true
-var target_zoom        := Vector2(1.0, 1.0)
 var window             := Vector2(
 	ProjectSettings.get_setting("display/window/size/width" ),
 	ProjectSettings.get_setting("display/window/size/height")
@@ -47,7 +43,7 @@ func _ready():
 	print("LEVEL is ready")
 	print(window)
 
-	var level      = $"../".current_level
+	var level      = $"../".SETTINGS.level-1
 	var val_1      = $"../".level_data[level][0]
 	var val_2      = $"../".level_data[level][1]
 	board_size     = Vector2(val_1, val_2)
@@ -57,14 +53,12 @@ func _ready():
 
 
 
-func _process(delta):
+
+func _process(_delta):
 	if OS.get_system_time_msecs() >= hold_touch_time and hold_touch_time != 0:
 		hold_touch_time = 0
 
-	if $Camera2D.zoom != target_zoom:
-		var i = clamp(target_zoom.x, min_zoom, max_zoom)
-		target_zoom = Vector2(i,i)
-		$Camera2D.zoom = lerp($Camera2D.zoom, target_zoom, zoom_step * 20 * delta)
+
 
 
 
@@ -89,12 +83,6 @@ func _input(event):
 			TOUCH           = _touch.instance()
 			TOUCH.position  = pos
 			add_child(TOUCH)
-
-	#camera zooming:
-	if event.is_action_pressed("zoom+"):
-		target_zoom += Vector2(zoom_step, zoom_step)
-	elif event.is_action_pressed("zoom-"):
-		target_zoom -= Vector2(zoom_step, zoom_step)
 
 
 
@@ -276,6 +264,7 @@ func gen_num(x, y):
 	if counter > 0:
 		if board_data[x][y][0][3] == 0:
 			LABEL = _label.instance() ; board_data[x][y][0][0].add_child(LABEL)
+			LABEL.rect_rotation = 0
 		LABEL.text = str(counter)
 		board_data[x][y][0][3] = LABEL
 

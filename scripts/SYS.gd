@@ -4,9 +4,11 @@ extends Node2D
 export(PackedScene) var _LEVEL
 
 export var tile_size_in_pixels  := 32
-export var board_max_tiles_w    := 10
-export var board_max_tiles_h    := 16
-export var current_level        := 1
+export var board_max_tiles_w    := 60
+export var board_max_tiles_h    := 60
+
+
+var current_level ; var current_theme
 
 
 
@@ -93,10 +95,13 @@ var level_data = [
 
 
 func _ready():
-	current_level -= 1
 	randomize()
 	load_config()
 	window_prepare()
+
+	current_level = SETTINGS.level
+	current_theme = SETTINGS.theme
+
 	add_child(_LEVEL.instance())
 
 
@@ -131,9 +136,9 @@ func load_config():
 	var system = OS.get_name()
 	match system:
 		"Windows", "X11":
-			config_path = OS.get_executable_path().get_base_dir() + "/Bombix_config.cfg"
+			config_path = OS.get_executable_path().get_base_dir() + "/Mini_Sapper.cfg"
 		"Android":
-			config_path = "user://Bombix_config.cfg"
+			config_path = "user://Mini_Sapper.config.cfg"
 
 #	var err = config.load("user://config.cfg")
 	var err = config.load_encrypted(config_path, key)
@@ -142,7 +147,8 @@ func load_config():
 			"sound_vol":     1,
 			"music_vol":     0.5,
 			"range_display": true,
-			"theme":         0
+			"theme":         17,
+			"level":         1
 		}
 		return
 	else:
@@ -157,11 +163,11 @@ func window_prepare():
 	window_size.x   *= 4 ; window_size.y *= 4
 
 	if display_size.y <= window_size.y:
-		var scale_ratio = window_size.y / (display_size.y - 100)
+		var scale_ratio = window_size.y / (display_size.y - 80)
 		window_size.x /= scale_ratio ; window_size.y /= scale_ratio
 
 	OS.window_size = window_size
-	window_size.y += 80
+	window_size.y += 78
 	OS.window_position = display_size * .5 - window_size * .5
 
 
