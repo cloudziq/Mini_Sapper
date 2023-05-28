@@ -14,11 +14,11 @@ export var min_zoom   := 0.4
 
 
 onready var tile_size = get_parent().tile_size_in_pixels
+onready var bombs_amount = $"../".level_data[$"../".current_level][2]
 
 
 
 
-var bombs_amount       := 4
 var tiles_left         :  int
 var board_size         :  Vector2
 var tile_coord         :  Vector2
@@ -64,7 +64,7 @@ func _process(delta):
 	if $Camera2D.zoom != target_zoom:
 		var i = clamp(target_zoom.x, min_zoom, max_zoom)
 		target_zoom = Vector2(i,i)
-		$Camera2D.zoom = lerp($Camera2D.zoom, target_zoom, zoom_step * 10 * delta)
+		$Camera2D.zoom = lerp($Camera2D.zoom, target_zoom, zoom_step * 20 * delta)
 
 
 
