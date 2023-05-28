@@ -1,6 +1,7 @@
 extends Node2D
 
 
+var BG_amount = 64
 onready var _ball = preload("res://scenes/BG/BG_object.tscn")
 
 
@@ -9,14 +10,18 @@ func _ready():
 	randomize()
 	spawn_ball()
 	change_BG_scroll(true)
-
-
+	var path = "res://assets/graphics/level_bg/OLD/bg"
+	var num  = str(floor(rand_range(1, BG_amount)))
+	$CanvasLayer/BG2.texture = load(path+num+".png")
+	$CanvasLayer/BG3.texture = load(path+num+".png")
 
 
 
 
 func _process(delta: float):
-	rotate(deg2rad(10 * delta))
+	$CanvasLayer/BG.rotate(  .040 * delta)
+	$CanvasLayer/BG2.rotate(-.044 * delta)
+	$CanvasLayer/BG3.rotate(-.052 * delta)
 
 
 
@@ -64,7 +69,7 @@ func spawn_ball():
 
 
 func change_BG_scroll(init: bool = false):
-	var mat : ShaderMaterial = $CanvasLayer/Sprite.material
+	var mat : ShaderMaterial = $CanvasLayer/BG.material
 
 	if init:
 		mat.set_shader_param("x_scroll", 120)
