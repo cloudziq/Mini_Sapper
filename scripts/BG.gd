@@ -9,7 +9,7 @@ onready var _ball = preload("res://scenes/BG/BG_object.tscn")
 func _ready():
 	randomize()
 	spawn_ball()
-	change_BG_scroll(true)
+#	change_BG_scroll(true)
 	var path = "res://assets/graphics/level_bg/OLD/bg"
 	var num  = str(floor(rand_range(1, BG_amount)))
 	$CanvasLayer/BG2.texture = load(path+num+".png")
@@ -68,14 +68,14 @@ func spawn_ball():
 
 
 
-func change_BG_scroll(init: bool = false):
-	var mat : ShaderMaterial = $CanvasLayer/BG.material
-
-	if init:
-		mat.set_shader_param("x_scroll", 120)
-		mat.set_shader_param("y_scroll", 80)
-	else:    #?? wyjebać czy nie
-		var x_scroll = rand_range(-60, 60)
-		var y_scroll = rand_range(-20, 60)
-		mat.set_shader_param("x_scroll", x_scroll)
-		mat.set_shader_param("y_scroll", y_scroll)
+#func change_BG_scroll(init: bool = false):
+#	var mat : ShaderMaterial = $CanvasLayer/BG.material
+#
+#	if init:
+#		mat.set_shader_param("x_scroll", 120)
+#		mat.set_shader_param("y_scroll", 80)
+#	else:    #?? wyjebać czy nie
+#		var x_scroll = rand_range(-60, 60)
+#		var y_scroll = rand_range(-20, 60)
+#		mat.set_shader_param("x_scroll", x_scroll)
+#		mat.set_shader_param("y_scroll", y_scroll)

@@ -1,7 +1,7 @@
 shader_type canvas_item;
 
-uniform float x_scroll;
-uniform float y_scroll;
+uniform float x_scroll = 120;
+uniform float y_scroll = 80;
 
 void fragment() {
     vec2 uv  = vec2(UV.x+TIME/x_scroll, UV.y+TIME/y_scroll);

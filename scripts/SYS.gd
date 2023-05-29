@@ -3,12 +3,12 @@ extends Node2D
 
 export(PackedScene) var _LEVEL
 
-export var tile_size_in_pixels  := 32
-export var board_max_tiles_w    := 60
-export var board_max_tiles_h    := 60
+var tile_size_in_pixels  := 32
+var board_max_tiles_w    := 60
+var board_max_tiles_h    := 60
 
 
-var current_level ; var current_theme
+#var current_level ; var current_theme
 
 
 
@@ -99,8 +99,8 @@ func _ready():
 	load_config()
 	window_prepare()
 
-	current_level = SETTINGS.level
-	current_theme = SETTINGS.theme
+#	current_level = SETTINGS.level
+#	current_theme = SETTINGS.theme
 
 	add_child(_LEVEL.instance())
 

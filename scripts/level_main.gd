@@ -10,10 +10,8 @@ export(PackedScene) var _touch ; var TOUCH
 #export var textures_ready = false
 
 
-onready var tile_size = get_parent().tile_size_in_pixels
-onready var bombs_amount = $"../".level_data[$"../".SETTINGS.level][2]
-
-
+onready var tile_size    = $"../".tile_size_in_pixels
+onready var bombs_amount = $"../".level_data[$"../".SETTINGS.level-1][2]
 
 
 var tiles_left         :  int
@@ -27,26 +25,25 @@ var window             := Vector2(
 	)
 
 
+# [tile_id, marker_id, bomb_id, counter_id], tile_status, bomb_count]
 # tile status:
 # 0: unrevealed
 # 1: contains a bomb
 # 2: revealed
 # 3: detector tile
-# [tile_id, marker_id, bomb_id, counter_id], tile_status, bomb_count]
 var board_data         :  Array
 
 
 
 
 
-func _ready():
-	print("LEVEL is ready")
-	print(window)
 
+func _ready():
 	var level      = $"../".SETTINGS.level-1
 	var val_1      = $"../".level_data[level][0]
 	var val_2      = $"../".level_data[level][1]
 	board_size     = Vector2(val_1, val_2)
+	tiles_left     = board_size.x * board_size.y - bombs_amount
 	generate_board()
 
 
@@ -91,12 +88,11 @@ func _input(event):
 
 func check_clicked_tile():
 	if allow_board_input:
-		var tile_stat = board_data[tile_coord.x -1][tile_coord.y - 1][1]
+		var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1][1]
 
 		#### CHECK TILE
 		if tile_stat == 0:
-			pass
-#			tile_reveal(tile_coord, null, null)
+			tile_reveal(tile_coord, [], 0)
 #			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 #			$Sounds/TileReveal.play()
 		elif tile_stat == 1:
@@ -122,16 +118,41 @@ var near_coords = [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-#func tile_reveal(coord, neighbours_table = [], count = 0):
-#	var cx
-#	var cy
-#
-#	tiles_left -= 1
-#	if tiles_left == 0:
-#		pass
-#		#level_complete()
+func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
+	var tx ; var ty
+
+	coord -= Vector2(1,1)
+	tiles_left -= 1
+	print(tiles_left)
+	if tiles_left == 0:
+		pass
+		#level_complete()
+
+	board_data[coord.x][coord.y][1] = 2
+
+	for index in near_coords:
+		tx = coord.x + index[0]
+		ty = coord.y + index[1]
+
+		if clamp(tx, 1, board_size.x) and clamp(ty, 1, board_size.y):
+#		if (tx >= 1 and tx <= board_size.x) and (ty >= 1 and ty <= board_size.y):
+			if board_data[coord.x][coord.y][1] != 2 and board_data[tx][ty][2] == 0:
+				neighbours_table.append(Vector2(tx, ty))
+			else:
+				pass
 
 
+	if neighbours_table.size() == 0:
+		pass
+	else:
+		for index in neighbours_table:
+			var x = index.x
+			var y = index.y
+
+			# process only unrevealed tiles
+			if board_data[x][y][1] == 0:
+				tile_reveal(Vector2(x, y), neighbours_table, count + 1)
+#		particle_type = "_multi"
 
 
 #function tile_reveal(x, y, detector, neighbours_table, count)

@@ -209,6 +209,12 @@ reload_BG={
 
 pointing/emulate_touch_from_mouse=true
 
+[layer_names]
+
+2d_physics/layer_1="tile"
+2d_physics/layer_2="touch"
+2d_physics/layer_3="BG_wall"
+
 [physics]
 
 common/enable_pause_aware_picking=true
