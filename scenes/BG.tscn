@@ -1,9 +1,9 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://scripts/BG.gd" type="Script" id=1]
 [ext_resource path="res://assets/graphics/level_bg/BG.png" type="Texture" id=2]
 [ext_resource path="res://assets/godot_res/scrolling.gdshader" type="Shader" id=3]
-[ext_resource path="res://assets/graphics/level_bg/OLD/bg1.png" type="Texture" id=4]
+[ext_resource path="res://assets/graphics/level_bg/OLD/BG_1.png" type="Texture" id=4]
 
 [sub_resource type="PhysicsMaterial" id=3]
 
@@ -11,12 +11,19 @@
 extents = Vector2( 160.5, 10 )
 
 [sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 307.5, 10 )
+extents = Vector2( 360.5, 10 )
 
 [sub_resource type="ShaderMaterial" id=6]
 shader = ExtResource( 3 )
 shader_param/x_scroll = 120.0
 shader_param/y_scroll = 80.0
+
+[sub_resource type="CanvasItemMaterial" id=7]
+blend_mode = 2
+
+[sub_resource type="CanvasItemMaterial" id=8]
+blend_mode = 1
+light_mode = 1
 
 [node name="BG" type="Node2D"]
 script = ExtResource( 1 )
@@ -31,40 +38,46 @@ physics_material_override = SubResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/walls"]
 position = Vector2( 160, -11 )
+z_index = 1
 shape = SubResource( 1 )
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( 162.5, 586 )
+position = Vector2( 161, 691 )
+z_index = 1
 shape = SubResource( 1 )
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( -11, 287.5 )
+position = Vector2( -10.9998, 340.5 )
 rotation = -1.5708
+z_index = 1
 shape = SubResource( 2 )
 
 [node name="CollisionShape2D4" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( 332, 289.5 )
+position = Vector2( 332, 339 )
 rotation = -1.5708
+z_index = 1
 shape = SubResource( 2 )
 
-[node name="BG" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 1, 0.968627, 0.67451, 1 )
+[node name="BG_main" type="Sprite" parent="CanvasLayer"]
+modulate = Color( 0.52549, 0.847059, 0.905882, 0.627451 )
 material = SubResource( 6 )
-position = Vector2( 160, 288 )
+position = Vector2( 160, 340 )
 rotation = 0.785398
 scale = Vector2( 0.8, 0.8 )
 texture = ExtResource( 2 )
 
-[node name="BG2" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 0.211765, 0.12549, 0.180392, 0.807843 )
-position = Vector2( 160, 288 )
+[node name="BG2_mix" type="Sprite" parent="CanvasLayer"]
+modulate = Color( 0.709804, 0.709804, 0.686275, 0.329412 )
+material = SubResource( 7 )
+position = Vector2( 160, 340 )
 rotation = 0.785398
 scale = Vector2( 6, 6 )
 texture = ExtResource( 4 )
 
-[node name="BG3" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 0.596078, 0.823529, 0.858824, 0.403922 )
-position = Vector2( 160, 288 )
+[node name="BG3_detail" type="Sprite" parent="CanvasLayer"]
+modulate = Color( 0.0980392, 0.494118, 0.862745, 0.345098 )
+material = SubResource( 8 )
+position = Vector2( 158, 342 )
 rotation = 0.785398
 scale = Vector2( 6.2, 6.2 )
 texture = ExtResource( 4 )

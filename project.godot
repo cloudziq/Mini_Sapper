@@ -111,10 +111,16 @@ _global_script_class_icons={
 [application]
 
 config/name="Mini Sapper"
+config/description="Bombero?  Sraper?"
 run/main_scene="res://scenes/SYS.tscn"
 boot_splash/image="res://assets/graphics/bomb/bomb.png"
 boot_splash/fullsize=false
+boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://assets/graphics/bomb/bomb.png"
+
+[autoload]
+
+G="*res://scripts/Globals.gd"
 
 [debug]
 
@@ -123,7 +129,7 @@ shapes/collision/shape_color=Color( 0.913725, 0.913725, 0.913725, 0.419608 )
 [display]
 
 window/size/width=320
-window/size/height=576
+window/size/height=680
 window/size/always_on_top=true
 window/handheld/orientation="portrait"
 window/stretch/mode="2d"
@@ -202,6 +208,11 @@ zoom-={
 reload_BG={
 "deadzone": 0.5,
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":16777244,"unicode":0,"echo":false,"script":null)
+ ]
+}
+change_tile={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":16777245,"unicode":0,"echo":false,"script":null)
  ]
 }
 

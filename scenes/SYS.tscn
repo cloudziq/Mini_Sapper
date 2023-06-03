@@ -6,3 +6,4 @@
 [node name="Sys" type="Node2D"]
 script = ExtResource( 2 )
 _LEVEL = ExtResource( 1 )
+rec = true

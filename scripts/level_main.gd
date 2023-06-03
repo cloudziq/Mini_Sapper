@@ -19,12 +19,9 @@ var board_size         :  Vector2
 var tile_coord         :  Vector2
 var hold_touch_time    := 0.0
 var allow_board_input  := true
-var window             := Vector2(
-	ProjectSettings.get_setting("display/window/size/width" ),
-	ProjectSettings.get_setting("display/window/size/height")
-	)
 
 
+# board_data contents:
 # [tile_id, marker_id, bomb_id, counter_id], tile_status, bomb_count]
 # tile status:
 # 0: unrevealed
@@ -39,11 +36,11 @@ var board_data         :  Array
 
 
 func _ready():
-	var level      = $"../".SETTINGS.level-1
-	var val_1      = $"../".level_data[level][0]
-	var val_2      = $"../".level_data[level][1]
-	board_size     = Vector2(val_1, val_2)
-	tiles_left     = board_size.x * board_size.y - bombs_amount
+	var level        = $"../".SETTINGS.level-1
+	var val_1        = $"../".level_data[level][0]
+	var val_2        = $"../".level_data[level][1]
+	board_size       = Vector2(val_1, val_2)
+	tiles_left       = board_size.x * board_size.y - bombs_amount
 	generate_board()
 
 
@@ -61,24 +58,24 @@ func _process(_delta):
 
 
 func _input(event):
-	var tile_is_valid := true
-	var pos           := get_global_mouse_position()
+	var tile_is_valid  := true
+	var pos            := get_global_mouse_position()
 
 	#check if clicked tile is valid (inside board):
 	if allow_board_input and event.is_pressed():
-		var x = ceil((pos.x - (window.x - (board_size.x * tile_size)) / 2) / tile_size)
-		var y = ceil((pos.y - (window.y - (board_size.y * tile_size)) / 2) / tile_size)
+		var x =  ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
+		var y =  ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
 		tile_coord = Vector2(x, y)
 		if not (x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y)):
 			tile_is_valid = false
 
 	if tile_is_valid and event is InputEventScreenTouch:
 		if event.is_pressed():
-			hold_touch_time = OS.get_system_time_msecs() + 444
+			hold_touch_time    = OS.get_system_time_msecs() + 444
 		elif not event.is_pressed() and hold_touch_time != 0:
-			hold_touch_time = 0
-			TOUCH           = _touch.instance()
-			TOUCH.position  = pos
+			hold_touch_time    = 0
+			TOUCH              = _touch.instance()
+			TOUCH.position     = pos
 			add_child(TOUCH)
 
 
@@ -112,6 +109,8 @@ func game_over():
 
 
 
+
+
 var near_coords = [
 	[-1, -1], [0, -1], [1, -1],
 	[-1,  0],          [1,  0],
@@ -123,7 +122,7 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 
 	coord -= Vector2(1,1)
 	tiles_left -= 1
-	print(tiles_left)
+
 	if tiles_left == 0:
 		pass
 		#level_complete()
@@ -134,13 +133,15 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
 
-		if clamp(tx, 1, board_size.x) and clamp(ty, 1, board_size.y):
-#		if (tx >= 1 and tx <= board_size.x) and (ty >= 1 and ty <= board_size.y):
-			if board_data[coord.x][coord.y][1] != 2 and board_data[tx][ty][2] == 0:
+		print("coord.x = "+str(coord.x)+"    tx ="+str(tx))
+
+		if (tx >= 0 and tx <= board_size.x-1) and (ty >= 0 and ty <= board_size.y-1):
+#			print("OK")
+			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
+#				print("iter2")
 				neighbours_table.append(Vector2(tx, ty))
 			else:
 				pass
-
 
 	if neighbours_table.size() == 0:
 		pass
@@ -151,7 +152,7 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 
 			# process only unrevealed tiles
 			if board_data[x][y][1] == 0:
-				tile_reveal(Vector2(x, y), neighbours_table, count + 1)
+				tile_reveal(Vector2(x+1, y+1), neighbours_table, count + 1)
 #		particle_type = "_multi"
 
 
@@ -222,8 +223,8 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 
 
 func generate_board():
-	var x_def = (window.x - (board_size.x * tile_size)) / 2 + (tile_size / 2)
-	var y_def = (window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
+	var x_def = (G.window.x - (board_size.x * tile_size)) / 2 + (tile_size / 2)
+	var y_def = (G.window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
 	var pos = Vector2(x_def, y_def)
 
 	board_data = []
@@ -284,8 +285,10 @@ func gen_num(x, y):
 
 	if counter > 0:
 		if board_data[x][y][0][3] == 0:
-			LABEL = _label.instance() ; board_data[x][y][0][0].add_child(LABEL)
+			LABEL               = _label.instance()
+			LABEL.visible       = false
 			LABEL.rect_rotation = 0
+			board_data[x][y][0][0].add_child(LABEL)
 		LABEL.text = str(counter)
 		board_data[x][y][0][3] = LABEL
 

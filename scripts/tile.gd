@@ -13,6 +13,7 @@ var def_pos ; var def_rot ; var def_sca
 
 func _ready():
 #	yield(get_tree().create_timer(.001), "timeout")
+	$Sprite.modulate = dark_color
 
 	$Sprite.flip_v = true if randf() > .5 else false
 	$Sprite.flip_h = true if randf() > .5 else false
@@ -56,8 +57,11 @@ func _ready():
 	$Tween.interpolate_property($".", "scale",
 		scale, def_sca, .6,
 		Tween.TRANS_QUINT, Tween.EASE_OUT)
+#
+#	$Tween.interpolate_property($Sprite, "modulate",
+#		position, def_pos, rand_range(.6, 1.2),
+#		Tween.TRANS_QUINT, Tween.EASE_OUT)
 	$Tween.start()
-
 
 
 
@@ -82,6 +86,8 @@ func _on_tween_completed(_object, key):
 				$Tween.interpolate_property($".", "scale",
 					scale, def_sca, randi() % 8 + 1,
 					Tween.TRANS_QUINT, Tween.EASE_OUT)
-
+				$Tween.interpolate_property($Sprite, "modulate",
+					modulate, Color(1,1,1,1), 1,
+					Tween.TRANS_QUINT, Tween.EASE_OUT)
 		tween_calls -= 1
 	$Tween.start()

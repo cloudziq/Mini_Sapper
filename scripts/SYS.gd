@@ -1,14 +1,14 @@
 extends Node2D
 
 
-export(PackedScene) var _LEVEL
+export(PackedScene)  var _LEVEL
+export var rec           : bool
 
 var tile_size_in_pixels  := 32
 var board_max_tiles_w    := 60
 var board_max_tiles_h    := 60
 
 
-#var current_level ; var current_theme
 
 
 
@@ -36,8 +36,8 @@ var theme_data = [
 	[1,          2,              false,              2 ],               # 14
 	[3,          1,              false,              1 ],               # 15
 	[1,          2,              true,               1 ],               # 16
-	[1,          1,              true,               2 ],               # 17
-	[1,          1,              true,               2 ],               # 18
+	[1,          2,              true,               2 ],               # 17
+	[1,          2,              true,               2 ],               # 18
 	[1,          2,              false,              1 ],               # 19
 	[1,          2,              false,              .5],               # 20
 	[1,          2,              false,              1 ],               # 21
@@ -98,10 +98,9 @@ func _ready():
 	randomize()
 	load_config()
 	window_prepare()
+	findBackgroundImages()
 
-#	current_level = SETTINGS.level
-#	current_theme = SETTINGS.theme
-
+	yield(get_tree().create_timer(.4), "timeout")
 	add_child(_LEVEL.instance())
 
 
@@ -124,6 +123,8 @@ func save_config():
 
 #	config.save("user://config.cfg")
 	config.save_encrypted(config_path, key)
+
+
 
 
 
@@ -157,10 +158,16 @@ func load_config():
 
 
 
+
+
 func window_prepare():
 	var display_size = OS.get_screen_size()
-	var window_size  = OS.window_size
-	window_size.x   *= 4 ; window_size.y *= 4
+	var window_size  = G.window
+
+	if rec == true:
+		window_size *= Vector2(.92, .92)
+	else:
+		window_size *= Vector2(4, 4)
 
 	if display_size.y <= window_size.y:
 		var scale_ratio = window_size.y / (display_size.y - 80)
@@ -169,6 +176,8 @@ func window_prepare():
 	OS.window_size = window_size
 	window_size.y += 78
 	OS.window_position = display_size * .5 - window_size * .5
+
+
 
 
 
@@ -193,3 +202,28 @@ func gen_offscreen_pos(distance):
 			pos.y = window.y + distance
 
 	return pos
+
+
+
+
+
+
+func findBackgroundImages():
+	var num       :=  1
+
+	var dir       := Directory.new()
+	var path       = "res://assets/graphics/level_bg/OLD/"
+
+	if dir.open(path) == OK:
+		dir.list_dir_begin()
+		var file =  dir.get_next()
+
+		while file != "":
+			if file.begins_with("BG_") and file.ends_with(".png"):
+				var number =  file.substr(3, file.find("_", 3) - 3)
+#				print("NUMER: "+str(number))
+				num += 1
+			file =  dir.get_next()
+
+		dir.list_dir_end()
+	return num
