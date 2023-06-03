@@ -9,6 +9,8 @@ var board_max_tiles_w    := 60
 var board_max_tiles_h    := 60
 
 
+onready var BG_amount     = findBackgroundImages()
+
 
 
 
@@ -96,11 +98,10 @@ var level_data = [
 
 func _ready():
 	randomize()
-	load_config()
+	G.load_config()
 	window_prepare()
-	findBackgroundImages()
 
-	yield(get_tree().create_timer(.4), "timeout")
+#	yield(get_tree().create_timer(.4), "timeout")
 	add_child(_LEVEL.instance())
 
 
@@ -109,51 +110,7 @@ func _ready():
 
 
 
-var save_version = 0
-var SETTINGS
-var config_path
 
-func save_config():
-	var password = "87643287643876243876241"
-	var key = password.sha256_buffer()
-	var config = ConfigFile.new()
-
-	config.set_value("config", "save_version", save_version)
-	config.set_value("config", "settings", SETTINGS)
-
-#	config.save("user://config.cfg")
-	config.save_encrypted(config_path, key)
-
-
-
-
-
-
-func load_config():
-	var password = "87643287643876243876241"
-	var key = password.sha256_buffer()
-	var config = ConfigFile.new()
-
-	var system = OS.get_name()
-	match system:
-		"Windows", "X11":
-			config_path = OS.get_executable_path().get_base_dir() + "/Mini_Sapper.cfg"
-		"Android":
-			config_path = "user://Mini_Sapper.config.cfg"
-
-#	var err = config.load("user://config.cfg")
-	var err = config.load_encrypted(config_path, key)
-	if err != OK:
-		SETTINGS = {
-			"sound_vol":     1,
-			"music_vol":     0.5,
-			"range_display": true,
-			"theme":         17,
-			"level":         1
-		}
-		return
-	else:
-		SETTINGS = config.get_value(config, "settings")
 
 
 
@@ -209,20 +166,23 @@ func gen_offscreen_pos(distance):
 
 
 func findBackgroundImages():
-	var num       :=  1
+	var num       :=  0
 
 	var dir       := Directory.new()
-	var path       = "res://assets/graphics/level_bg/OLD/"
+	var path       = "res://assets/graphics/level_bg/OLD"
 
 	if dir.open(path) == OK:
-		dir.list_dir_begin()
-		var file =  dir.get_next()
+		var _nic  = dir.list_dir_begin()
+		var file  = dir.get_next()
 
 		while file != "":
+			var startIndex  = file.find("_") + 1
+			var endIndex    = file.find(".", startIndex)
+
 			if file.begins_with("BG_") and file.ends_with(".png"):
-				var number =  file.substr(3, file.find("_", 3) - 3)
-#				print("NUMER: "+str(number))
-				num += 1
+				var digits  = file.substr(startIndex, endIndex - startIndex)
+				if digits.is_valid_integer():
+					num += 1
 			file =  dir.get_next()
 
 		dir.list_dir_end()

@@ -11,7 +11,7 @@ export(PackedScene) var _touch ; var TOUCH
 
 
 onready var tile_size    = $"../".tile_size_in_pixels
-onready var bombs_amount = $"../".level_data[$"../".SETTINGS.level-1][2]
+onready var bombs_amount = $"../".level_data[G.SETTINGS.level-1][2]
 
 
 var tiles_left         :  int
@@ -36,7 +36,7 @@ var board_data         :  Array
 
 
 func _ready():
-	var level        = $"../".SETTINGS.level-1
+	var level        = G.SETTINGS.level-1
 	var val_1        = $"../".level_data[level][0]
 	var val_2        = $"../".level_data[level][1]
 	board_size       = Vector2(val_1, val_2)
@@ -133,7 +133,7 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
 
-		print("coord.x = "+str(coord.x)+"    tx ="+str(tx))
+#		print("coord.x = "+str(coord.x)+"    tx ="+str(tx))
 
 		if (tx >= 0 and tx <= board_size.x-1) and (ty >= 0 and ty <= board_size.y-1):
 #			print("OK")

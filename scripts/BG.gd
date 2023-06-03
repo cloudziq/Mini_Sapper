@@ -2,7 +2,7 @@ extends Node2D
 
 onready var _ball      = preload("res://scenes/BG/BG_object.tscn")
 
-onready var BG_amount  = $"../../".findBackgroundImages()
+onready var BG_amount  = $"../../".BG_amount
 
 
 
@@ -10,16 +10,28 @@ onready var BG_amount  = $"../../".findBackgroundImages()
 
 
 func _ready():
-	var path ; var num : String
+	var path ; var num : String ; var node ; var scale ; var val
+	var scale_mult  := 3.2
 	randomize()
 
 	spawn_ball()
 
-	path  = "res://assets/graphics/level_bg/OLD/BG_"
+	# BG's init:
+	path   = "res://assets/graphics/level_bg/OLD/BG_"
+
+	node   = $CanvasLayer/BG2_mix
+	num    = str(floor(rand_range(1, BG_amount)))
+	scale  = node.scale
+	val    = rand_range(scale.x, scale.x * scale_mult)
+	node.texture  = load(path+num+".png")
+	node.scale    = Vector2(val, val)
+
+	node  = $CanvasLayer/BG3_detail
 	num   = str(floor(rand_range(1, BG_amount)))
-	$CanvasLayer/BG2_mix.texture = load(path+num+".png")
-	num   = str(floor(rand_range(1, BG_amount)))
-	$CanvasLayer/BG3_detail.texture = load(path+num+".png")
+	scale  = node.scale
+	val    = rand_range(scale.x, scale.x * scale_mult)
+	node.texture = load(path+num+".png")
+	node.scale    = Vector2(val, val)
 
 
 
@@ -58,15 +70,17 @@ func spawn_ball():
 		ball.linear_velocity.x                  = rand_range( -10, 10)
 		ball.linear_velocity.y                  = rand_range( -40, 40)
 		ball.angular_velocity                   = rand_range( -.1, .1)
-		var r = rand_range(0.1, 1)
-		var g = rand_range(.1, 1)
-		var b = rand_range(.2, 1)
-#			var s = rand_range(32, 88)
+		var r = rand_range(.1, .4)
+		var g = rand_range(.2, .8)
+		var b = rand_range(.3,  1)
+
+		var s1 = rand_range(2.2, 4)
+		var s2 = rand_range(2.6, 6)
 
 		ball.modulate = Color(r,g,b, .82)
 #			var node = ball.get_node("CollisionShape2D/Sprite")
 #			ball.get_node("CollisionShape2D")       .scale = Vector2(.02, .02)
-#			ball.get_node("CollisionShape2D/Sprite").scale = Vector2(s,s)
+		ball.get_node("CollisionShape2D/Sprite").scale = Vector2(s1, s2)
 
 		$CanvasLayer.add_child(ball)
 #			print("ball added at: " + str(Vector2(x, y)))

@@ -13,13 +13,13 @@ var def_pos ; var def_rot ; var def_sca
 
 func _ready():
 #	yield(get_tree().create_timer(.001), "timeout")
-	$Sprite.modulate = dark_color
+#	$Sprite.modulate = dark_color
 
 	$Sprite.flip_v = true if randf() > .5 else false
 	$Sprite.flip_h = true if randf() > .5 else false
 
 	yield(get_tree().create_timer(.004), "timeout")
-	theme      = $"../../".SETTINGS.theme
+	theme      = G.SETTINGS.theme
 	theme_data = $"../../".theme_data[theme]
 
 	if theme_data[0] == 1:
@@ -41,17 +41,17 @@ func _ready():
 	def_rot = rotation_degrees
 	def_sca = scale
 
-	position = $"../../".gen_offscreen_pos(100)
+	position = $"../../".gen_offscreen_pos(120)
 	rotation_degrees = randi() % 361
 	var a = rand_range(.2, 6.2)
 	scale = Vector2(a, a)
 
 #	yield(get_tree().create_timer(.1), "timeout")
 	$Tween.interpolate_property($".", "position",
-		position, def_pos, rand_range(.6, 1.2),
-		Tween.TRANS_QUINT, Tween.EASE_OUT)
+		position, def_pos, rand_range(.36, .64),
+		Tween.TRANS_QUINT, Tween.EASE_IN)
 	$Tween.interpolate_property($".", "rotation_degrees",
-		rotation_degrees, def_rot, 1,
+		rotation_degrees, def_rot, .85,
 		Tween.TRANS_QUINT, Tween.EASE_OUT)
 	tween_ID    = "on begin" ; tween_calls = 2
 	$Tween.interpolate_property($".", "scale",
@@ -80,14 +80,23 @@ func _on_tween_completed(_object, key):
 		match tween_calls:
 			2:
 				$Tween.interpolate_property($".", "scale",
-					scale, def_sca * .5, .6,
+					scale, def_sca * .5, .4,
 					Tween.TRANS_QUINT, Tween.EASE_IN)
 			1:
 				$Tween.interpolate_property($".", "scale",
-					scale, def_sca, randi() % 8 + 1,
-					Tween.TRANS_QUINT, Tween.EASE_OUT)
+					scale, def_sca, randi() % 1 + 1,
+					Tween.TRANS_ELASTIC, Tween.EASE_OUT)
 				$Tween.interpolate_property($Sprite, "modulate",
-					modulate, Color(1,1,1,1), 1,
+					modulate, dark_color, .8,
 					Tween.TRANS_QUINT, Tween.EASE_OUT)
 		tween_calls -= 1
 	$Tween.start()
+
+
+
+
+func _input(event: InputEvent):
+	if event.is_action_pressed("change_tile"):
+		G.SETTINGS.theme  = int(floor(rand_range(1, $"../../".BG_amount)))
+		G.save_config()
+		_ready()
