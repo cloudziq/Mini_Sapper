@@ -22,7 +22,7 @@ func _ready():
 	node   = $CanvasLayer/BG2_mix
 	num    = str(floor(rand_range(1, BG_amount)))
 	scale  = node.scale
-	val    = rand_range(scale.x, scale.x * scale_mult)
+	val    = rand_range(scale.x, scale.y * scale_mult)
 	node.texture  = load(path+num+".png")
 	node.scale    = Vector2(val, val)
 

@@ -18,7 +18,7 @@ var tiles_left         :  int
 var board_size         :  Vector2
 var tile_coord         :  Vector2
 var hold_touch_time    := 0.0
-var allow_board_input  := true
+var allow_board_input  := false
 
 
 # board_data contents:
@@ -124,7 +124,7 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 	tiles_left -= 1
 
 	if tiles_left == 0:
-		pass
+		print("LEVEL COMPLETED!")
 		#level_complete()
 
 	board_data[coord.x][coord.y][1] = 2
@@ -154,6 +154,8 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 			if board_data[x][y][1] == 0:
 				tile_reveal(Vector2(x+1, y+1), neighbours_table, count + 1)
 #		particle_type = "_multi"
+
+	board_data[coord.x][coord.y][0][0].reveal()
 
 
 #function tile_reveal(x, y, detector, neighbours_table, count)

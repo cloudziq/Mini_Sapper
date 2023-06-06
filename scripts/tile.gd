@@ -48,7 +48,7 @@ func _ready():
 
 #	yield(get_tree().create_timer(.1), "timeout")
 	$Tween.interpolate_property($".", "position",
-		position, def_pos, rand_range(.36, .64),
+		position, def_pos, rand_range(.32, .64),
 		Tween.TRANS_QUINT, Tween.EASE_IN)
 	$Tween.interpolate_property($".", "rotation_degrees",
 		rotation_degrees, def_rot, .85,
@@ -63,6 +63,13 @@ func _ready():
 #		Tween.TRANS_QUINT, Tween.EASE_OUT)
 	$Tween.start()
 
+
+
+
+
+
+func reveal():
+	$Sprite.modulate = Color(1,1,1,1)
 
 
 

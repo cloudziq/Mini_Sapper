@@ -59,7 +59,7 @@ z_index = 1
 shape = SubResource( 2 )
 
 [node name="BG_main" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 0.470588, 0.627451, 0.784314, 0.627451 )
+modulate = Color( 0.694118, 0.898039, 0.894118, 0.627451 )
 material = SubResource( 6 )
 position = Vector2( 160, 340 )
 rotation = 0.785398
