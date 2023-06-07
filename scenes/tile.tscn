@@ -15,7 +15,4 @@ modulate = Color( 1, 1, 1, 0.882353 )
 scale = Vector2( 4, 4 )
 shape = SubResource( 1 )
 
-[node name="Tween" type="Tween" parent="."]
-
 [connection signal="area_shape_entered" from="." to="." method="_on_Area2D_area_shape_entered"]
-[connection signal="tween_completed" from="Tween" to="." method="_on_tween_completed"]

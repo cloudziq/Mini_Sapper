@@ -51,6 +51,10 @@ func _process(dt: float):
 func _input(event: InputEvent):
 	if event.is_action_pressed("reload_BG"):
 		var _i = get_tree().reload_current_scene()
+	elif event.is_action_pressed("change_tile"):
+		G.SETTINGS.theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
+		G.save_config()
+		var _i = get_tree().reload_current_scene()
 
 
 

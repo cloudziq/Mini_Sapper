@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 
 
@@ -72,3 +72,29 @@ func set_default_options():
 		"theme":         17,
 		"level":         1
 	}
+
+
+
+
+
+
+func gen_offscreen_pos(distance):
+	var a      := randi() % 4 + 1
+	var pos    := Vector2()
+	var window := get_viewport_rect().size
+
+	match a:
+		1:    #### LEFT
+			pos.x = -distance
+			pos.y = rand_range(-distance, window.y + distance)
+		2:    #### RIGHT
+			pos.x = window.x + distance
+			pos.y = rand_range(-distance, window.y + distance)
+		3:    #### UP
+			pos.x = rand_range(-distance, window.x + distance)
+			pos.y = -distance
+		4:    #### DOWN
+			pos.x = rand_range(-distance, window.x + distance)
+			pos.y = window.y + distance
+
+	return pos
