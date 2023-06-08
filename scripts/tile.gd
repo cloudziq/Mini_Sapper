@@ -2,26 +2,27 @@ extends Area2D
 
 
 var path = "res://assets/graphics/tiles/tile"
-var dark_color = Color(.18, .20, .22, 1)
-var theme   ;  var theme_data    #info about tiles
-#var tween_ID ; var tween_calls
+var dark_color = Color(.24, .32, .36, 1)
+#var theme   ;  var theme_data    #info about tiles
 var texture_list
 var def_pos ; var def_rot ; var def_sca
+
+
+onready var	theme      = G.SETTINGS.theme
+onready var	theme_data = $"../../".theme_data[theme-1]
+
+
 
 
 
 
 func _ready():
 	var tween = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
-#	yield(get_tree().create_timer(.001), "timeout")
-#	$Sprite.modulate = dark_color
 
 	$Sprite.flip_v = true if randf() > .5 else false
 	$Sprite.flip_h = true if randf() > .5 else false
 
 	yield(get_tree().create_timer(.004), "timeout")
-	theme      = G.SETTINGS.theme
-	theme_data = $"../../".theme_data[theme]
 
 	if theme_data[0] == 1:
 		if theme_data[2] == false:
@@ -37,52 +38,56 @@ func _ready():
 	else:
 		rotation_degrees = rand_range(0, 360)
 
+
 	#### START LEVEL TILES ANIMATION:
 	def_pos = position
 	def_rot = rotation_degrees
 	def_sca = scale
 
-	position = G.gen_offscreen_pos(120)
+	position = G.gen_offscreen_pos(125)
 	rotation_degrees = randi() % 361
-	var a = rand_range(.2, 2.2)
+	var a = rand_range(.8, 2.6)
 	scale = Vector2(a, a)
 
-	# START ANIMS:
 	tween.set_parallel(true)
-	tween.tween_property($".", "position", def_pos, rand_range(.32, .64)
+	tween.tween_property($".", "position", def_pos, rand_range(.22, .46)
 		).set_ease(Tween.EASE_IN)
 
-	tween.tween_property($".", "rotation_degrees", def_rot, rand_range(.46, .82)
+	tween.set_parallel(false)
+	tween.tween_callback($TileMainSound, "play").set_delay(.20)
+
+	tween.set_parallel(true)
+	tween.tween_property($".", "rotation_degrees", def_rot, rand_range(.20, .32)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-	tween.tween_property($".", "scale", def_sca, .6
+	tween.tween_property($".", "scale", def_sca, .4
 		).set_ease(Tween.EASE_OUT)
 
-	tween.tween_interval(.64)
+	tween.tween_interval(.1)
 	tween.set_parallel(false)
-	tween.tween_property($".", "scale", def_sca * .4, .6
+	tween.tween_property($".", "scale", def_sca * .4, .4
 		).set_ease(Tween.EASE_IN)
 
-	tween.tween_property($".", "scale", def_sca, .8
+	tween.tween_property($".", "scale", def_sca, .6
 		).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 	tween.set_parallel(true)
-	tween.tween_callback($".", "board_finish")
+	tween.tween_callback($".", "tile_finish")
+
+	var num = $"../../".level_data[G.SETTINGS.level-1]
+	if G.tiles_ready == (num[0] * num[1]):
+		print("ALLOW INPUT")
+		$"../".allow_board_input = true
 
 
 
+func tile_finish():
 
-
-
-func board_finish():
-	$"../".allow_board_input = true
 
 	if theme_data[2] == false:
 		$Sprite.modulate = dark_color
 	else:
 		$Sprite.texture = load(path + str(theme) + "_OFF.png")
-
-
 
 
 

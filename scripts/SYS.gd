@@ -160,4 +160,14 @@ func findBackgroundImages():
 			file =  dir.get_next()
 
 		dir.list_dir_end()
+
+	print("BG's in folder: "+str(num))
 	return num
+
+
+
+
+
+
+func _exit_tree():
+	G.save_config()

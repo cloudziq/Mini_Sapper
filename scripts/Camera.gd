@@ -6,13 +6,18 @@ export var max_zoom   := 2
 export var min_zoom   := 0.6
 
 
-onready var target_zoom := Vector2(1.0, 1.0)
+var target_zoom       : Vector2
+
+
 
 
 
 
 func _ready():
 #	yield(get_tree().create_timer(.1), "timeout")
+	var i        = G.SETTINGS.zoom_level
+	print(i)
+	target_zoom  = Vector2(i, i)
 	set_process(true)
 
 
@@ -32,3 +37,6 @@ func _input(event: InputEvent):
 		target_zoom += Vector2(zoom_step, zoom_step)
 	elif event.is_action_pressed("zoom-"):
 		target_zoom -= Vector2(zoom_step, zoom_step)
+
+	G.SETTINGS.zoom_level = target_zoom.x
+	G.save_config()

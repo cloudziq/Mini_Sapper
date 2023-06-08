@@ -22,7 +22,7 @@ var allow_board_input  := false
 
 
 # board_data contents:
-# [tile_id, marker_id, bomb_id, counter_id], tile_status, bomb_count]
+# [tile_id, marker_id, bomb_id, label_id], tile_status, bomb_count]
 # tile status:
 # 0: unrevealed
 # 1: contains a bomb
@@ -65,7 +65,9 @@ func _input(event):
 	if allow_board_input and event.is_pressed():
 		var x =  ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
 		var y =  ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
+
 		tile_coord = Vector2(x, y)
+
 		if not (x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y)):
 			tile_is_valid = false
 
@@ -99,6 +101,8 @@ func check_clicked_tile():
 
 
 
+
+
 func game_over():
 	for x in board_size.x:
 		for y in board_size.y:
@@ -126,24 +130,28 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 	if tiles_left == 0:
 		print("LEVEL COMPLETED!")
 		#level_complete()
+#		return
 
-	board_data[coord.x][coord.y][1] = 2
+
+	if board_data[coord.x][coord.y][1] == 0 and board_data[coord.x][coord.y][2] > 0:
+		var angle = board_data[coord.x][coord.y][0][0].rotation_degrees
+		board_data[coord.x][coord.y][0][3].reveal(angle)
+
 
 	for index in near_coords:
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
 
-#		print("coord.x = "+str(coord.x)+"    tx ="+str(tx))
-
-		if (tx >= 0 and tx <= board_size.x-1) and (ty >= 0 and ty <= board_size.y-1):
-#			print("OK")
+#		if (tx >= 0 and tx <= board_size.x-1) and (ty >= 0 and ty <= board_size.y-1):
+		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
-#				print("iter2")
 				neighbours_table.append(Vector2(tx, ty))
-			else:
-				pass
+
+	board_data[coord.x][coord.y][1] = 2    #mark tile as 'revealed'
+
 
 	if neighbours_table.size() == 0:
+		# for particles later
 		pass
 	else:
 		for index in neighbours_table:
@@ -156,6 +164,8 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 #		particle_type = "_multi"
 
 	board_data[coord.x][coord.y][0][0].reveal()
+
+
 
 
 #function tile_reveal(x, y, detector, neighbours_table, count)
@@ -224,30 +234,37 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 #end
 
 
+
+
+
+
 func generate_board():
 	var x_def = (G.window.x - (board_size.x * tile_size)) / 2 + (tile_size / 2)
 	var y_def = (G.window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
 	var pos = Vector2(x_def, y_def)
 
 	board_data = []
+	G.tiles_ready = 0
 
-	#### GENERATE BOARD:
+	#### GENERATE TILES:
 	for x in board_size.x:
 		board_data.push_back([])
 
 		for y in board_size.y:
-			TILE = _tile.instance() ; add_child(TILE)
-			TILE.position = pos
-			TILE.scale = Vector2(.25, .25)
-			pos.y += tile_size
+			TILE            = _tile.instance() ; add_child(TILE)
+			TILE.position   = pos
+			TILE.scale      = Vector2(.25, .25)
+			pos.y          += tile_size
 			board_data[x].append([[TILE, 0, 0, 0], 0, 0])
+			G.tiles_ready  += 1
 		pos.x += tile_size
 		pos.y = y_def
 
 	#### GENERATE BOMBS:
 	pos = gen_pos()
 	for a in bombs_amount:
-		while board_data[pos.x][pos.y][1] == 1: pos = gen_pos()
+		while board_data[pos.x][pos.y][1] == 1:
+			pos = gen_pos()
 		board_data[pos.x][pos.y][1] = 1
 #		var x = x_def + (pos.x * tile_size)
 #		var y = y_def + (pos.y * tile_size)
@@ -260,16 +277,20 @@ func generate_board():
 	#### GENERATE NUMBERS:
 	for x in board_size.x:
 		for y in board_size.y:
-			if board_data[x][y][1] != 1:
+			if board_data[x][y][1] != 1:   #if tile have no bomb
 				gen_num(x, y)
 
 
 
 
+
+
 func gen_pos():
-	var x = floor(rand_range(1, board_size.x))
-	var y = floor(rand_range(1, board_size.y))
+	var x = floor(rand_range(0, board_size.x))
+	var y = floor(rand_range(0, board_size.y))
 	return Vector2(x, y)
+
+
 
 
 
@@ -281,17 +302,14 @@ func gen_num(x, y):
 		var cx = x + index[0]
 		var cy = y + index[1]
 
-		if (cx >= 0 and cx <= board_size.x - 1) and (cy >= 0 and cy <= board_size.y - 1):
-			if board_data[cx][cy][1] == 1:
+		if (cx >= 0 and cx <= board_size.x-1) and (cy >= 0 and cy <= board_size.y-1):
+#		if not (cx == clamp(cx, 1, board_size.x) and cy == clamp(cy, 1, board_size.y)):
+			if board_data[cx][cy][1] == 1:    #if tile has a bomb
 				counter = counter + 1
 
-	if counter > 0:
-		if board_data[x][y][0][3] == 0:
-			LABEL               = _label.instance()
-			LABEL.visible       = false
-			LABEL.rect_rotation = 0
-			board_data[x][y][0][0].add_child(LABEL)
-		LABEL.text = str(counter)
-		board_data[x][y][0][3] = LABEL
-
-	board_data[x][y][2] = counter
+	if counter > 0 and board_data[x][y][0][3] == 0:    #if there no label assigned
+		LABEL                         = _label.instance()
+		board_data[x][y][0][0]         .add_child(LABEL)    #assign as a child of tile
+		board_data[x][y][0][3]        = LABEL
+		board_data[x][y][2]           = counter
+		LABEL.get_node("Label").text  = str(counter)

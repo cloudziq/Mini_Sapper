@@ -1,6 +1,7 @@
 extends Node2D
 
 
+var tiles_ready : int
 
 
 var window := Vector2(
@@ -46,30 +47,25 @@ func load_config():
 			config_path = "user://config.cfg"
 
 	var err  = config.load(config_path)
-#	print(err)
 #	var err   = config.load(config_path)
 #	var err = config.load_encrypted(config_path, key)
 	if err != OK:
-		set_default_options()
-#		return
+		set_defaults()
+		return
 	else:
-#		print(config.get_value(config, save_version))
 		if config.get_value("config", "save_version") == save_version:
 			SETTINGS = config.get_value("config", "settings")
 		else:
-			set_default_options()
+			set_defaults()
 
 
-
-
-
-
-func set_default_options():
+func set_defaults():
 	SETTINGS = {
 		"sound_vol":     1,
 		"music_vol":     0.4,
 		"range_display": true,
 		"theme":         17,
+		"zoom_level":    1,
 		"level":         1
 	}
 
@@ -81,7 +77,7 @@ func set_default_options():
 func gen_offscreen_pos(distance):
 	var a      := randi() % 4 + 1
 	var pos    := Vector2()
-	var window := get_viewport_rect().size
+#	var window := get_viewport_rect().size
 
 	match a:
 		1:    #### LEFT

@@ -11,7 +11,7 @@ onready var BG_amount  = $"../../".BG_amount
 
 func _ready():
 	var path ; var num : String ; var node ; var scale ; var val
-	var scale_mult  := 3.2
+	var scale_mult  := 4
 	randomize()
 
 	spawn_ball()
@@ -52,7 +52,9 @@ func _input(event: InputEvent):
 	if event.is_action_pressed("reload_BG"):
 		var _i = get_tree().reload_current_scene()
 	elif event.is_action_pressed("change_tile"):
-		G.SETTINGS.theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
+		var themes = int(floor(rand_range(1, $"../../".theme_data.size())))
+		print("tile_theme = "  +str(themes))
+		G.SETTINGS.theme  = themes
 		G.save_config()
 		var _i = get_tree().reload_current_scene()
 
