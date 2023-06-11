@@ -30,7 +30,7 @@ var theme_data = [
 	[4,          1,              false,              .5],               # 6
 	[1,          1,              false,              1 ],               # 7
 	[1,          1,              false,              1 ],               # 8
-	[1,          1,              false,              1 ],               # 9
+	[1,          1,              true,               1 ],               # 9
 	[1,          1,              false,              1 ],               # 10
 	[1,          1,              true,               2 ],               # 11
 	[1,          2,              false,              .5],               # 12
@@ -54,7 +54,7 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[4,       4,        2,      0],        # 1
+	[16,      16,      12,      0],        # 1
 	[5,       4,        1,      0],        # 2
 	[5,       5,        1,      0],        # 3
 	[5,       6,        1,      0],        # 4
@@ -162,7 +162,7 @@ func findBackgroundImages():
 
 		dir.list_dir_end()
 
-	print("BG's in folder: "+str(num))
+#	print("BG's in folder: "+str(num))
 	return num
 
 

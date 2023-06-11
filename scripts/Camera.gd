@@ -45,4 +45,4 @@ func _input(event: InputEvent):
 		G.SETTINGS.zoom_level  = target_zoom.x
 		G.save_config()
 
-		get_parent().get_node("BG").parr(zoom)
+		get_parent().get_node("BG").parr(target_zoom.x)

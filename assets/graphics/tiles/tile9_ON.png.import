@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/tile9.png-06b16b07c8c09977e569c511f60f7c14.stex"
+path="res://.import/tile9_ON.png-6a2fa0edc40db53e47a63bfa56021f32.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/graphics/tiles/tile9.png"
-dest_files=[ "res://.import/tile9.png-06b16b07c8c09977e569c511f60f7c14.stex" ]
+source_file="res://assets/graphics/tiles/tile9_ON.png"
+dest_files=[ "res://.import/tile9_ON.png-6a2fa0edc40db53e47a63bfa56021f32.stex" ]
 
 [params]
 
@@ -21,7 +21,7 @@ compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
 flags/filter=true
-flags/mipmaps=true
+flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2
 process/fix_alpha_border=true

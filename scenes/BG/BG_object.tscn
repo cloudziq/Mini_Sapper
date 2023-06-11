@@ -10,7 +10,7 @@ radius = 36.0
 [sub_resource type="CanvasItemMaterial" id=8]
 light_mode = 1
 
-[node name="RigidBody2D" type="RigidBody2D"]
+[node name="RigidBody2D" type="RigidBody2D" groups=["BG_object"]]
 collision_mask = 5
 mass = 0.00102041
 physics_material_override = SubResource( 6 )

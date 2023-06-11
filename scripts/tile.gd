@@ -55,20 +55,21 @@ func _ready():
 	var a = rand_range(.8, 2.6)
 	scale = Vector2(a, a)
 
+	#1
 	tween.set_parallel(true)
-	tween.tween_property($".", "position", def_pos, rand_range(.22, .46)
+	a  = rand_range(.26, .64)
+	tween.tween_property($".", "position", def_pos, a
 		).set_ease(Tween.EASE_IN)
 
-	tween.set_parallel(false)
-	tween.tween_callback($TileMain, "play").set_delay(.20)
+	tween.tween_callback($TileMain, "play").set_delay(a)
 
-	tween.set_parallel(true)
 	tween.tween_property($".", "rotation_degrees", def_rot, rand_range(.20, .32)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 	tween.tween_property($".", "scale", def_sca, .4
 		).set_ease(Tween.EASE_OUT)
 
+	#2
 	tween.tween_interval(.1)
 	tween.set_parallel(false)
 	tween.tween_property($".", "scale", def_sca * .4, .4
@@ -78,7 +79,7 @@ func _ready():
 		).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 	tween.set_parallel(true)
-	tween.tween_callback($".", "tile_finish").set_delay(.1)
+	tween.tween_callback($".", "tile_finish").set_delay(.16)
 
 
 
@@ -113,7 +114,7 @@ func animate_tile():
 	pos.x += rand_range(-distance, distance)
 	pos.y += rand_range(-distance, distance)
 
-	tween.set_parallel(false)
+#	tween.set_parallel(false)
 	tween.tween_property($".", "position", pos, rand_range(4, 7)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_callback(self, "animate_tile").set_delay(0.1)
@@ -123,24 +124,35 @@ func animate_tile():
 
 
 
-func reveal(bombs := false):
+func reveal(bombs := 0):
 	if theme_data[2] == false:
-		$Sprite.modulate = Color(1,1,1,1)
+		$Sprite.modulate  = Color(1,1,1,1)
 	else:
-		$Sprite.texture = load(path + str(theme) + "_ON.png")
+		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
 	#if tile have 0 bomb count
-	if not bombs:
-		var tween    = get_tree().create_tween().set_parallel(true)
-		reduce_mov   = true
+	var tween     := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel(true)
+	var delay     := rand_range(.1, .42)
+	var scale_to  :  Vector2
+	var trans
 
-		tween.tween_property($Sprite, "scale", Vector2(.52, .52), 4
-		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	if bombs == 0:
+		reduce_mov  = true
+		scale_to    = Vector2(.42, .42)
+		trans       = Tween.TRANS_BOUNCE
 
 		var col  = $Sprite.modulate
-		col.a   *= .32
+		col.a   *= .22
 		tween.tween_property($Sprite, "modulate", col, 4
-		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+			).set_trans(Tween.TRANS_BOUNCE).set_delay(delay)
+	else:
+	#tile with number
+		var mult    = bombs * .14
+		scale_to    = Vector2(.46, .46) + Vector2(mult, mult)
+		trans       = Tween.TRANS_ELASTIC
+
+	tween.tween_property($Sprite, "scale", scale_to, 2.6
+			).set_trans(trans).set_delay(delay)
 
 	PARTICLES = _particles.instance()
 	add_child(PARTICLES)

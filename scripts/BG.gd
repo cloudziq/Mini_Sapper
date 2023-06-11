@@ -14,22 +14,24 @@ func _ready():
 	var scale_mult  := 4
 	randomize()
 
-	spawn_ball()
-
 	# BG's init:
+	spawn_ball()
 	path   = "res://assets/graphics/level_bg/OLD/BG_"
 
 	node   = $BG_static/BG2_mix
 	num    = str(floor(rand_range(1, BG_amount)))
 	scale  = node.scale
 	val    = rand_range(scale.x, scale.y * scale_mult)
+
 	node.texture  = load(path+num+".png")
 	node.scale    = Vector2(val, val)
+
 
 	node  = $BG_static/BG3_detail
 	num   = str(floor(rand_range(1, BG_amount)))
 	scale  = node.scale
 	val    = rand_range(scale.x, scale.x * scale_mult)
+
 	node.texture = load(path+num+".png")
 	node.scale    = Vector2(val, val)
 
@@ -66,7 +68,7 @@ func _input(event: InputEvent):
 
 func spawn_ball():
 	yield(get_tree().create_timer(.1), "timeout")
-	var offset = 40
+	var offset = 32
 
 	for i in 6:
 		var x    := rand_range(offset, G.window.x - offset)
@@ -78,9 +80,9 @@ func spawn_ball():
 		BALL.linear_velocity.y  = rand_range(  -8, 8)
 		BALL.angular_velocity   = rand_range( -.1, .1)
 		BALL.get_node("CollisionShape2D/Sprite").texture = $"../".TILE.get_node("Sprite").texture
-		var r = rand_range(.1, .4)
-		var g = rand_range(.2, .8)
-		var b = rand_range(.3,  1)
+		var r = rand_range(.2, .3)
+		var g = rand_range(.3, .8)
+		var b = rand_range(.4,  1)
 
 		var s = rand_range(4.4, 8.6)
 
@@ -99,6 +101,6 @@ func spawn_ball():
 
 
 func parr(zoom):
-	var i = 1 * (.8 * (zoom * 4))
-	print("i= "  +str(i))
-	$BG_object/Holder.scale  = Vector2(333,455)
+	if zoom > 1:
+		var tween  = get_tree().create_tween().set_ease(Tween.EASE_OUT)
+		tween.tween_property($BG_object, "follow_viewport_scale", 1.2*zoom, .6)

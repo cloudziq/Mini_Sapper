@@ -163,7 +163,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 			tile_reveal(Vector2(x+1, y+1), neighbours_table)
 #		particle_type = "_multi"
 
-	var b = true if board_data[coord.x][coord.y][2] > 0 else false
+	var b = board_data[coord.x][coord.y][2]
 	board_data[coord.x][coord.y][0][0].reveal(b)
 
 

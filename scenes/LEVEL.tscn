@@ -19,7 +19,7 @@ _touch = ExtResource( 5 )
 position = Vector2( 160, 340 )
 current = true
 smoothing_enabled = true
-smoothing_speed = 4.0
+smoothing_speed = 6.0
 editor_draw_drag_margin = true
 script = ExtResource( 7 )
 
