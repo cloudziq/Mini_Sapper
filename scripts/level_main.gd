@@ -63,8 +63,8 @@ func _input(event):
 
 	#check if clicked tile is valid (inside board):
 	if allow_board_input and event.is_pressed():
-		var x =  ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
-		var y =  ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
+		var x  = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
+		var y  = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
 
 		tile_coord = Vector2(x, y)
 
@@ -91,7 +91,7 @@ func check_clicked_tile():
 
 		#### CHECK TILE
 		if tile_stat == 0:
-			tile_reveal(tile_coord, [], 0)
+			tile_reveal(tile_coord, [])
 #			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 #			$Sounds/TileReveal.play()
 		elif tile_stat == 1:
@@ -121,7 +121,7 @@ var near_coords = [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
+func tile_reveal(coord : Vector2, neighbours_table := []):
 	var tx ; var ty
 
 	coord -= Vector2(1,1)
@@ -150,20 +150,21 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0):
 	board_data[coord.x][coord.y][1] = 2    #mark tile as 'revealed'
 
 
-	if neighbours_table.size() == 0:
-		# for particles later
-		pass
-	else:
-		for index in neighbours_table:
-			var x = index.x
-			var y = index.y
+#	if neighbours_table.size() == 0:
+#		# for particles later
+#		pass
+#	else:
+	for index in neighbours_table:
+		var x = index.x
+		var y = index.y
 
-			# process only unrevealed tiles
-			if board_data[x][y][1] == 0:
-				tile_reveal(Vector2(x+1, y+1), neighbours_table, count + 1)
+		# process only unrevealed tiles
+		if board_data[x][y][1] == 0:
+			tile_reveal(Vector2(x+1, y+1), neighbours_table)
 #		particle_type = "_multi"
 
-	board_data[coord.x][coord.y][0][0].reveal()
+	var b = true if board_data[coord.x][coord.y][2] > 0 else false
+	board_data[coord.x][coord.y][0][0].reveal(b)
 
 
 
@@ -256,7 +257,6 @@ func generate_board():
 			TILE.scale      = Vector2(.25, .25)
 			pos.y          += tile_size
 			board_data[x].append([[TILE, 0, 0, 0], 0, 0])
-			G.tiles_ready  += 1
 		pos.x += tile_size
 		pos.y = y_def
 

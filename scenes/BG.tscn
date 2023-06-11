@@ -5,14 +5,6 @@
 [ext_resource path="res://assets/godot_res/scrolling.gdshader" type="Shader" id=3]
 [ext_resource path="res://assets/graphics/level_bg/OLD/BG_1.png" type="Texture" id=4]
 
-[sub_resource type="PhysicsMaterial" id=3]
-
-[sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 160.5, 10 )
-
-[sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 360.5, 10 )
-
 [sub_resource type="ShaderMaterial" id=6]
 shader = ExtResource( 3 )
 shader_param/x_scroll = 120.0
@@ -22,62 +14,78 @@ shader_param/y_scroll = 80.0
 blend_mode = 2
 
 [sub_resource type="CanvasItemMaterial" id=8]
-blend_mode = 1
+blend_mode = 2
 light_mode = 1
+
+[sub_resource type="PhysicsMaterial" id=3]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 160.5, 10 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 360.5, 10 )
 
 [node name="BG" type="Node2D"]
 script = ExtResource( 1 )
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="BG_static" type="CanvasLayer" parent="."]
 layer = -1
 
-[node name="walls" type="StaticBody2D" parent="CanvasLayer"]
-collision_layer = 4
-collision_mask = 0
-physics_material_override = SubResource( 3 )
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( 160, -11 )
-z_index = 1
-shape = SubResource( 1 )
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( 161, 691 )
-z_index = 1
-shape = SubResource( 1 )
-
-[node name="CollisionShape2D3" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( -10.9998, 340.5 )
-rotation = -1.5708
-z_index = 1
-shape = SubResource( 2 )
-
-[node name="CollisionShape2D4" type="CollisionShape2D" parent="CanvasLayer/walls"]
-position = Vector2( 332, 339 )
-rotation = -1.5708
-z_index = 1
-shape = SubResource( 2 )
-
-[node name="BG_main" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 0.694118, 0.898039, 0.894118, 0.627451 )
+[node name="BG_main" type="Sprite" parent="BG_static"]
+modulate = Color( 0.768627, 0.827451, 1, 0.490196 )
 material = SubResource( 6 )
 position = Vector2( 160, 340 )
 rotation = 0.785398
 scale = Vector2( 0.8, 0.8 )
 texture = ExtResource( 2 )
 
-[node name="BG2_mix" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 0.709804, 0.709804, 0.686275, 0.478431 )
+[node name="BG2_mix" type="Sprite" parent="BG_static"]
+modulate = Color( 0.701961, 0.709804, 0.686275, 0.478431 )
 material = SubResource( 7 )
 position = Vector2( 160, 340 )
 rotation = 0.785398
 scale = Vector2( 6, 6 )
 texture = ExtResource( 4 )
 
-[node name="BG3_detail" type="Sprite" parent="CanvasLayer"]
-modulate = Color( 0.0980392, 0.494118, 0.862745, 0.345098 )
+[node name="BG3_detail" type="Sprite" parent="BG_static"]
+modulate = Color( 0.862745, 0.0980392, 0.0980392, 0.345098 )
 material = SubResource( 8 )
 position = Vector2( 158, 342 )
 rotation = 0.785398
 scale = Vector2( 6.2, 6.2 )
 texture = ExtResource( 4 )
+
+[node name="BG_object" type="CanvasLayer" parent="."]
+layer = -2
+follow_viewport_enable = true
+
+[node name="Holder" type="Node2D" parent="BG_object"]
+position = Vector2( 160, 340 )
+
+[node name="walls" type="StaticBody2D" parent="BG_object/Holder"]
+position = Vector2( -160, -340 )
+collision_layer = 4
+collision_mask = 0
+physics_material_override = SubResource( 3 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BG_object/Holder/walls"]
+position = Vector2( 160, -11 )
+z_index = 1
+shape = SubResource( 1 )
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="BG_object/Holder/walls"]
+position = Vector2( 161, 691 )
+z_index = 1
+shape = SubResource( 1 )
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="BG_object/Holder/walls"]
+position = Vector2( -10.9998, 340.5 )
+rotation = -1.5708
+z_index = 1
+shape = SubResource( 2 )
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="BG_object/Holder/walls"]
+position = Vector2( 332, 339 )
+rotation = -1.5708
+z_index = 1
+shape = SubResource( 2 )

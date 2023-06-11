@@ -1,15 +1,20 @@
 extends Area2D
 
 
-var path = "res://assets/graphics/tiles/tile"
-var dark_color = Color(.24, .32, .36, 1)
-#var theme   ;  var theme_data    #info about tiles
-var texture_list
+export(PackedScene) var _particles ;  var PARTICLES
+
+
+var path         = "res://assets/graphics/tiles/tile"
+var dark_color   = Color(.24, .32, .36, 1)
+var reduce_mov  := false
+#var texture_list
 var def_pos ; var def_rot ; var def_sca
 
 
-onready var	theme      = G.SETTINGS.theme
-onready var	theme_data = $"../../".theme_data[theme-1]
+onready var	theme       = G.SETTINGS.theme
+onready var	theme_data  = $"../../".theme_data[theme-1]
+
+#onready var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
 
 
 
@@ -17,6 +22,7 @@ onready var	theme_data = $"../../".theme_data[theme-1]
 
 
 func _ready():
+	$Sprite.z_index = -2
 	var tween = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
 
 	$Sprite.flip_v = true if randf() > .5 else false
@@ -54,7 +60,7 @@ func _ready():
 		).set_ease(Tween.EASE_IN)
 
 	tween.set_parallel(false)
-	tween.tween_callback($TileMainSound, "play").set_delay(.20)
+	tween.tween_callback($TileMain, "play").set_delay(.20)
 
 	tween.set_parallel(true)
 	tween.tween_property($".", "rotation_degrees", def_rot, rand_range(.20, .32)
@@ -72,36 +78,81 @@ func _ready():
 		).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 	tween.set_parallel(true)
-	tween.tween_callback($".", "tile_finish")
+	tween.tween_callback($".", "tile_finish").set_delay(.1)
 
-	var num = $"../../".level_data[G.SETTINGS.level-1]
-	if G.tiles_ready == (num[0] * num[1]):
-		print("ALLOW INPUT")
-		$"../".allow_board_input = true
+
+
 
 
 
 func tile_finish():
+	G.tiles_ready  += 1
 
+	var num = $"../../".level_data[G.SETTINGS.level-1]
+	if G.tiles_ready == (num[0] * num[1]):
+#		print("ALLOW INPUT")
+		$"../".allow_board_input = true
 
 	if theme_data[2] == false:
 		$Sprite.modulate = dark_color
 	else:
 		$Sprite.texture = load(path + str(theme) + "_OFF.png")
 
+	animate_tile()
 
 
 
-func reveal():
+
+
+
+func animate_tile():
+	var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
+	var pos        = def_pos
+	var distance  := 3.2 if not reduce_mov else 1.6
+
+	pos.x += rand_range(-distance, distance)
+	pos.y += rand_range(-distance, distance)
+
+	tween.set_parallel(false)
+	tween.tween_property($".", "position", pos, rand_range(4, 7)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(self, "animate_tile").set_delay(0.1)
+
+
+
+
+
+
+func reveal(bombs := false):
 	if theme_data[2] == false:
 		$Sprite.modulate = Color(1,1,1,1)
 	else:
 		$Sprite.texture = load(path + str(theme) + "_ON.png")
 
+	#if tile have 0 bomb count
+	if not bombs:
+		var tween    = get_tree().create_tween().set_parallel(true)
+		reduce_mov   = true
+
+		tween.tween_property($Sprite, "scale", Vector2(.52, .52), 4
+		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+
+		var col  = $Sprite.modulate
+		col.a   *= .32
+		tween.tween_property($Sprite, "modulate", col, 4
+		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+
+	PARTICLES = _particles.instance()
+	add_child(PARTICLES)
+	PARTICLES.show(bombs)
+
+	$TileReveal.play()
 
 
 
 
 
-func _on_Area2D_area_shape_entered(_area_rid, _area, _area_shape_index, _local_shape_index):
+
+
+func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 	$"../".check_clicked_tile()

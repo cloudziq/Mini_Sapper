@@ -36,7 +36,7 @@ var theme_data = [
 	[1,          2,              false,              .5],               # 12
 	[1,          1,              true,               2 ],               # 13
 	[1,          2,              false,              2 ],               # 14
-	[3,          1,              false,              1 ],               # 15
+	[3,          1,              false,              2 ],               # 15
 	[1,          2,              true,               1 ],               # 16
 	[1,          2,              true,               2 ],               # 17
 	[1,          2,              true,               2 ],               # 18
@@ -103,6 +103,7 @@ func _ready():
 
 #	yield(get_tree().create_timer(.4), "timeout")
 	add_child(_LEVEL.instance())
+#	$AudioStreamPlayer.play()
 
 
 
@@ -170,4 +171,5 @@ func findBackgroundImages():
 
 
 func _exit_tree():
+	$AudioStreamPlayer.playing = false
 	G.save_config()

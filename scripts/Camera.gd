@@ -14,11 +14,14 @@ var target_zoom       : Vector2
 
 
 func _ready():
-#	yield(get_tree().create_timer(.1), "timeout")
 	var i        = G.SETTINGS.zoom_level
-	print(i)
 	target_zoom  = Vector2(i, i)
-	set_process(true)
+
+#	set_process(true)
+
+
+
+
 
 
 func _process(delta: float):
@@ -33,10 +36,13 @@ func _process(delta: float):
 
 
 func _input(event: InputEvent):
-	if event.is_action_pressed("zoom+"):
-		target_zoom += Vector2(zoom_step, zoom_step)
-	elif event.is_action_pressed("zoom-"):
-		target_zoom -= Vector2(zoom_step, zoom_step)
+	if event.is_pressed():
+		if event.is_action_pressed("zoom+"):
+			target_zoom += Vector2(zoom_step, zoom_step)
+		elif event.is_action_pressed("zoom-"):
+			target_zoom -= Vector2(zoom_step, zoom_step)
 
-	G.SETTINGS.zoom_level = target_zoom.x
-	G.save_config()
+		G.SETTINGS.zoom_level  = target_zoom.x
+		G.save_config()
+
+		get_parent().get_node("BG").parr(zoom)

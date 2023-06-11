@@ -1,7 +1,7 @@
 extends Node2D
 
-onready var _ball      = preload("res://scenes/BG/BG_object.tscn")
 
+onready var _ball      = preload("res://scenes/BG/BG_object.tscn")
 onready var BG_amount  = $"../../".BG_amount
 
 
@@ -19,14 +19,14 @@ func _ready():
 	# BG's init:
 	path   = "res://assets/graphics/level_bg/OLD/BG_"
 
-	node   = $CanvasLayer/BG2_mix
+	node   = $BG_static/BG2_mix
 	num    = str(floor(rand_range(1, BG_amount)))
 	scale  = node.scale
 	val    = rand_range(scale.x, scale.y * scale_mult)
 	node.texture  = load(path+num+".png")
 	node.scale    = Vector2(val, val)
 
-	node  = $CanvasLayer/BG3_detail
+	node  = $BG_static/BG3_detail
 	num   = str(floor(rand_range(1, BG_amount)))
 	scale  = node.scale
 	val    = rand_range(scale.x, scale.x * scale_mult)
@@ -39,9 +39,9 @@ func _ready():
 
 
 func _process(dt: float):
-	$CanvasLayer/BG_main.rotate   ( .022 * dt)
-	$CanvasLayer/BG2_mix.rotate   (-.016 * dt)
-	$CanvasLayer/BG3_detail.rotate(-.018 * dt)
+	$BG_static/BG_main.rotate   ( .022 * dt)
+	$BG_static/BG2_mix.rotate   (-.016 * dt)
+	$BG_static/BG3_detail.rotate(-.018 * dt)
 
 
 
@@ -49,14 +49,15 @@ func _process(dt: float):
 
 
 func _input(event: InputEvent):
-	if event.is_action_pressed("reload_BG"):
-		var _i = get_tree().reload_current_scene()
-	elif event.is_action_pressed("change_tile"):
-		var themes = int(floor(rand_range(1, $"../../".theme_data.size())))
-		print("tile_theme = "  +str(themes))
-		G.SETTINGS.theme  = themes
-		G.save_config()
-		var _i = get_tree().reload_current_scene()
+	if $"../".allow_board_input:
+		if event.is_action_pressed("reload_BG"):
+			var _i  = get_tree().reload_current_scene()
+		elif event.is_action_pressed("change_tile"):
+			var theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
+			print("tile_theme = "  +str(theme))
+			G.SETTINGS.theme  = theme
+			G.save_config()
+			var _i  = get_tree().reload_current_scene()
 
 
 
@@ -64,46 +65,40 @@ func _input(event: InputEvent):
 
 
 func spawn_ball():
-	var window = get_viewport_rect().size
+	yield(get_tree().create_timer(.1), "timeout")
 	var offset = 40
 
-	for i in 8:
-		var x       = rand_range(offset, window.x - offset)
-		var y       = rand_range(offset, window.y - offset)
-		var ball = _ball.instance()
+	for i in 6:
+		var x    := rand_range(offset, G.window.x - offset)
+		var y    := rand_range(offset, G.window.y - offset)
+		var BALL  = _ball.instance()
 
-		ball.position                           = Vector2(x, y)
-		ball.linear_velocity.x                  = rand_range( -10, 10)
-		ball.linear_velocity.y                  = rand_range( -40, 40)
-		ball.angular_velocity                   = rand_range( -.1, .1)
+		BALL.position           = Vector2(x, y)
+		BALL.linear_velocity.x  = rand_range(  -2, 2)
+		BALL.linear_velocity.y  = rand_range(  -8, 8)
+		BALL.angular_velocity   = rand_range( -.1, .1)
+		BALL.get_node("CollisionShape2D/Sprite").texture = $"../".TILE.get_node("Sprite").texture
 		var r = rand_range(.1, .4)
 		var g = rand_range(.2, .8)
 		var b = rand_range(.3,  1)
 
-		var s1 = rand_range(2.2, 4)
-		var s2 = rand_range(2.6, 6)
+		var s = rand_range(4.4, 8.6)
 
-		ball.modulate = Color(r,g,b, .82)
+		BALL.modulate = Color(r,g,b, .82)
 #			var node = ball.get_node("CollisionShape2D/Sprite")
 #			ball.get_node("CollisionShape2D")       .scale = Vector2(.02, .02)
-		ball.get_node("CollisionShape2D/Sprite").scale = Vector2(s1, s2)
+		BALL.get_node("CollisionShape2D/Sprite").scale = Vector2(s, s)
 
-		$CanvasLayer.add_child(ball)
-#			print("ball added at: " + str(Vector2(x, y)))
-
-
-
+		$BG_object.add_child(BALL)
+#		add_child(ball)
+#			print("object added at: " + str(Vector2(x, y)))
 
 
 
-#func change_BG_scroll(init: bool = false):
-#	var mat : ShaderMaterial = $CanvasLayer/BG.material
-#
-#	if init:
-#		mat.set_shader_param("x_scroll", 120)
-#		mat.set_shader_param("y_scroll", 80)
-#	else:    #?? wyjebać czy nie
-#		var x_scroll = rand_range(-60, 60)
-#		var y_scroll = rand_range(-20, 60)
-#		mat.set_shader_param("x_scroll", x_scroll)
-#		mat.set_shader_param("y_scroll", y_scroll)
+
+
+
+func parr(zoom):
+	var i = 1 * (.8 * (zoom * 4))
+	print("i= "  +str(i))
+	$BG_object/Holder.scale  = Vector2(333,455)
