@@ -11,7 +11,7 @@ var is_dragging          := false
 var drag_start_position  := Vector2.ZERO
 
 #var cam_min_coord        := Vector2.ZERO
-var cam_max_coord        :  int
+var cam_max_coord        := Vector2.ZERO
 
 
 
@@ -20,7 +20,7 @@ var cam_max_coord        :  int
 
 func _ready():
 	yield(get_tree().create_timer(.004), "timeout")
-	cam_max_coord  = ($"../".board_size.y * $"../".tile_size) / 2.225
+	cam_max_coord  = ($"../".board_size * $"../".tile_size) / 2.225
 	var i          = G.SETTINGS.zoom_level
 	target_zoom    = Vector2(i, i)
 
@@ -40,8 +40,8 @@ func _process(delta: float):
 
 	#drag limits
 	var cam_pos  = position
-	cam_pos.x    = clamp(cam_pos.x, -cam_max_coord+G.window.x/2, cam_max_coord++G.window.x/2)
-	cam_pos.y    = clamp(cam_pos.y, -cam_max_coord+G.window.y/2, cam_max_coord++G.window.y/2)
+	cam_pos.x    = clamp(cam_pos.x, -cam_max_coord.x+G.window.x/2, cam_max_coord.x++G.window.x/2)
+	cam_pos.y    = clamp(cam_pos.y, -cam_max_coord.y+G.window.y/2, cam_max_coord.y++G.window.y/2)
 	position     = cam_pos
 
 
