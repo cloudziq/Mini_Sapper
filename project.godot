@@ -135,3 +135,6 @@ common/enable_pause_aware_picking=true
 quality/driver/driver_name="GLES2"
 quality/intended_usage/framebuffer_allocation=0
 quality/intended_usage/framebuffer_allocation.mobile=1
+quality/filters/anisotropic_filter_level=2
+batching/parameters/max_join_item_commands=8
+batching/parameters/item_reordering_lookahead=6

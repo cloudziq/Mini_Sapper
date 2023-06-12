@@ -140,6 +140,7 @@ func reveal(bombs := 0):
 		reduce_mov  = true
 		scale_to    = Vector2(.42, .42)
 		trans       = Tween.TRANS_BOUNCE
+#		z_index     = -1
 
 		var col  = $Sprite.modulate
 		col.a   *= .22
@@ -157,9 +158,6 @@ func reveal(bombs := 0):
 	PARTICLES = _particles.instance()
 	add_child(PARTICLES)
 	PARTICLES.show(bombs)
-
-	$TileReveal.play()
-
 
 
 

@@ -23,7 +23,7 @@ scale = Vector2( 0.4, 0.4 )
 shape = SubResource( 7 )
 
 [node name="Sprite" type="Sprite" parent="CollisionShape2D"]
-modulate = Color( 0.572549, 0.709804, 0.768627, 0.172549 )
+modulate = Color( 0.572549, 0.709804, 0.768627, 0.12549 )
 light_mask = 0
 material = SubResource( 8 )
 position = Vector2( 1.66893e-06, 1.43051e-06 )

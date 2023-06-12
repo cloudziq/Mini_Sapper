@@ -56,7 +56,7 @@ scale = Vector2( 6.2, 6.2 )
 texture = ExtResource( 4 )
 
 [node name="BG_object" type="CanvasLayer" parent="."]
-layer = -2
+layer = 0
 follow_viewport_enable = true
 
 [node name="Holder" type="Node2D" parent="BG_object"]

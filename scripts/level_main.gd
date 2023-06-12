@@ -9,11 +9,8 @@ export(PackedScene) var _touch ; var TOUCH
 
 #export var textures_ready = false
 
-
-onready var tile_size    = $"../".tile_size_in_pixels
-onready var bombs_amount = $"../".level_data[G.SETTINGS.level-1][2]
-
-
+var tile_size          :  int
+var bombs_amount       :  int
 var tiles_left         :  int
 var board_size         :  Vector2
 var tile_coord         :  Vector2
@@ -40,7 +37,9 @@ func _ready():
 	var val_1        = $"../".level_data[level][0]
 	var val_2        = $"../".level_data[level][1]
 	board_size       = Vector2(val_1, val_2)
-	tiles_left       = board_size.x * board_size.y - bombs_amount
+	tile_size        = $"../".tile_size_in_pixels
+	bombs_amount     = $"../".level_data[G.SETTINGS.level-1][2]
+	tiles_left       = floor(board_size.x * board_size.y - bombs_amount)
 	generate_board()
 
 
@@ -61,24 +60,26 @@ func _input(event):
 	var tile_is_valid  := true
 	var pos            := get_global_mouse_position()
 
-	#check if clicked tile is valid (inside board):
-	if allow_board_input and event.is_pressed():
-		var x  = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
-		var y  = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
-
-		tile_coord = Vector2(x, y)
-
-		if not (x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y)):
-			tile_is_valid = false
-
-	if tile_is_valid and event is InputEventScreenTouch:
+	if allow_board_input:
+		#check if tile is valid:
 		if event.is_pressed():
-			hold_touch_time    = OS.get_system_time_msecs() + 444
-		elif not event.is_pressed() and hold_touch_time != 0:
-			hold_touch_time    = 0
-			TOUCH              = _touch.instance()
-			TOUCH.position     = pos
-			add_child(TOUCH)
+			var x  = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
+			var y  = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
+
+			if not (x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y)):
+				tile_is_valid = false
+			else:
+				tile_coord = Vector2(x, y)
+
+
+		if tile_is_valid and event is InputEventScreenTouch:
+			if event.is_pressed():
+				hold_touch_time    = OS.get_system_time_msecs() + 444
+			elif not event.is_pressed() and hold_touch_time != 0:
+				hold_touch_time    = 0
+				TOUCH              = _touch.instance()
+				TOUCH.position     = pos
+				add_child(TOUCH)
 
 
 
@@ -91,6 +92,7 @@ func check_clicked_tile():
 
 		#### CHECK TILE
 		if tile_stat == 0:
+			$TileReveal.play()
 			tile_reveal(tile_coord, [])
 #			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 #			$Sounds/TileReveal.play()
@@ -133,6 +135,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 #		return
 
 
+	#reveal label:
 	if board_data[coord.x][coord.y][1] == 0 and board_data[coord.x][coord.y][2] > 0:
 		var angle = board_data[coord.x][coord.y][0][0].rotation_degrees
 		board_data[coord.x][coord.y][0][3].reveal(angle)
@@ -147,7 +150,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
 				neighbours_table.append(Vector2(tx, ty))
 
-	board_data[coord.x][coord.y][1] = 2    #mark tile as 'revealed'
+	board_data[coord.x][coord.y][1] = 2    #mark original (clicked) tile as 'revealed'
 
 
 #	if neighbours_table.size() == 0:
@@ -158,81 +161,12 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 		var x = index.x
 		var y = index.y
 
-		# process only unrevealed tiles
+		#process only unrevealed tiles
 		if board_data[x][y][1] == 0:
 			tile_reveal(Vector2(x+1, y+1), neighbours_table)
 #		particle_type = "_multi"
 
-	var b = board_data[coord.x][coord.y][2]
-	board_data[coord.x][coord.y][0][0].reveal(b)
-
-
-
-
-#function tile_reveal(x, y, detector, neighbours_table, count)
-#	local cx, cy, particle_type
-#	local detector = detector or false
-#	local neighbours_table = neighbours_table or {}
-#	local count = count or 0    -- for multi tiles reveal sound only
-#
-#	tiles_left = tiles_left - 1
-#	msg.post("/gui#level", "update display", {type = "tile", amount = tiles_left})
-#
-#	if not detector then
-#		board_data[x][y][2] = 2
-#	else
-#		gen_num(x, y, detector)
-#		board_data[x][y][2] = 3
-#	end
-#
-#	if tiles_left == 0 then
-#		level_complete()
-#	end
-#
-#	if reveal_sound_allow and count > 0 then
-#		reveal_sound_allow = false
-#		sound.play("/sound#reveal_main")
-#		sound.play("/sound#reveal_distant", {gain = 2.4 + G_settings.music_vol})
-#	end
-#
-#	for index, value in ipairs(near_coords) do
-#		cx = x + value[1]
-#		cy = y + value[2]
-#
-#		if (cx >= 1 and cx <= board_tiles_x) and (cy >= 1 and cy <= board_tiles_y) then
-#			if board_data[x][y][3] == 0 and board_data[cx][cy][2] ~= 1 then
-#				table.insert(neighbours_table, {cx, cy})
-#			else
-#				msg.post(board_data[x][y][1][4], "reveal digit", {rot = go.get(board_data[x][y][1][1], "euler.z")})
-#			end
-#		end
-#	end
-#
-#	if #neighbours_table == 0 then
-#		particle_type = ""
-#	else
-#		-- process neighbours:
-#		for index, _ in ipairs(neighbours_table) do
-#			local x = neighbours_table[index][1]
-#			local y = neighbours_table[index][2]
-#
-#			-- process only unrevealed tiles
-#			if board_data[x][y][2] == 0 then
-#				tile_reveal(x, y, false, neighbours_table, count + 1)
-#			end
-#		end
-#		particle_type = "_multi"
-#	end
-#
-#	-- remove markers
-#	if board_data[x][y][1][2] ~= 0 then
-#		msg.post(board_data[x][y][1][2], "delete")
-#		board_data[x][y][1][2] = 0
-#		markers = markers - 1
-#	end
-#
-#	msg.post(board_data[x][y][1][1], "reveal tile", {type = particle_type, detector = detector, parent = board_data[x][y][1][1]})
-#end
+	board_data[coord.x][coord.y][0][0].reveal(board_data[coord.x][coord.y][2])
 
 
 
