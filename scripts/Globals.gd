@@ -1,7 +1,7 @@
 extends Node2D
 
 
-var tiles_ready : int
+var tiles_ready  : int
 
 
 var window := Vector2(
@@ -64,7 +64,7 @@ func set_defaults():
 		"sound_vol":     1,
 		"music_vol":     0.4,
 		"range_display": true,
-		"theme":         17,
+		"theme":         1,
 		"zoom_level":    1,
 		"level":         1
 	}

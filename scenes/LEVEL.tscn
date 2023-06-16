@@ -19,11 +19,6 @@ _touch = ExtResource( 5 )
 [node name="ZoomCam" type="Camera2D" parent="."]
 position = Vector2( 160, 340 )
 current = true
-limit_left = -1000
-limit_top = -1000
-limit_right = 1000
-limit_bottom = 1000
-limit_smoothed = true
 smoothing_enabled = true
 smoothing_speed = 4.0
 editor_draw_limits = true

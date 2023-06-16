@@ -2,7 +2,7 @@ extends Camera2D
 
 
 export var zoom_step  := 0.2
-export var max_zoom   := 2
+export var max_zoom   := 1.4
 export var min_zoom   := 0.6
 
 
@@ -40,8 +40,8 @@ func _process(delta: float):
 
 	#drag limits
 	var cam_pos  = position
-	cam_pos.x    = clamp(cam_pos.x, -cam_max_coord.x+G.window.x/2, cam_max_coord.x++G.window.x/2)
-	cam_pos.y    = clamp(cam_pos.y, -cam_max_coord.y+G.window.y/2, cam_max_coord.y++G.window.y/2)
+	cam_pos.x    = clamp(cam_pos.x, -cam_max_coord.x+G.window.x/2, cam_max_coord.x+G.window.x/2)
+	cam_pos.y    = clamp(cam_pos.y, -cam_max_coord.y+G.window.y/2, cam_max_coord.y+G.window.y/2)
 	position     = cam_pos
 
 
@@ -56,6 +56,7 @@ func _input(event: InputEvent):
 		elif event.is_action_pressed("zoom-"):
 			target_zoom -= Vector2(zoom_step, zoom_step)
 
+		G.SETTINGS.zoom_level  = target_zoom.x
 
 	#dragging
 	if event is InputEventMouseButton:
@@ -73,8 +74,6 @@ func _input(event: InputEvent):
 			drag_vector /= zoom.x * 16
 			global_position += drag_vector
 #			print(position)  #prints cam position
-
-	G.SETTINGS.zoom_level  = target_zoom.x
 
 	#sent zoom info
 	get_parent().get_node("BG").parr(target_zoom.x)

@@ -54,7 +54,7 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[12,      30,      16,      0],        # 1
+	[14,      20,      22,      0],        # 1
 	[5,       4,        1,      0],        # 2
 	[5,       5,        1,      0],        # 3
 	[5,       6,        1,      0],        # 4

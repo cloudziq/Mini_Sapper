@@ -1,7 +1,7 @@
 extends CenterContainer
 
 
-var def_sca    := rect_scale * 1
+var def_sca    := rect_scale
 var def_rot    := 0.0
 var skew_dist  := 16
 
@@ -19,13 +19,13 @@ func _ready():
 
 
 func animate_label():
-	var tween      = get_tree().create_tween().set_trans(Tween.TRANS_SINE)
-	var rot        = def_rot
+	var tween  = get_tree().create_tween().set_trans(Tween.TRANS_SINE)
+	var rot    = 0 - abs($"../".rotation_degrees)
 
 	rot +=  rand_range(-skew_dist, skew_dist)
 
-	tween.tween_property($".", "rect_rotation", rot, rand_range(2, 4)
-		).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(self, "rect_rotation", rot, rand_range(1, 3)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_callback(self, "animate_label").set_delay(0.1)
 
 
@@ -33,7 +33,7 @@ func animate_label():
 
 
 
-func reveal(rot):
+func reveal(rot := 0):
 	def_rot        = 0 - abs(rot) + rand_range(-skew_dist, skew_dist)
 	rect_rotation  = def_rot
 	rect_scale     = Vector2(.01, .01)

@@ -24,6 +24,7 @@ G="*res://scripts/Globals.gd"
 
 [debug]
 
+settings/gdscript/max_call_stack=4096
 shapes/collision/shape_color=Color( 0.913725, 0.913725, 0.913725, 0.419608 )
 
 [display]

@@ -8,6 +8,7 @@ bounce = 1.0
 radius = 36.0
 
 [sub_resource type="CanvasItemMaterial" id=8]
+blend_mode = 4
 light_mode = 1
 
 [node name="RigidBody2D" type="RigidBody2D" groups=["BG_object"]]
@@ -23,7 +24,7 @@ scale = Vector2( 0.4, 0.4 )
 shape = SubResource( 7 )
 
 [node name="Sprite" type="Sprite" parent="CollisionShape2D"]
-modulate = Color( 0.572549, 0.709804, 0.768627, 0.12549 )
+modulate = Color( 0.123391, 0.151067, 0.157656, 0.141176 )
 light_mask = 0
 material = SubResource( 8 )
 position = Vector2( 1.66893e-06, 1.43051e-06 )

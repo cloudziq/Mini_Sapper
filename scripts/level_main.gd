@@ -39,7 +39,7 @@ func _ready():
 	board_size       = Vector2(val_1, val_2)
 	tile_size        = $"../".tile_size_in_pixels
 	bombs_amount     = $"../".level_data[G.SETTINGS.level-1][2]
-	tiles_left       = floor(board_size.x * board_size.y - bombs_amount)
+	tiles_left       = int(board_size.x * board_size.y - bombs_amount)
 	generate_board()
 
 
@@ -150,7 +150,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
 				neighbours_table.append(Vector2(tx, ty))
 
-	board_data[coord.x][coord.y][1] = 2    #mark original (clicked) tile as 'revealed'
+	board_data[coord.x][coord.y][1] = 2    #mark tile as 'revealed'
 
 
 #	if neighbours_table.size() == 0:
@@ -186,11 +186,12 @@ func generate_board():
 		board_data.push_back([])
 
 		for y in board_size.y:
-			TILE            = _tile.instance() ; add_child(TILE)
+			TILE            = _tile.instance()
 			TILE.position   = pos
 			TILE.scale      = Vector2(.25, .25)
 			pos.y          += tile_size
 			board_data[x].append([[TILE, 0, 0, 0], 0, 0])
+			add_child(TILE)
 		pos.x += tile_size
 		pos.y = y_def
 
