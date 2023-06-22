@@ -58,12 +58,12 @@ anchor_bottom = 1.0
 margin_top = 1.0
 
 [node name="Upper" type="HBoxContainer" parent="VBoxContainer"]
-margin_right = 256.0
+margin_right = 320.0
 margin_bottom = 26.0
 size_flags_horizontal = 3
 
 [node name="Left" type="NinePatchRect" parent="VBoxContainer/Upper"]
-margin_right = 256.0
+margin_right = 320.0
 margin_bottom = 26.0
 size_flags_horizontal = 11
 texture = ExtResource( 1 )
@@ -110,14 +110,14 @@ __meta__ = {
 
 [node name="----" type="Control" parent="VBoxContainer/Upper/Left/HBox"]
 margin_left = 57.0
-margin_right = 100.0
+margin_right = 164.0
 margin_bottom = 26.0
 rect_min_size = Vector2( 12, 0 )
 size_flags_horizontal = 3
 
 [node name="Bombs" type="HBoxContainer" parent="VBoxContainer/Upper/Left/HBox"]
-margin_left = 104.0
-margin_right = 142.0
+margin_left = 168.0
+margin_right = 206.0
 margin_bottom = 26.0
 
 [node name="icon" type="TextureRect" parent="VBoxContainer/Upper/Left/HBox/Bombs"]
@@ -148,14 +148,14 @@ __meta__ = {
 }
 
 [node name="----2" type="Control" parent="VBoxContainer/Upper/Left/HBox"]
-margin_left = 146.0
-margin_right = 150.0
+margin_left = 210.0
+margin_right = 214.0
 margin_bottom = 26.0
 rect_min_size = Vector2( 4, 0 )
 
 [node name="Markers" type="HBoxContainer" parent="VBoxContainer/Upper/Left/HBox"]
-margin_left = 154.0
-margin_right = 195.0
+margin_left = 218.0
+margin_right = 259.0
 margin_bottom = 26.0
 
 [node name="icon" type="TextureRect" parent="VBoxContainer/Upper/Left/HBox/Markers"]
@@ -185,14 +185,14 @@ __meta__ = {
 }
 
 [node name="----3" type="Control" parent="VBoxContainer/Upper/Left/HBox"]
-margin_left = 199.0
-margin_right = 209.0
+margin_left = 263.0
+margin_right = 273.0
 margin_bottom = 26.0
 rect_min_size = Vector2( 10, 0 )
 
 [node name="Tiles" type="HBoxContainer" parent="VBoxContainer/Upper/Left/HBox"]
-margin_left = 213.0
-margin_right = 244.0
+margin_left = 277.0
+margin_right = 308.0
 margin_bottom = 26.0
 
 [node name="icon" type="TextureRect" parent="VBoxContainer/Upper/Left/HBox/Tiles"]
@@ -224,22 +224,22 @@ __meta__ = {
 
 [node name="----" type="Control" parent="VBoxContainer"]
 margin_top = 30.0
-margin_right = 256.0
-margin_bottom = 579.0
+margin_right = 320.0
+margin_bottom = 649.0
 rect_min_size = Vector2( 0, 515 )
 size_flags_vertical = 3
 
 [node name="Lower" type="CenterContainer" parent="VBoxContainer"]
-margin_top = 583.0
-margin_right = 256.0
-margin_bottom = 609.0
+margin_top = 653.0
+margin_right = 320.0
+margin_bottom = 679.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Button" type="Button" parent="VBoxContainer/Lower"]
-margin_left = 81.0
-margin_right = 174.618
+margin_left = 113.0
+margin_right = 206.618
 margin_bottom = 26.0
 custom_styles/hover = SubResource( 1 )
 custom_styles/pressed = SubResource( 1 )
@@ -257,7 +257,5 @@ custom_fonts/font = SubResource( 2 )
 text = "RESET"
 align = 1
 valign = 1
-
-[node name="anim_color" type="Tween" parent="."]
 
 [connection signal="pressed" from="VBoxContainer/Lower/Button" to="." method="_on_Restart_Button_pressed"]

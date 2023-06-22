@@ -4,7 +4,7 @@ extends Node2D
 export(PackedScene) var _tile ;  var TILE
 export(PackedScene) var _bomb ;  var BOMB
 export(PackedScene) var _label ; var LABEL
-export(PackedScene) var _touch ; var TOUCH
+export(PackedScene) var _touch ; var TOUCH : Node2D
 
 
 #export var textures_ready = false
@@ -16,6 +16,7 @@ var board_size         :  Vector2
 var tile_coord         :  Vector2
 var hold_touch_time    := 0.0
 var allow_board_input  := false
+var player_dead        := false
 
 
 # board_data contents:
@@ -49,7 +50,7 @@ func _ready():
 
 func _process(_delta):
 	if OS.get_system_time_msecs() >= hold_touch_time and hold_touch_time != 0:
-		hold_touch_time = 0
+		hold_touch_time  = 0
 
 
 
@@ -71,15 +72,20 @@ func _input(event):
 			else:
 				tile_coord = Vector2(x, y)
 
+			if not TOUCH:
+				TOUCH              = _touch.instance()
+				TOUCH.position     = pos
+				add_child(TOUCH)
+				yield(get_tree().create_timer(0.12), "timeout")
+				TOUCH.queue_free()
+				TOUCH  = null
+
 
 		if tile_is_valid and event is InputEventScreenTouch:
 			if event.is_pressed():
 				hold_touch_time    = OS.get_system_time_msecs() + 444
 			elif not event.is_pressed() and hold_touch_time != 0:
 				hold_touch_time    = 0
-				TOUCH              = _touch.instance()
-				TOUCH.position     = pos
-				add_child(TOUCH)
 
 
 
@@ -126,37 +132,33 @@ var near_coords = [
 func tile_reveal(coord : Vector2, neighbours_table := []):
 	var tx ; var ty
 
-	coord -= Vector2(1,1)
+	coord      -= Vector2(1,1)
 	tiles_left -= 1
+	$GUI.update()
 
 	if tiles_left == 0:
 		print("LEVEL COMPLETED!")
 		#level_complete()
 #		return
 
+	#reveal tile:
+	board_data[coord.x][coord.y][0][0].reveal(board_data[coord.x][coord.y][2])
 
 	#reveal label:
 	if board_data[coord.x][coord.y][1] == 0 and board_data[coord.x][coord.y][2] > 0:
 		var angle = board_data[coord.x][coord.y][0][0].rotation_degrees
 		board_data[coord.x][coord.y][0][3].reveal(angle)
 
+	board_data[coord.x][coord.y][1]  = 2    #mark tile as 'revealed'
 
 	for index in near_coords:
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
 
-#		if (tx >= 0 and tx <= board_size.x-1) and (ty >= 0 and ty <= board_size.y-1):
 		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
 				neighbours_table.append(Vector2(tx, ty))
 
-	board_data[coord.x][coord.y][1] = 2    #mark tile as 'revealed'
-
-
-#	if neighbours_table.size() == 0:
-#		# for particles later
-#		pass
-#	else:
 	for index in neighbours_table:
 		var x = index.x
 		var y = index.y
@@ -164,9 +166,6 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 		#process only unrevealed tiles
 		if board_data[x][y][1] == 0:
 			tile_reveal(Vector2(x+1, y+1), neighbours_table)
-#		particle_type = "_multi"
-
-	board_data[coord.x][coord.y][0][0].reveal(board_data[coord.x][coord.y][2])
 
 
 
@@ -178,20 +177,21 @@ func generate_board():
 	var y_def = (G.window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
 	var pos = Vector2(x_def, y_def)
 
-	board_data = []
-	G.tiles_ready = 0
+	board_data     = []
+	G.tiles_ready  =  0
+	$GUI.update()
 
 	#### GENERATE TILES:
 	for x in board_size.x:
-		board_data.push_back([])
+		board_data.append([])
 
 		for y in board_size.y:
-			TILE            = _tile.instance()
-			TILE.position   = pos
-			TILE.scale      = Vector2(.25, .25)
-			pos.y          += tile_size
-			board_data[x].append([[TILE, 0, 0, 0], 0, 0])
+			TILE           = _tile.instance()
+			TILE.position  = pos
+			TILE.scale     = Vector2(.25, .25)
+			pos.y         += tile_size
 			add_child(TILE)
+			board_data[x].append([[TILE, 0, 0, 0], 0, 0])
 		pos.x += tile_size
 		pos.y = y_def
 
@@ -200,14 +200,10 @@ func generate_board():
 	for a in bombs_amount:
 		while board_data[pos.x][pos.y][1] == 1:
 			pos = gen_pos()
-		board_data[pos.x][pos.y][1] = 1
-#		var x = x_def + (pos.x * tile_size)
-#		var y = y_def + (pos.y * tile_size)
-		BOMB = _bomb.instance()
+		board_data[pos.x][pos.y][1]  = 1
+		BOMB  = _bomb.instance()
+		board_data[pos.x][pos.y][0][2]  = BOMB
 		board_data[pos.x][pos.y][0][0].add_child(BOMB)
-		board_data[pos.x][pos.y][0][2] = BOMB
-#		bomb.position = Vector2(x, y)
-#		bomb.scale = Vector2(.25, .25)
 
 	#### GENERATE NUMBERS:
 	for x in board_size.x:
@@ -242,9 +238,9 @@ func gen_num(x, y):
 			if board_data[cx][cy][1] == 1:    #if tile has a bomb
 				counter = counter + 1
 
-	if counter > 0 and board_data[x][y][0][3] == 0:    #if there no label assigned
+	if counter > 0:
 		LABEL                         = _label.instance()
-		board_data[x][y][0][0]         .add_child(LABEL)    #assign as a child of tile
-		board_data[x][y][0][3]        = LABEL
+		board_data[x][y][0][0]          .add_child(LABEL)    #assign as a child of tile
 		board_data[x][y][2]           = counter
+		board_data[x][y][0][3]        = LABEL
 		LABEL.get_node("Label").text  = str(counter)

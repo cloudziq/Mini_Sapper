@@ -1,64 +1,77 @@
 extends CanvasLayer
 
-signal restart
+#signal restart
+
+
 
 
 
 
 func _on_Restart_Button_pressed():
-	$VBoxContainer/Lower/Button.disabled = true
-	emit_signal("restart")
+	$VBoxContainer/Lower/Button.disabled  = true
+#	var _a     = get_tree().reload_current_scene()
+	var tween  = get_tree().create_tween().set_trans(Tween.TRANS_SINE)
+	$"../".allow_board_input  = false
 
-	if get_parent().player_fail:
+	if $"../".player_dead:
+	#if player chooses to redraw:
 		var node = $VBoxContainer
-		$anim_color.interpolate_property(node, "modulate",
-			Color(1,1,1,1), Color(1,1,1,0), .6,
-			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-		$anim_color.start()
+		tween.tween_property(node, "modulate", Color(1,1,1,0), .6)
+#		$anim_color.interpolate_property(node, "modulate",
+#			Color(1,1,1,1), Color(1,1,1,0), .6,
+#			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+#		$anim_color.start()
 
 		####  SHOW GUI AFTER SOME TIME:
 		yield(get_tree().create_timer(2.6), "timeout")
 		$VBoxContainer/Lower/Button.modulate.a = 0
-		$anim_color.interpolate_property(node, "modulate",
-			Color(1,1,1,0), Color(1,1,1,1), 1.8,
-			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-		$anim_color.start()
+		tween.tween_property(node, "modulate", Color(1,1,1,1), 1.8)
+#		$anim_color.interpolate_property(node, "modulate",
+#			Color(1,1,1,0), Color(1,1,1,1), 1.8,
+#			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+#		$anim_color.start()
 
 		yield(get_tree().create_timer(2), "timeout")
 		$VBoxContainer/Lower/Button.disabled = false
-		$anim_color.remove_all()
-		$anim_color.interpolate_property($VBoxContainer/Lower/Button, "modulate",
-			Color(1,1,1,0), Color(1,1,1,1), .4,
-			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-		$anim_color.start()
+		tween.tween_property($VBoxContainer/Lower/Button, "modulate", Color(1,1,1,1), .4)
+#		$anim_color.remove_all()
+#		$anim_color.interpolate_property($VBoxContainer/Lower/Button, "modulate",
+#			Color(1,1,1,0), Color(1,1,1,1), .4,
+#			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+#		$anim_color.start()
 	else:
+	#if player dies:
 		var node = $VBoxContainer/Lower/Button
-		$anim_color.interpolate_property(node, "modulate",
-			Color(1,1,1,1), Color(1,1,1,0), .4,
-			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-		$anim_color.start()
+		tween.tween_property(node, "modulate", Color(1,1,1,0), .4)
+#		$anim_color.interpolate_property(node, "modulate",
+#			Color(1,1,1,1), Color(1,1,1,0), .4,
+#			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+#		$anim_color.start()
 
 		####  SHOW BUTTON AFTER SOME TIME:
 		yield(get_tree().create_timer(1.6), "timeout")
 		$VBoxContainer/Lower/Button.disabled = false
-		$anim_color.remove_all()
-		$anim_color.interpolate_property(node, "modulate",
-			Color(1,1,1,0), Color(1,1,1,1), .8,
-			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-		$anim_color.start()
+		tween.tween_property(node, "modulate", Color(1,1,1,1), .8)
+#		$anim_color.remove_all()
+#		$anim_color.interpolate_property(node, "modulate",
+#			Color(1,1,1,0), Color(1,1,1,1), .8,
+#			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+#		$anim_color.start()
 
 
 
 
-func _on_update_GUI():
+
+
+func update():
 	var node = $VBoxContainer/Upper/Left/HBox/Level/num
-	node.text = str($"../".current_level+1)
+	node.text = str(G.SETTINGS.level)
 
 	node = $VBoxContainer/Upper/Left/HBox/Bombs/num
 	node.text = str($"../".bombs_amount)
 
-	node = $VBoxContainer/Upper/Left/HBox/Markers/num
-	node.text = str($"../".markers)
+#	node = $VBoxContainer/Upper/Left/HBox/Markers/num
+#	node.text = str($"../".markers)
 
 	node = $VBoxContainer/Upper/Left/HBox/Tiles/num
 	node.text = str($"../".tiles_left)

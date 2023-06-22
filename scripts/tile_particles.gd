@@ -15,6 +15,6 @@ func _ready():
 
 
 func show(type := false):
-	$Particles_blink.visible      = true
+#	$Particles_blink.visible      = true
 	if type:
 		$Particles_small.visible  = true

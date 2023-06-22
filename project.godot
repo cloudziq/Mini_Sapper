@@ -25,6 +25,7 @@ G="*res://scripts/Globals.gd"
 [debug]
 
 settings/gdscript/max_call_stack=4096
+gdscript/warnings/integer_division=false
 shapes/collision/shape_color=Color( 0.913725, 0.913725, 0.913725, 0.419608 )
 
 [display]
@@ -136,6 +137,8 @@ common/enable_pause_aware_picking=true
 quality/driver/driver_name="GLES2"
 quality/intended_usage/framebuffer_allocation=0
 quality/intended_usage/framebuffer_allocation.mobile=1
-quality/filters/anisotropic_filter_level=2
-batching/parameters/max_join_item_commands=8
-batching/parameters/item_reordering_lookahead=6
+quality/filters/anisotropic_filter_level=1
+batching/options/single_rect_fallback=true
+batching/lights/max_join_items=16
+batching/parameters/batch_buffer_size=32768
+batching/parameters/item_reordering_lookahead=8

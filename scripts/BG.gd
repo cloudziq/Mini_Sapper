@@ -67,10 +67,10 @@ func _input(event: InputEvent):
 
 
 func spawn_ball():
-	yield(get_tree().create_timer(.04), "timeout")
+	yield(get_tree().create_timer(.2), "timeout")
 	var offset = 32
 
-	for i in 4:
+	for i in 10:
 		var x    := rand_range(offset, G.window.x - offset) - G.window.x/2
 		var y    := rand_range(offset, G.window.y - offset) - G.window.y/2
 		var BALL  = _ball.instance()
