@@ -21,6 +21,7 @@ rect_pivot_offset = Vector2( 50, 50 )
 script = ExtResource( 2 )
 
 [node name="Label" type="Label" parent="."]
+light_mask = 0
 margin_left = 26.0
 margin_top = 2.0
 margin_right = 73.0

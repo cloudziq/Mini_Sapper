@@ -16,7 +16,7 @@ var board_size         :  Vector2
 var tile_coord         :  Vector2
 var hold_touch_time    := 0.0
 var allow_board_input  := false
-var player_dead        := false
+var player_fail        := false
 
 
 # board_data contents:
@@ -48,9 +48,9 @@ func _ready():
 
 
 
-func _process(_delta):
-	if OS.get_system_time_msecs() >= hold_touch_time and hold_touch_time != 0:
-		hold_touch_time  = 0
+#func _process(_delta):
+#	if OS.get_system_time_msecs() >= hold_touch_time and hold_touch_time != 0:
+#		hold_touch_time  = 0
 
 
 
@@ -58,34 +58,42 @@ func _process(_delta):
 
 
 func _input(event):
-	var tile_is_valid  := true
 	var pos            := get_global_mouse_position()
 
-	if allow_board_input:
-		#check if tile is valid:
+	if allow_board_input and event is InputEventScreenTouch:
 		if event.is_pressed():
+#			print("pressed")
 			var x  = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
 			var y  = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
 
-			if not (x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y)):
-				tile_is_valid = false
-			else:
+			if x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y):
 				tile_coord = Vector2(x, y)
 
+			hold_touch_time    = OS.get_system_time_msecs()
+
+		elif not event.is_pressed() and not $ZoomCam.camera_is_moving:
+#			print("released")
+			hold_touch_time    = 0
 			if not TOUCH:
-				TOUCH              = _touch.instance()
-				TOUCH.position     = pos
+				TOUCH           = _touch.instance()
+				TOUCH.position  = pos
 				add_child(TOUCH)
-				yield(get_tree().create_timer(0.12), "timeout")
+				yield(get_tree().create_timer(.1), "timeout")
 				TOUCH.queue_free()
 				TOUCH  = null
 
 
-		if tile_is_valid and event is InputEventScreenTouch:
-			if event.is_pressed():
-				hold_touch_time    = OS.get_system_time_msecs() + 444
-			elif not event.is_pressed() and hold_touch_time != 0:
-				hold_touch_time    = 0
+
+
+
+
+func camera_is_moving():
+	var i  = $ZoomCam.drag_vector.x + $ZoomCam.drag_vector.y
+	if i < -2 or i > 2:
+		return true
+	else:
+		return false
+#	print($ZoomCam.drag_vector.x + $ZoomCam.drag_vector.y)
 
 
 
@@ -96,7 +104,6 @@ func check_clicked_tile():
 	if allow_board_input:
 		var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1][1]
 
-		#### CHECK TILE
 		if tile_stat == 0:
 			$TileReveal.play()
 			tile_reveal(tile_coord, [])
@@ -112,11 +119,13 @@ func check_clicked_tile():
 
 
 func game_over():
+	var tile_rot  : float
+
 	for x in board_size.x:
 		for y in board_size.y:
 			if board_data[x][y][1] == 1:
-				var tile_rotation = board_data[x][y][0][0].rotation
-				board_data[x][y][0][2].reveal_bomb(tile_rotation)
+				tile_rot  = board_data[x][y][0][0].rotation
+				board_data[x][y][0][2].reveal_bomb(tile_rot)
 
 
 

@@ -7,11 +7,12 @@ export var min_zoom   := 0.6
 
 
 var target_zoom          := Vector2.ZERO
-var is_dragging          := false
 var drag_start_position  := Vector2.ZERO
-
-#var cam_min_coord        := Vector2.ZERO
-var cam_max_coord        := Vector2.ZERO
+var drag_vector          := Vector2.ZERO
+var cam_limit_coords     := Vector2.ZERO
+var new_pos              := position
+var is_dragging          := false
+var camera_is_moving     := false
 
 
 
@@ -19,10 +20,11 @@ var cam_max_coord        := Vector2.ZERO
 
 
 func _ready():
+	var i  = G.SETTINGS.zoom_level
+
 	yield(get_tree().create_timer(.004), "timeout")
-	cam_max_coord  = ($"../".board_size * $"../".tile_size) / 2.225
-	var i          = G.SETTINGS.zoom_level
-	target_zoom    = Vector2(i, i)
+	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
+	target_zoom       = Vector2(i, i)
 
 #	set_process(true)
 
@@ -39,10 +41,21 @@ func _process(delta: float):
 		zoom         = lerp(zoom, target_zoom, zoom_step * 20 * delta)
 
 	#drag limits
-	var cam_pos  = position
-	cam_pos.x    = clamp(cam_pos.x, -cam_max_coord.x+G.window.x/2, cam_max_coord.x+G.window.x/2)
-	cam_pos.y    = clamp(cam_pos.y, -cam_max_coord.y+G.window.y/2, cam_max_coord.y+G.window.y/2)
-	position     = cam_pos
+#	new_pos  = position + drag_vector
+	var x1       = -cam_limit_coords.x + G.window.x/2
+	var x2       = cam_limit_coords.x + G.window.x/2
+	var y1       = -cam_limit_coords.y + G.window.y/2
+	var y2       = cam_limit_coords.y + G.window.y/2
+
+	new_pos.x    = clamp(new_pos.x, x1, x2)
+	new_pos.y    = clamp(new_pos.y, y1, y2)
+
+	if position.snapped(Vector2(4,4)) != new_pos.snapped(Vector2(4,4)):
+		position   = position.linear_interpolate(new_pos, 8 * delta)
+#		print("position:" +str(position)+ "    new_pos:" +str(new_pos))
+	else:
+		camera_is_moving  = false
+#		print("false")
 
 
 
@@ -58,22 +71,24 @@ func _input(event: InputEvent):
 
 		G.SETTINGS.zoom_level  = target_zoom.x
 
-	#dragging
-	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_LEFT:
-			if event.pressed:
-				is_dragging          = true
-				drag_start_position  = event.position
-			else:
-				is_dragging = false
-	elif event is InputEventMouseMotion:
-		if is_dragging:
-			var drag_end_position = event.position
-			var drag_vector = drag_end_position - drag_start_position
-			drag_vector *= -1
-			drag_vector /= zoom.x * 16
-			global_position += drag_vector
-#			print(position)  #prints cam position
+	#cam dragging
+	if event is InputEventScreenTouch:
+		if event.is_pressed():
+			is_dragging          = true
+			drag_start_position  = event.position
+		else:
+			is_dragging          = false
+	elif event is InputEventMouseMotion and is_dragging:
+		var drag_end_position = event.position
+		drag_vector    = (drag_end_position - drag_start_position) * -1
+		drag_vector   /= zoom.x * 4
+		new_pos        = position + drag_vector
+		var drag_dist  = drag_vector.x + drag_vector.y
 
-	#sent zoom info
+		if drag_dist > 4 or drag_dist < -4:
+			camera_is_moving  = true
+#			print("true")
+		drag_vector       = Vector2.ZERO
+
+	#send zoom info to BG parallax effect:
 	get_parent().get_node("BG").parr(target_zoom.x)

@@ -20,8 +20,7 @@ _touch = ExtResource( 5 )
 [node name="ZoomCam" type="Camera2D" parent="."]
 position = Vector2( 160, 340 )
 current = true
-smoothing_enabled = true
-smoothing_speed = 4.0
+smoothing_speed = 6.0
 editor_draw_limits = true
 editor_draw_drag_margin = true
 script = ExtResource( 7 )
@@ -35,3 +34,4 @@ z_index = -1
 stream = ExtResource( 8 )
 volume_db = -22.0
 pitch_scale = 0.84
+mix_target = 2

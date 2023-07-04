@@ -5,11 +5,14 @@ export(PackedScene)  var _LEVEL
 export var rec           : bool
 
 var tile_size_in_pixels  := 32
+
+# should be later affected by performance setting?:
 var board_max_tiles_w    := 60
 var board_max_tiles_h    := 60
 
 
-onready var BG_amount     = findBackgroundImages()
+onready var BG_amount     = findBackgroundImages("res://assets/graphics/level_bg/OLD")
+onready var BALL_amount   = findBackgroundImages("res://assets/graphics/level_bg/BG")
 
 
 
@@ -140,11 +143,11 @@ func window_prepare():
 
 
 
-func findBackgroundImages():
+func findBackgroundImages(path : String):
 	var num       :=  0
 
 	var dir       := Directory.new()
-	var path       = "res://assets/graphics/level_bg/OLD"
+#	var path       = "res://assets/graphics/level_bg/OLD"
 
 	if dir.open(path) == OK:
 		var _nic  = dir.list_dir_begin()
