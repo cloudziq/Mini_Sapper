@@ -3,7 +3,7 @@ extends CanvasLayer
 #signal restart
 
 
-
+# kratki zeby wypierdlało łańcuchowo ^.^
 
 
 
@@ -70,8 +70,8 @@ func update():
 	node = $VBoxContainer/Upper/Left/HBox/Bombs/num
 	node.text = str($"../".bombs_amount)
 
-#	node = $VBoxContainer/Upper/Left/HBox/Markers/num
-#	node.text = str($"../".markers)
+	node = $VBoxContainer/Upper/Left/HBox/Markers/num
+	node.text = str($"../".marker_amount)
 
 	node = $VBoxContainer/Upper/Left/HBox/Tiles/num
 	node.text = str($"../".tiles_left)

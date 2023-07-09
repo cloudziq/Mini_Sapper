@@ -14,7 +14,7 @@ var window := Vector2(
 
 
 
-var save_version = 0
+var save_version = 2
 var SETTINGS
 var config_path
 

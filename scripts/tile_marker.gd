@@ -1,25 +1,32 @@
 extends Sprite
 
 
-var anim_dir ; var scale_def
+var anim_dir  := 1
+var scale_def := Vector2(.88, .88)
+
+
 
 
 
 
 func _ready():
-	scale_def = Vector2(.88, .88) ; scale = scale_def
-	modulate = Color(.28, 1.2, .44, .84)
+	scale      = scale_def
+	modulate   = Color(.28, 1.2, .44, .84)
 	yield(get_tree().create_timer(.01), "timeout")
 	anim_dir = 1 ; marker_anim()
-	z_index = 2
+#	z_index = 2
+
+
 
 
 
 
 func color_tint(type):
 	match type:
-		"correct":   $".".modulate = Color(.4, 1.2, .45, .8)
-		"incorrect": $".".modulate = Color(1.2, .22, .2, .8)
+		"correct":    self.modulate  = Color(0.4, 1.20, .45, .8)
+		"incorrect":  self.modulate  = Color(1.2, 0.22, .20, .8)
+
+
 
 
 

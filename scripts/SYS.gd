@@ -11,8 +11,8 @@ var board_max_tiles_w    := 60
 var board_max_tiles_h    := 60
 
 
-onready var BG_amount     = findBackgroundImages("res://assets/graphics/level_bg/OLD")
-onready var BALL_amount   = findBackgroundImages("res://assets/graphics/level_bg/BG")
+onready var BG_amount     = countImages("res://assets/graphics/level_bg/OLD")
+onready var BALL_amount   = countImages("res://assets/graphics/level_bg/BG")
 
 
 
@@ -57,18 +57,18 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[14,      28,      22,      0],        # 1
-	[5,       4,        1,      0],        # 2
-	[5,       5,        1,      0],        # 3
-	[5,       6,        1,      0],        # 4
-	[6,       6,        0,      1],        # 5
-	[6,       7,        1,      1],        # 6
-	[7,       8,        1,      1],        # 7
-	[7,       8,        1,      1],        # 8
-	[8,       8,        1,      2],        # 9
-	[8,       8,        0,      2],        # 10
-	[8,       9,        1,      2],        # 11
-	[8,       9,        1,      2],        # 12
+	[45,      45,      22,      0],        # 1
+	[5,        4,       1,      0],        # 2
+	[5,        5,       1,      0],        # 3
+	[5,        6,       1,      0],        # 4
+	[6,        6,       0,      1],        # 5
+	[6,        7,       1,      1],        # 6
+	[7,        8,       1,      1],        # 7
+	[7,        8,       1,      1],        # 8
+	[8,        8,       1,      2],        # 9
+	[8,        8,       0,      2],        # 10
+	[8,        9,       1,      2],        # 11
+	[8,        9,       1,      2],        # 12
 	[8,       10,       1,      2],        # 13
 	[8,       10,       1,      2],        # 14
 	[8,       11,       1,      2],        # 15
@@ -126,7 +126,7 @@ func window_prepare():
 	var window_size  = G.window
 
 	if rec == true:
-		window_size *= Vector2(.92, .92)
+		window_size *= Vector2(1.16, 1.16)
 	else:
 		window_size *= Vector2(4, 4)
 
@@ -143,7 +143,7 @@ func window_prepare():
 
 
 
-func findBackgroundImages(path : String):
+func countImages(path : String):
 	var num       :=  0
 
 	var dir       := Directory.new()

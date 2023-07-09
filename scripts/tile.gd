@@ -6,7 +6,7 @@ export(PackedScene) var _particles ;  var PARTICLES
 
 var path         = "res://assets/graphics/tiles/TILE_"
 var dark_color   = Color(.24, .32, .36, 1)
-var reduce_mov  := false
+var reduce_mov  := false    #for 'empty revealed' tiles
 #var texture_list
 var def_pos ; var def_rot ; var def_sca
 
@@ -14,7 +14,7 @@ var def_pos ; var def_rot ; var def_sca
 onready var	theme       = G.SETTINGS.theme
 onready var	theme_data  = $"../../".theme_data[theme-1]
 
-#onready var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
+var tween      : SceneTreeTween
 
 
 
@@ -23,7 +23,7 @@ onready var	theme_data  = $"../../".theme_data[theme-1]
 
 func _ready():
 	$Sprite.z_index = -2
-	var tween = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
+	tween  = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
 
 	$Sprite.flip_v = true if randf() > .5 else false
 	$Sprite.flip_h = true if randf() > .5 else false
@@ -59,28 +59,28 @@ func _ready():
 	#1
 	tween.set_parallel(true)
 	a  = rand_range(.26, .64)
-	tween.tween_property($".", "position", def_pos, a
+	tween.tween_property(self, "position", def_pos, a
 		).set_ease(Tween.EASE_IN)
 
 	tween.tween_callback($TileMain, "play").set_delay(a)
 
-	tween.tween_property($".", "rotation_degrees", def_rot, rand_range(.20, .32)
+	tween.tween_property(self, "rotation_degrees", def_rot, rand_range(.20, .32)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-	tween.tween_property($".", "scale", def_sca, .4
+	tween.tween_property(self, "scale", def_sca, .4
 		).set_ease(Tween.EASE_OUT)
 
 	#2
 	tween.tween_interval(.12)
 	tween.set_parallel(false)
-	tween.tween_property($".", "scale", def_sca * .4, .4
+	tween.tween_property(self, "scale", def_sca * .4, .4
 		).set_ease(Tween.EASE_IN)
 
-	tween.tween_property($".", "scale", def_sca, .6
+	tween.tween_property(self, "scale", def_sca, .6
 		).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 	tween.set_parallel(true)
-	tween.tween_callback($".", "tile_finish").set_delay(.16)
+	tween.tween_callback(self, "tile_finish").set_delay(.16)
 
 
 
@@ -92,25 +92,38 @@ func tile_finish():
 
 	var num = $"../../".level_data[G.SETTINGS.level-1]
 	if G.tiles_ready == (num[0] * num[1]):
-		$"../".allow_board_input = true
-		G.tiles_ready  = 0
+		$"../".allow_board_input  = true
+		G.tiles_ready             = 0
 
 	if theme_data[2] == false:
-		$Sprite.modulate = Color(1,1,1,1)
+		$Sprite.modulate  = Color(1,1,1,1)
 	else:
-		$Sprite.texture = load(path + str(theme) + "_ON.png")
+		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-	animate_tile(0) ; yield(get_tree().create_timer(.025), "timeout") ; animate_tile(1)
+#	if tween:
+#		tween.kill()
+#		tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
+	animate_tile()
+	yield(get_tree().create_tween().tween_interval(.25), "finished")
+	animate_tile(1)
 
 
 
 
 
+
+# type:
+#	0  : position
+#	1  : rotation
 
 func animate_tile(type := 0):
-	var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
+#	var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
 	var pos        = def_pos
 	var rot        = def_rot
+
+	if tween:
+		tween.kill()
+	tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
 
 	if type == 0:
 		var distance  := 3.2 if not reduce_mov else 1.6
@@ -120,11 +133,11 @@ func animate_tile(type := 0):
 		tween.tween_property(self, "position", pos, rand_range(6, 8)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_callback(self, "animate_tile").set_delay(0.2)
-	else:
+	else :
 		var angle  := 22
 		rot        += rand_range(-angle, angle)
 
-		tween.tween_property($".", "rotation_degrees", rot, rand_range(6, 10)
+		tween.tween_property(self, "rotation_degrees", rot, rand_range(6, 10)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_callback(self, "animate_tile", [1]).set_delay(0.2)
 
@@ -141,7 +154,10 @@ func reveal(counter := 0):
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-	var tween     := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel(true)
+	if tween:
+		tween.kill()
+	tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT).set_parallel(true)
+
 	var delay     := rand_range(.1, .42)
 	var scale_to  :  Vector2
 	var trans
@@ -167,7 +183,7 @@ func reveal(counter := 0):
 		scale_to    = Vector2(.14, .14) + Vector2(mult, mult)
 		trans       = Tween.TRANS_ELASTIC
 
-	var _a = tween.tween_property($".", "scale", scale_to, 3.25
+	var _a = tween.tween_property(self, "scale", scale_to, 3.25
 			).set_trans(trans).set_delay(delay)
 
 	PARTICLES = _particles.instance()

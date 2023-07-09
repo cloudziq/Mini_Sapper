@@ -74,6 +74,7 @@ func _input(event: InputEvent):
 func spawn_ball():
 	yield(get_tree().create_timer(.2), "timeout")
 	var offset := 32
+	var TILE   : Node2D  = $"../".board_data[0][0][0][0]
 	var sprite : Node2D
 
 	# spawnuje kratki:
@@ -87,7 +88,7 @@ func spawn_ball():
 		BALL.linear_velocity.x       = rand_range(  -4,   4)
 		BALL.linear_velocity.y       = rand_range(  -8,   8)
 		BALL.angular_velocity        = rand_range(-.12, .12)
-		sprite.texture  = $"../".TILE.get_node("Sprite").texture
+		sprite.texture  = TILE.get_node("Sprite").texture
 #		var r = rand_range(.2, .3)
 #		var g = rand_range(.3, .8)
 #		var b = rand_range(.4,  1)
