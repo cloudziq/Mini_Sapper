@@ -206,6 +206,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
 				neighbours_table.append(Vector2(tx, ty))
 
+	# process every tiles:
 	for index in neighbours_table:
 		var x = index.x
 		var y = index.y
@@ -282,8 +283,8 @@ func gen_num(x, y):
 		var cx = x + index[0]
 		var cy = y + index[1]
 
-		if (cx >= 0 and cx <= board_size.x-1) and (cy >= 0 and cy <= board_size.y-1):
-#		if not (cx == clamp(cx, 1, board_size.x) and cy == clamp(cy, 1, board_size.y)):
+#		if (cx >= 0 and cx <= board_size.x-1) and (cy >= 0 and cy <= board_size.y-1):
+		if (cx == clamp(cx, 0, board_size.x-1) and cy == clamp(cy, 0, board_size.y-1)):
 			if board_data[cx][cy][1] == 1:    #if tile has a bomb
 				counter = counter + 1
 

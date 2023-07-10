@@ -1,6 +1,6 @@
 extends Area2D
 
-
+var test_num  := 0
 export(PackedScene) var _particles ;  var PARTICLES
 
 
@@ -89,11 +89,14 @@ func _ready():
 
 func tile_finish():
 	G.tiles_ready  += 1
-
 	var num = $"../../".level_data[G.SETTINGS.level-1]
+
 	if G.tiles_ready == (num[0] * num[1]):
 		$"../".allow_board_input  = true
 		G.tiles_ready             = 0
+		animate_tile(-1)
+	else:
+		animate_tile()
 
 	if theme_data[2] == false:
 		$Sprite.modulate  = Color(1,1,1,1)
@@ -103,7 +106,7 @@ func tile_finish():
 #	if tween:
 #		tween.kill()
 #		tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
-	animate_tile()
+
 	yield(get_tree().create_tween().tween_interval(.25), "finished")
 	animate_tile(1)
 
@@ -121,9 +124,9 @@ func animate_tile(type := 0):
 	var pos        = def_pos
 	var rot        = def_rot
 
-	if tween:
+	if tween and type == -1:
 		tween.kill()
-	tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
+	tween      = get_tree().create_tween()
 
 	if type == 0:
 		var distance  := 3.2 if not reduce_mov else 1.6
@@ -132,14 +135,14 @@ func animate_tile(type := 0):
 
 		tween.tween_property(self, "position", pos, rand_range(6, 8)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween.tween_callback(self, "animate_tile").set_delay(0.2)
+		tween.tween_callback(self, "animate_tile").set_delay(.2)
 	else :
 		var angle  := 22
 		rot        += rand_range(-angle, angle)
 
 		tween.tween_property(self, "rotation_degrees", rot, rand_range(6, 10)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween.tween_callback(self, "animate_tile", [1]).set_delay(0.2)
+		tween.tween_callback(self, "animate_tile", [1]).set_delay(.2)
 
 
 
@@ -147,6 +150,7 @@ func animate_tile(type := 0):
 
 
 func reveal(counter := 0):
+	test_num += 1
 	var col
 
 	if theme_data[2] == false:
@@ -156,9 +160,9 @@ func reveal(counter := 0):
 
 	if tween:
 		tween.kill()
-	tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT).set_parallel(true)
+	tween      = get_tree().create_tween().set_parallel(true)
 
-	var delay     := rand_range(.1, .42)
+	var delay     := rand_range(.12, .28)
 	var scale_to  :  Vector2
 	var trans
 
@@ -174,17 +178,17 @@ func reveal(counter := 0):
 		else:
 			col.a *= .36
 
-		var _a  = tween.tween_property($Sprite, "modulate", col, 3.25
-			).set_trans(Tween.TRANS_BOUNCE).set_delay(delay)
+		tween.tween_property($Sprite, "modulate", col, 3.25
+			).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
 	else:
 	#if tile have a number
 		var mult    = counter * .024
 		scale_to    = Vector2(.14, .14) + Vector2(mult, mult)
-		trans       = Tween.TRANS_ELASTIC
+		trans       = Tween.TRANS_BOUNCE
 
-	var _a = tween.tween_property(self, "scale", scale_to, 3.25
-			).set_trans(trans).set_delay(delay)
+	tween.tween_property(self, "scale", scale_to, 3.25
+		).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
 	PARTICLES = _particles.instance()
 	add_child(PARTICLES)
@@ -197,7 +201,7 @@ func reveal(counter := 0):
 
 func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 	$"../".check_clicked_tile()
-#	_b.set_deferred("monitorable", false)
+	_b.set_deferred("monitorable", false)
 
 
 
