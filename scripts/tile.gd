@@ -103,10 +103,6 @@ func tile_finish():
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-#	if tween:
-#		tween.kill()
-#		tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
-
 	yield(get_tree().create_tween().tween_interval(.25), "finished")
 	animate_tile(1)
 
@@ -150,6 +146,7 @@ func animate_tile(type := 0):
 
 
 func reveal(counter := 0):
+	yield(get_tree().create_tween().tween_interval(test_num / 40), "finished")
 	test_num += 1
 	var col
 
@@ -182,7 +179,7 @@ func reveal(counter := 0):
 			).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
 	else:
-	#if tile have a number
+	#if tile have any number
 		var mult    = counter * .024
 		scale_to    = Vector2(.14, .14) + Vector2(mult, mult)
 		trans       = Tween.TRANS_BOUNCE
@@ -209,4 +206,4 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 
 func _exit_tree():
-	pass
+	queue_free()

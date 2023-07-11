@@ -54,13 +54,16 @@ func _ready():
 func _process(_dt):
 
 	# triggering a marker:
-		if OS.get_system_time_msecs() > hold_touch_time and hold_touch_time > 0:
-			if not $ZoomCam.is_moving:
-				hold_touch_time  = -1
-				if not TOUCH:
-					add_touch()
-			else:
-				hold_touch_time  = 0
+	if $ZoomCam.is_moving:
+		hold_touch_time  =  0
+
+	if hold_touch_time > 0:
+#		print("poszło")
+
+		if OS.get_system_time_msecs() > hold_touch_time:
+			hold_touch_time  =  -1
+			if not TOUCH:  add_touch()
+
 
 
 
@@ -83,8 +86,7 @@ func _input(event):
 		elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
 #			print("released")
 			hold_touch_time    = 0
-			if not TOUCH:
-				add_touch()
+			if not TOUCH:  add_touch()
 
 
 
@@ -92,6 +94,8 @@ func _input(event):
 
 
 func check_clicked_tile():    # called from touch collision
+	#normal click or placing a marker
+
 	var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1][1]
 
 	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = (-1)'
@@ -102,7 +106,7 @@ func check_clicked_tile():    # called from touch collision
 	#			$Sounds/TileReveal.play()
 		elif tile_stat == 1:
 			game_over()
-			print("YOU DIED!")
+			print("BOOM!")
 	else:
 		add_marker()
 
@@ -139,13 +143,18 @@ func add_marker():
 			node  = _marker.instance()
 			board_data[x][y][0][0].add_child(node)
 			board_data[x][y][0][1]  = node
+			$Marker.pitch_scale  = 3.22
 		else:
 			marker_amount -= 1
 			board_data[x][y][0][1].queue_free()
 			board_data[x][y][0][1]  = null
-		$GUI.update()
+			$Marker.pitch_scale  = 6.48
 
-	hold_touch_time  = -1
+	$GUI.update()
+	$Marker.play()
+	hold_touch_time  = 0
+
+
 
 
 

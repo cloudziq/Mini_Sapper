@@ -14,7 +14,6 @@ func _ready():
 	modulate   = Color(.28, 1.2, .44, .84)
 	yield(get_tree().create_timer(.01), "timeout")
 	anim_dir = 1 ; marker_anim()
-#	z_index = 2
 
 
 
@@ -41,7 +40,7 @@ func marker_anim():
 		scale_to = scale_def
 		anim_dir = 1
 
-	$Tween.interpolate_property($".", "scale",
+	$Tweenie.interpolate_property($".", "scale",
 		$".".scale, scale_to, .8,
 		Tween.TRANS_SINE, Tween.EASE_IN_OUT)
-	$Tween.start()
+	$Tweenie.start()

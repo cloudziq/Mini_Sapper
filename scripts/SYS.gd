@@ -1,3 +1,10 @@
+# Dziq 2022 - 2023
+# v -0.1 ultra alfa beta gamma
+
+
+
+
+
 extends Node2D
 
 
@@ -57,7 +64,7 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[35,      25,      22,      0],        # 1
+	[25,      25,      42,      0],        # 1
 	[5,        4,       1,      0],        # 2
 	[5,        5,       1,      0],        # 3
 	[5,        6,       1,      0],        # 4

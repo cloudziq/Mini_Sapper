@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://scripts/level_main.gd" type="Script" id=1]
 [ext_resource path="res://scenes/tile.tscn" type="PackedScene" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://assets/sounds/reveal_single.ogg" type="AudioStream" id=8]
 [ext_resource path="res://scenes/level_GUI.tscn" type="PackedScene" id=9]
 [ext_resource path="res://scenes/tile_marker.tscn" type="PackedScene" id=10]
+[ext_resource path="res://assets/sounds/tile_mark.wav" type="AudioStream" id=11]
 
 [node name="level" type="Node2D"]
 script = ExtResource( 1 )
@@ -22,7 +23,6 @@ _touch = ExtResource( 5 )
 [node name="ZoomCam" type="Camera2D" parent="."]
 position = Vector2( 160, 340 )
 current = true
-smoothing_speed = 6.0
 editor_draw_limits = true
 editor_draw_drag_margin = true
 script = ExtResource( 7 )
@@ -37,3 +37,8 @@ stream = ExtResource( 8 )
 volume_db = -22.0
 pitch_scale = 0.84
 mix_target = 2
+
+[node name="Marker" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 11 )
+volume_db = -20.0
+pitch_scale = 3.2

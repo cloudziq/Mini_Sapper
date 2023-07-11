@@ -52,11 +52,8 @@ func _process(delta: float):
 	new_pos.y    = clamp(new_pos.y, y1, y2)
 
 	if position.snapped(Vector2(1,1)) != new_pos.snapped(Vector2(1,1)):
-		position   = position.linear_interpolate(new_pos, 8 * delta)
-#		print("position:" +str(position)+ "    new_pos:" +str(new_pos))
-	else:
+		position   = position.linear_interpolate(new_pos, 10 * delta)
 		is_moving  = false
-#		print("false")
 
 
 
@@ -85,8 +82,10 @@ func _input(event: InputEvent):
 		drag_vector   /= zoom.x * 4
 		new_pos        = position + drag_vector
 		var drag_dist  = drag_vector.x + drag_vector.y
+		drag_vector    = Vector2.ZERO
 
 		if drag_dist > 4 or drag_dist < -4:
 			is_moving  = true
 #			print("true")
-		drag_vector       = Vector2.ZERO
+		else:
+			is_moving  = false

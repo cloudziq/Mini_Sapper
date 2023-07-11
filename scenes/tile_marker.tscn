@@ -1,13 +1,19 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scripts/tile_marker.gd" type="Script" id=1]
 [ext_resource path="res://assets/graphics/particles/marker.png" type="Texture" id=2]
 
+[sub_resource type="CanvasItemMaterial" id=1]
+blend_mode = 1
+light_mode = 1
+
 [node name="Sprite" type="Sprite" groups=["marker"]]
 light_mask = 0
+material = SubResource( 1 )
+z_index = 1
 texture = ExtResource( 2 )
 script = ExtResource( 1 )
 
-[node name="Tween" type="Tween" parent="."]
+[node name="Tweenie" type="Tween" parent="."]
 
-[connection signal="tween_all_completed" from="Tween" to="." method="marker_anim"]
+[connection signal="tween_all_completed" from="Tweenie" to="." method="marker_anim"]
