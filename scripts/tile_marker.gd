@@ -11,7 +11,7 @@ var scale_def := Vector2(.88, .88)
 
 func _ready():
 	scale      = scale_def
-	modulate   = Color(.28, 1.2, .44, .84)
+	modulate   = Color(.28, 1.2, .44, .62)
 	yield(get_tree().create_timer(.01), "timeout")
 	anim_dir = 1 ; marker_anim()
 

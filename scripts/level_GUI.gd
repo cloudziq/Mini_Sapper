@@ -1,9 +1,18 @@
 extends CanvasLayer
+# jebać PIS i PO forever
 
 #signal restart
 
 
-# kratki zeby wypierdlało łańcuchowo ^.^
+
+
+
+
+# random note:
+# kratki zeby wypierdlało łańcuchowo ^.^  ??
+
+
+
 
 
 

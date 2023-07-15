@@ -58,8 +58,6 @@ func _process(_dt):
 		hold_touch_time  =  0
 
 	if hold_touch_time > 0:
-#		print("poszło")
-
 		if OS.get_system_time_msecs() > hold_touch_time:
 			hold_touch_time  =  -1
 			if not TOUCH:  add_touch()
@@ -70,32 +68,36 @@ func _process(_dt):
 
 
 func _input(event):
-	var pos            := get_global_mouse_position()
 
 	if allow_board_input and event is InputEventScreenTouch:
-
 		if event.is_pressed():
 #			print("pressed")
-			var x  = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
-			var y  = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
-
-			if x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y):
-				tile_coord = Vector2(x, y)
-				hold_touch_time    = OS.get_system_time_msecs() + 500
+			hold_touch_time    = OS.get_system_time_msecs() + 500
 
 		elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
-#			print("released")
-			hold_touch_time    = 0
+#				print("released")
+				hold_touch_time    = 0
+				if not TOUCH:  add_touch()
+
+	elif event is InputEventMouseButton and event.is_pressed():
+		if event.button_index == BUTTON_RIGHT:
+#			print("right pressed")
+			hold_touch_time  =  -1
 			if not TOUCH:  add_touch()
 
 
 
 
 
-
 func check_clicked_tile():    # called from touch collision
-	#normal click or placing a marker
+	# normal click (checking if there is a bomb, if not - reveal), or placing a marker:
 
+	var pos := get_global_mouse_position()
+	var x    = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
+	var y    = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
+
+	if x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y):
+		tile_coord = Vector2(x, y)
 	var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1][1]
 
 	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = (-1)'
@@ -106,23 +108,22 @@ func check_clicked_tile():    # called from touch collision
 	#			$Sounds/TileReveal.play()
 		elif tile_stat == 1:
 			game_over()
-			print("BOOM!")
 	else:
-		add_marker()
+		if tile_stat < 2:
+			add_marker()
 
 
 
 
 
 
-func add_touch():
-#	print("touch!")
+func add_touch():    # result of check_clicked_tile()
 	var pos        := get_global_mouse_position()
 
 	TOUCH           = _touch.instance()
 	TOUCH.position  = pos
 	add_child(TOUCH)
-	yield(get_tree().create_timer(.1), "timeout")
+	yield(get_tree().create_timer(.02), "timeout")
 	TOUCH.queue_free()
 	TOUCH            = null
 
@@ -131,7 +132,7 @@ func add_touch():
 
 
 
-func add_marker():
+func add_marker():    # result of check_clicked_tile()
 	var pos  := get_global_mouse_position()
 	var x     = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size) -1
 	var y     = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size) -1
@@ -162,6 +163,8 @@ func add_marker():
 func game_over():
 	var tile_rot  : float
 
+	print("BOOM!")
+
 	for x in board_size.x:
 		for y in board_size.y:
 			if board_data[x][y][1] == 1:
@@ -179,8 +182,9 @@ var near_coords = [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord : Vector2, neighbours_table := []):
-	var tx ; var ty
+func tile_reveal(coord : Vector2, neighbours_table := []) -> void:
+	var tx  : int
+	var ty  : int
 
 	coord      -= Vector2(1,1)
 	tiles_left -= 1
@@ -215,7 +219,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
 				neighbours_table.append(Vector2(tx, ty))
 
-	# process every tiles:
+	# process every found tiles:
 	for index in neighbours_table:
 		var x = index.x
 		var y = index.y
@@ -228,12 +232,12 @@ func tile_reveal(coord : Vector2, neighbours_table := []):
 
 
 
-func generate_board():
-	var x_def = (G.window.x - (board_size.x * tile_size)) / 2 + (tile_size / 2)
-	var y_def = (G.window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
-	var pos   = Vector2(x_def, y_def)
-	var TILE  : Node2D
-	var BOMB  : Node2D
+func generate_board() -> void:
+	var x_def := (G.window.x - (board_size.x * tile_size)) / 2 + (tile_size / 2)
+	var y_def := (G.window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
+	var pos    = Vector2(x_def, y_def)
+	var TILE  :  Node2D
+	var BOMB  :  Node2D
 
 	board_data     = []
 	G.tiles_ready  =  0
@@ -274,7 +278,7 @@ func generate_board():
 
 
 
-func gen_pos():
+func gen_pos() -> Vector2:
 	var x = floor(rand_range(0, board_size.x))
 	var y = floor(rand_range(0, board_size.y))
 	return Vector2(x, y)
@@ -284,7 +288,7 @@ func gen_pos():
 
 
 
-func gen_num(x, y):
+func gen_num(x, y) -> void:
 	var counter  = 0
 	var LABEL    : CenterContainer
 
@@ -302,4 +306,7 @@ func gen_num(x, y):
 		board_data[x][y][0][0].add_child(LABEL)    #assign as a child of tile
 		board_data[x][y][2]           = counter
 		board_data[x][y][0][3]        = LABEL
-		LABEL.get_node("Label").text  = str(counter)
+		if counter != 1:
+			LABEL.get_node("Label").text  = str(counter)
+		else:
+			LABEL.get_node("Label").text  = "I"

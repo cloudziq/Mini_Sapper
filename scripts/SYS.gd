@@ -14,8 +14,8 @@ export var rec           : bool
 var tile_size_in_pixels  := 32
 
 # should be later affected by performance setting?:
-var board_max_tiles_w    := 60
-var board_max_tiles_h    := 60
+#var board_max_tiles_w    := 60
+#var board_max_tiles_h    := 60
 
 
 onready var BG_amount     = countImages("res://assets/graphics/level_bg/OLD")
@@ -64,7 +64,7 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[25,      25,      42,      0],        # 1
+	[20,      25,      40,      0],        # 1
 	[5,        4,       1,      0],        # 2
 	[5,        5,       1,      0],        # 3
 	[5,        6,       1,      0],        # 4

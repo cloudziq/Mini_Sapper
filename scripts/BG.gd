@@ -78,7 +78,7 @@ func spawn_ball():
 	var sprite : Node2D
 
 	# spawnuje kratki:
-	for i in 10:
+	for i in 12:
 		var x    := rand_range(offset, G.window.x - offset) - G.window.x/2
 		var y    := rand_range(offset, G.window.y - offset) - G.window.y/2
 		var BALL :  Node2D = _ball.instance()

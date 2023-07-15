@@ -112,10 +112,11 @@ func tile_finish():
 
 
 # type:
+#  -1  : init
 #	0  : position
 #	1  : rotation
 
-func animate_tile(type := 0):
+func animate_tile(type := 0) -> void:
 #	var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
 	var pos        = def_pos
 	var rot        = def_rot
@@ -145,9 +146,21 @@ func animate_tile(type := 0):
 
 
 
-func reveal(counter := 0):
-	yield(get_tree().create_tween().tween_interval(test_num / 40), "finished")
-	test_num += 1
+func show_near_tiles(coord : Vector2) -> void:
+	var near_coords  = $"../".near_coords
+	var tx           : int
+	var ty           : int
+
+	for index in near_coords:
+		tx = coord.x + index[0]
+		ty = coord.y + index[1]
+
+
+
+
+
+
+func reveal(counter := 0) -> void:
 	var col
 
 	if theme_data[2] == false:
@@ -155,8 +168,7 @@ func reveal(counter := 0):
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-	if tween:
-		tween.kill()
+	if tween:  tween.kill()
 	tween      = get_tree().create_tween().set_parallel(true)
 
 	var delay     := rand_range(.12, .28)
@@ -184,12 +196,12 @@ func reveal(counter := 0):
 		scale_to    = Vector2(.14, .14) + Vector2(mult, mult)
 		trans       = Tween.TRANS_BOUNCE
 
+		PARTICLES = _particles.instance()
+		add_child(PARTICLES)
+#		PARTICLES.show(counter)
+
 	tween.tween_property(self, "scale", scale_to, 3.25
 		).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
-
-	PARTICLES = _particles.instance()
-	add_child(PARTICLES)
-	PARTICLES.show(counter)
 
 
 
