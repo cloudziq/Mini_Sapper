@@ -98,19 +98,22 @@ func check_clicked_tile():    # called from touch collision
 
 	if x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y):
 		tile_coord = Vector2(x, y)
-	var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1][1]
+	var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1]
+
+	if tile_stat[2] > 0 and tile_stat[1] == 2:
+		show_near_tiles(tile_coord)
 
 	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = (-1)'
-		if tile_stat == 0:
+		if tile_stat[1] == 0:
 			$TileReveal.play()
 			tile_reveal(tile_coord, [])
 	#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 	#			$Sounds/TileReveal.play()
-		elif tile_stat == 1:
+		elif tile_stat[1] == 1:
 			game_over()
+
 	else:
-		if tile_stat < 2:
-			add_marker()
+		if tile_stat[1] < 2:  add_marker()
 
 
 
@@ -227,6 +230,26 @@ func tile_reveal(coord : Vector2, neighbours_table := []) -> void:
 		#process only unrevealed tiles:
 		if board_data[x][y][1] == 0:
 			tile_reveal(Vector2(x+1, y+1), neighbours_table)
+
+
+
+
+
+
+func show_near_tiles(start_coord : Vector2) -> void:
+	var tx      :  int
+	var ty      :  int
+	start_coord -= Vector2(1, 1)
+
+	for index in near_coords:
+		tx = start_coord.x + index[0]
+		ty = start_coord.y + index[1]
+
+		if (tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1)):
+			if board_data[tx][ty][1] < 2:
+				var tile  :  Node2D   = board_data[tx][ty][0][0]
+				tile.animate_tile(2)
+
 
 
 

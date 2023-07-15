@@ -7,14 +7,16 @@ export(PackedScene) var _particles ;  var PARTICLES
 var path         = "res://assets/graphics/tiles/TILE_"
 var dark_color   = Color(.24, .32, .36, 1)
 var reduce_mov  := false    #for 'empty revealed' tiles
-#var texture_list
-var def_pos ; var def_rot ; var def_sca
+var def_pos     :  Vector2
+var def_sca     :  Vector2
+var def_rot     :  float
 
 
 onready var	theme       = G.SETTINGS.theme
 onready var	theme_data  = $"../../".theme_data[theme-1]
 
-var tween      : SceneTreeTween
+var tween        : SceneTreeTween
+var tween_scale  : SceneTreeTween
 
 
 
@@ -115,6 +117,7 @@ func tile_finish():
 #  -1  : init
 #	0  : position
 #	1  : rotation
+#   2  : scale
 
 func animate_tile(type := 0) -> void:
 #	var tween      = get_tree().create_tween().set_trans(Tween.TRANS_QUINT)
@@ -123,7 +126,7 @@ func animate_tile(type := 0) -> void:
 
 	if tween and type == -1:
 		tween.kill()
-	tween      = get_tree().create_tween()
+	tween  = get_tree().create_tween()
 
 	if type == 0:
 		var distance  := 3.2 if not reduce_mov else 1.6
@@ -133,7 +136,9 @@ func animate_tile(type := 0) -> void:
 		tween.tween_property(self, "position", pos, rand_range(6, 8)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_callback(self, "animate_tile").set_delay(.2)
-	else :
+
+
+	elif type == 1:
 		var angle  := 22
 		rot        += rand_range(-angle, angle)
 
@@ -142,19 +147,23 @@ func animate_tile(type := 0) -> void:
 		tween.tween_callback(self, "animate_tile", [1]).set_delay(.2)
 
 
+	elif type == 2:
+		var i  : float
+		i  = rand_range(-.04, .04)
+		var s_min  : Vector2  = def_sca * .40 + Vector2(i, i)
+		i  = rand_range(0, .06)
+		var s_max  : Vector2  = def_sca * 1.16 + Vector2(i, i)
 
+		if tween_scale:
+			tween_scale.kill()
+		tween_scale  = get_tree().create_tween()
 
-
-
-func show_near_tiles(coord : Vector2) -> void:
-	var near_coords  = $"../".near_coords
-	var tx           : int
-	var ty           : int
-
-	for index in near_coords:
-		tx = coord.x + index[0]
-		ty = coord.y + index[1]
-
+		tween_scale.tween_property(self, "scale", s_min, .28 + rand_range(-.04, .04)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween_scale.tween_property(self, "scale", s_max, .32 + rand_range(-.04, .04)
+			).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT).set_delay(.14)
+		tween_scale.tween_property(self, "scale", def_sca, .8 + rand_range(-.1, .1)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.04)
 
 
 
