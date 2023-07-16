@@ -103,14 +103,16 @@ func check_clicked_tile():    # called from touch collision
 	if tile_stat[2] > 0 and tile_stat[1] == 2:
 		show_near_tiles(tile_coord)
 
+
 	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = (-1)'
-		if tile_stat[1] == 0:
-			$TileReveal.play()
-			tile_reveal(tile_coord, [])
-	#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
-	#			$Sounds/TileReveal.play()
-		elif tile_stat[1] == 1:
-			game_over()
+		if not tile_stat[0][1]:
+			if tile_stat[1] == 0:
+					$TileReveal.play()
+					tile_reveal(tile_coord, [])
+			#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
+			#			$Sounds/TileReveal.play()
+			elif tile_stat[1] == 1:
+				game_over()
 
 	else:
 		if tile_stat[1] < 2:  add_marker()
