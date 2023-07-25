@@ -51,7 +51,7 @@ func _ready():
 
 
 
-func _process(_dt):
+func _process(_dt) -> void:
 
 	# triggering a marker:
 	if $ZoomCam.is_moving:
@@ -247,10 +247,10 @@ func show_near_tiles(start_coord : Vector2) -> void:
 		tx = start_coord.x + index[0]
 		ty = start_coord.y + index[1]
 
-		if (tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1)):
+		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[tx][ty][1] < 2:
-				var tile  :  Node2D   = board_data[tx][ty][0][0]
-				tile.animate_tile(2)
+				board_data[tx][ty][0][0].bump_tile()
+
 
 
 
@@ -331,7 +331,7 @@ func gen_num(x, y) -> void:
 		board_data[x][y][0][0].add_child(LABEL)    #assign as a child of tile
 		board_data[x][y][2]           = counter
 		board_data[x][y][0][3]        = LABEL
-		if counter != 1:
-			LABEL.get_node("Label").text  = str(counter)
-		else:
-			LABEL.get_node("Label").text  = "I"
+#		if counter != 1:
+		LABEL.get_node("Label").text  = str(counter)
+#		else:
+#			LABEL.get_node("Label").text  = "I"

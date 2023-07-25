@@ -20,13 +20,13 @@ func _ready():
 
 func animate_label():
 	var tween  = get_tree().create_tween()
-	var rot    = 0 - abs($"../".rotation_degrees)
+	var rot    = 0 - abs(get_parent().rotation_degrees)
 
 	rot +=  rand_range(-skew_dist, skew_dist)
 
 	tween.tween_property(self, "rect_rotation", rot, rand_range(1, 3)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_callback(self, "animate_label").set_delay(0.1)
+	tween.tween_callback(self, "animate_label").set_delay(0.2)
 
 
 

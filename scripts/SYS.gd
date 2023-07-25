@@ -1,5 +1,5 @@
 # Dziq 2022 - 2023
-# v -0.1 ultra alfa beta gamma
+# v -0.2 ultra alfa beta gamma
 
 
 
@@ -64,7 +64,7 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[20,      25,      40,      0],        # 1
+	[20,      30,      40,      0],        # 1
 	[5,        4,       1,      0],        # 2
 	[5,        5,       1,      0],        # 3
 	[5,        6,       1,      0],        # 4

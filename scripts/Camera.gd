@@ -22,7 +22,7 @@ var is_moving            := false
 func _ready():
 	var i  = G.SETTINGS.zoom_level
 
-	yield(get_tree().create_timer(.004), "timeout")
+	yield(get_tree().create_timer(.04), "timeout")
 	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
 	target_zoom       = Vector2(i, i)
 
@@ -31,7 +31,7 @@ func _ready():
 
 
 
-func _process(delta: float):
+func _process(delta: float) -> void:
 	#camera zoom
 	if zoom != target_zoom:
 		var i        = clamp(target_zoom.x, min_zoom, max_zoom)
@@ -60,7 +60,8 @@ func _process(delta: float):
 
 
 
-func _input(event: InputEvent):
+func _input(event: InputEvent) -> void:
+	#cam zooming:
 	if event.is_pressed():
 		if event.is_action_pressed("zoom+"):
 			target_zoom += Vector2(zoom_step, zoom_step)
@@ -69,23 +70,25 @@ func _input(event: InputEvent):
 
 		G.SETTINGS.zoom_level  = target_zoom.x
 
-	#cam dragging
+
+	#cam dragging:
 	if event is InputEventScreenTouch:
 		if event.is_pressed():
 			is_dragging          = true
 			drag_start_position  = event.position
 		else:
 			is_dragging          = false
+
 	elif event is InputEventMouseMotion and is_dragging:
 #		var drag_end_position = event.position
 		drag_vector    = (event.position - drag_start_position) * -1
-		drag_vector   /= zoom.x * 4
+		drag_vector   *= zoom.x * .28
 		new_pos        = position + drag_vector
+
 		var drag_dist  = drag_vector.x + drag_vector.y
 		drag_vector    = Vector2.ZERO
 
-		if drag_dist > 4 or drag_dist < -4:
+		if drag_dist >= 2 or drag_dist <= -2:
 			is_moving  = true
-#			print("true")
 		else:
 			is_moving  = false

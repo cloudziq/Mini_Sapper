@@ -11,8 +11,9 @@ config_version=4
 [application]
 
 config/name="Mini Sapper"
-config/description="Bombero?  Sraper?"
+config/description="Bombero?  Sraper?  BoomBlast?"
 run/main_scene="res://scenes/SYS.tscn"
+run/delta_sync_after_draw=true
 boot_splash/image="res://assets/graphics/bomb/bomb.png"
 boot_splash/fullsize=false
 boot_splash/bg_color=Color( 0, 0, 0, 1 )
@@ -138,7 +139,6 @@ quality/driver/driver_name="GLES2"
 quality/intended_usage/framebuffer_allocation=0
 quality/intended_usage/framebuffer_allocation.mobile=1
 quality/filters/anisotropic_filter_level=1
-batching/options/single_rect_fallback=true
 batching/parameters/max_join_item_commands=8
 batching/lights/max_join_items=16
 quality/filters/use_fxaa=true
