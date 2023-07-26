@@ -149,15 +149,15 @@ func add_marker():    # result of check_clicked_tile()
 			node  = _marker.instance()
 			board_data[x][y][0][0].add_child(node)
 			board_data[x][y][0][1]  = node
-			$Marker.pitch_scale  = 3.22
+			$TileMarker.pitch_scale  = 3.22
 		else:
 			marker_amount -= 1
 			board_data[x][y][0][1].queue_free()
 			board_data[x][y][0][1]  = null
-			$Marker.pitch_scale  = 6.48
+			$TileMarker.pitch_scale  = 6.48
 
 	$GUI.update()
-	$Marker.play()
+	$TileMarker.play()
 	hold_touch_time  = 0
 
 
@@ -243,6 +243,9 @@ func show_near_tiles(start_coord : Vector2) -> void:
 	var ty      :  int
 	start_coord -= Vector2(1, 1)
 
+	$TileBump.pitch_scale  = .68 + rand_range(-.04, .04)
+	$TileBump.play()
+
 	for index in near_coords:
 		tx = start_coord.x + index[0]
 		ty = start_coord.y + index[1]
@@ -322,7 +325,7 @@ func gen_num(x, y) -> void:
 		var cy = y + index[1]
 
 #		if (cx >= 0 and cx <= board_size.x-1) and (cy >= 0 and cy <= board_size.y-1):
-		if (cx == clamp(cx, 0, board_size.x-1) and cy == clamp(cy, 0, board_size.y-1)):
+		if cx == clamp(cx, 0, board_size.x-1) and cy == clamp(cy, 0, board_size.y-1):
 			if board_data[cx][cy][1] == 1:    #if tile has a bomb
 				counter = counter + 1
 
@@ -331,7 +334,7 @@ func gen_num(x, y) -> void:
 		board_data[x][y][0][0].add_child(LABEL)    #assign as a child of tile
 		board_data[x][y][2]           = counter
 		board_data[x][y][0][3]        = LABEL
-#		if counter != 1:
-		LABEL.get_node("Label").text  = str(counter)
-#		else:
-#			LABEL.get_node("Label").text  = "I"
+		if counter != 1:
+			LABEL.get_node("Label").text  = str(counter)
+		else:
+			LABEL.get_node("Label").text  = "I"

@@ -34,11 +34,11 @@ func animate_label():
 
 
 func reveal(rot := 0):
+	var tween      = get_tree().create_tween()
 	def_rot        = 0 - abs(rot) + rand_range(-skew_dist, skew_dist)
 	rect_scale     = Vector2(.01, .01)
 	rect_rotation  = def_rot
 	visible        = true
-	var tween      = get_tree().create_tween()
 
 	tween.tween_property(self, "rect_scale", def_sca , rand_range(.8, 1.4)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)

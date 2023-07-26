@@ -26,6 +26,7 @@ G="*res://scripts/Globals.gd"
 [debug]
 
 settings/gdscript/max_call_stack=4096
+gdscript/warnings/return_value_discarded=false
 gdscript/warnings/integer_division=false
 shapes/collision/shape_color=Color( 0.913725, 0.913725, 0.913725, 0.419608 )
 

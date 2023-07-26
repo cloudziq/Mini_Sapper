@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/tile_font_0.tga-2c9caf452653c1b7bdf982b497233575.stex"
+path="res://.import/TileFont_0.tga-de2a0cd724f754dd404fe63b05088fdb.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/graphics/fonts/tile_font_0.tga"
-dest_files=[ "res://.import/tile_font_0.tga-2c9caf452653c1b7bdf982b497233575.stex" ]
+source_file="res://assets/graphics/fonts/TileFont_0.tga"
+dest_files=[ "res://.import/TileFont_0.tga-de2a0cd724f754dd404fe63b05088fdb.stex" ]
 
 [params]
 
@@ -22,14 +22,14 @@ compress/normal_map=0
 flags/repeat=0
 flags/filter=true
 flags/mipmaps=true
-flags/anisotropic=false
+flags/anisotropic=true
 flags/srgb=2
-process/fix_alpha_border=true
+process/fix_alpha_border=false
 process/premult_alpha=false
 process/HDR_as_SRGB=false
 process/invert_color=false
 process/normal_map_invert_y=false
 stream=false
 size_limit=0
-detect_3d=true
+detect_3d=false
 svg/scale=1.0

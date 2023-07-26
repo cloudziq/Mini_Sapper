@@ -1,6 +1,6 @@
 extends Area2D
 
-var test_num  := 0
+#var test_num  := 0
 export(PackedScene) var _particles ;  var PARTICLES
 
 
@@ -25,15 +25,16 @@ onready var	theme_data  = $"../../".theme_data[theme-1]
 
 
 func _ready() -> void:
-#	$Sprite.z_index = -2
+	yield(get_tree().create_tween().tween_interval(.01), "finished")
+
 	tween_idle  = self.create_tween().set_trans(Tween.TRANS_LINEAR)
 
-	$Sprite.flip_v =  true if randf() > .5 else  false
-	$Sprite.flip_h =  true if randf() > .5 else  false
-
-	yield(get_tree().create_timer(.004), "timeout")
-
+	$Sprite.flip_v   =  true if randf() > .5 else  false
+	$Sprite.flip_h   =  true if randf() > .5 else  false
 	$Sprite.modulate = dark_color
+
+	yield(get_tree().create_timer(.02), "timeout")
+
 	if theme_data[0] == 1:
 		if theme_data[2] == false:
 			$Sprite.texture = load(path + str(theme) + ".png")
@@ -54,9 +55,9 @@ func _ready() -> void:
 	def_rot  = rotation_degrees
 	def_sca  = scale * 0.92
 
-	position          = G.gen_offscreen_pos(125)
+	position          = G.gen_offscreen_pos(100)
 	rotation_degrees  = randi() % 361
-	var a             : float = rand_range(.8, 4.2)
+	var a             : float = rand_range(.1, .6)
 	scale             = Vector2(a, a)
 
 	#1
@@ -67,23 +68,23 @@ func _ready() -> void:
 
 	tween_idle.tween_callback($TileMain, "play").set_delay(a)
 
-	tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.20, .32)
+	tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.64, 1.2) #(.20, .32)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-	tween_idle.tween_property(self, "scale", def_sca, .4
+	tween_idle.tween_property(self, "scale", def_sca, .6
 		).set_ease(Tween.EASE_OUT)
 
 	#2
-	tween_idle.tween_interval(.12)
+	tween_idle.tween_interval(.1)
 	tween_idle.set_parallel(false)
 	tween_idle.tween_property(self, "scale", def_sca * .4, .4
 		).set_ease(Tween.EASE_IN)
 
-	tween_idle.tween_property(self, "scale", def_sca, .6
-		).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tween_idle.tween_property(self, "scale", def_sca, .2
+		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-	tween_idle.set_parallel(true)
-	tween_idle.tween_callback(self, "tile_finish").set_delay(.16)
+#	tween_idle.set_parallel(true)
+	tween_idle.tween_callback(self, "tile_finish").set_delay(.025)
 
 
 
@@ -96,19 +97,16 @@ func tile_finish() -> void:
 	G.tiles_ready  += 1
 	if G.tiles_ready == (num[0] * num[1]):
 		get_parent().allow_board_input  = true
-#		animate_tile(-1)
 		G.tiles_ready  = 0
-#	else:
-#		animate_tile()
 
 	if theme_data[2] == false:
 		$Sprite.modulate  = Color(1,1,1,1)
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-	idle_animate(-1)
+	idle_anim(-1)
 	yield(get_tree().create_tween().tween_interval(.2), "finished")
-	idle_animate(1)
+	idle_anim(1)
 
 
 
@@ -120,7 +118,7 @@ func tile_finish() -> void:
 #	0  : position
 #	1  : rotation
 
-func idle_animate(type := 0) -> void:
+func idle_anim(type := 0) -> void:
 	var pos        := def_pos
 	var rot        := def_rot
 
@@ -135,7 +133,7 @@ func idle_animate(type := 0) -> void:
 
 		tween_idle.tween_property(self, "position", pos, rand_range(6, 8)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween_idle.tween_callback(self, "idle_animate").set_delay(.2)
+		tween_idle.tween_callback(self, "idle_anim").set_delay(.2)
 
 
 	elif type == 1:
@@ -144,14 +142,14 @@ func idle_animate(type := 0) -> void:
 
 		tween_idle.tween_property(self, "rotation_degrees", rot, rand_range(6, 10)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween_idle.tween_callback(self, "idle_animate", [1]).set_delay(.2)
+		tween_idle.tween_callback(self, "idle_anim", [1]).set_delay(.2)
 
 
 
 
 
 
-func bump_tile():
+func bump_tile() -> void:
 	var i  : float
 	i  = rand_range(-.04, .02)
 	var s_min  : Vector2  = def_sca * 0.40 + Vector2(i, i)
@@ -162,10 +160,12 @@ func bump_tile():
 	tween_bump  = self.create_tween()
 
 	tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
+
 	tween_bump.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
-		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT).set_delay(.12)
-	tween_bump.tween_property(self, "scale", def_sca, .64 + rand_range(-.06, .04)
+		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
+
+	tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.04)
 
 
@@ -185,11 +185,11 @@ func reveal(counter := 0) -> void:
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
+
 	if tween_idle:  tween_idle.kill()
 	tween_idle    = self.create_tween().set_parallel(true)
 
 	if counter == 0:
-	#if tile have 0 bomb count
 		reduce_mov  = true
 		scale_to    = Vector2(.1, .1)
 		trans       = Tween.TRANS_BOUNCE
@@ -205,7 +205,6 @@ func reveal(counter := 0) -> void:
 			).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
 	else:
-	#if tile have any number
 		var mult    = counter * .02
 		scale_to    = Vector2(.125, .125) + Vector2(mult, mult)
 		trans       = Tween.TRANS_ELASTIC
@@ -215,7 +214,6 @@ func reveal(counter := 0) -> void:
 		add_child(PARTICLES)
 #		PARTICLES.show(counter)
 
-	#for any tile:
 	tween_idle.tween_property(self, "scale", scale_to, 3.24 + time_mod
 		).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
@@ -234,4 +232,5 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 
 func _exit_tree():
-	queue_free()
+	pass
+#	queue_free()

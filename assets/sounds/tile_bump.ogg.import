@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/tile_bump.ogg-44821234fd9716f6ce95329c2195e4f1.oggstr"
+
+[deps]
+
+source_file="res://assets/sounds/tile_bump.ogg"
+dest_files=[ "res://.import/tile_bump.ogg-44821234fd9716f6ce95329c2195e4f1.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0
