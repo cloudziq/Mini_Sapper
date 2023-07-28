@@ -18,7 +18,7 @@ func _ready():
 	randomize()
 	spawn_ball()
 
-	# BG_1 texture is set in Inspector Tab with custom shader
+	# BG1 texture is set in Inspector Tab, uses custom shader
 
 	node   = $BG_static/BG2_mix
 	num    = str(floor(rand_range(1, BALL_amount)))
@@ -31,10 +31,10 @@ func _ready():
 	node.scale       = Vector2(val, val)
 
 
-	node   = $BG_static/BG3_detail
+	node   = $"%BG3_detail"
 	num    = str(floor(rand_range(1, BG_amount)))
 	scale  = node.scale
-	val    = rand_range(scale.x, scale.x * scale_mult)
+	val    = rand_range(scale.x * .84, scale.x * scale_mult * .84)
 
 	path   = "res://assets/graphics/level_bg/OLD/BG_"
 	node.texture = load(path+num+".png")
@@ -48,7 +48,7 @@ func _ready():
 func _process(dt: float):
 	$BG_static/BG_main.rotate   ( .024 * dt)
 #	$BG_static/BG2_mix.rotate   (-.016 * dt)
-	$BG_static/BG3_detail.rotate(-.018 * dt)
+	$"%BG3_detail".rotate(-.018 * dt)
 
 
 
@@ -56,9 +56,10 @@ func _process(dt: float):
 
 
 func _input(event: InputEvent):
-	if $"../".allow_board_input:
+	if get_parent().allow_board_input:
 		if event.is_action_pressed("reload_BG"):
-			var _i  = get_tree().reload_current_scene()
+			var i  = get_tree().reload_current_scene()
+			print(i)
 		elif event.is_action_pressed("change_tile"):
 			var theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
 			print("tile_theme = "  +str(theme))

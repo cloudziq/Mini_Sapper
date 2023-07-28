@@ -80,7 +80,6 @@ func _input(event: InputEvent) -> void:
 			is_dragging          = false
 
 	elif event is InputEventMouseMotion and is_dragging:
-#		var drag_end_position = event.position
 		drag_vector    = (event.position - drag_start_position) * -1
 		drag_vector   *= zoom.x * .28
 		new_pos        = position + drag_vector

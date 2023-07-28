@@ -150,7 +150,7 @@ func window_prepare():
 
 
 
-func countImages(path : String):
+func countImages(path : String) -> int:
 	var num       :=  0
 
 	var dir       := Directory.new()

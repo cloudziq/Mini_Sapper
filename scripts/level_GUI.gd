@@ -17,12 +17,12 @@ extends CanvasLayer
 
 
 func _on_Restart_Button_pressed():
-	$VBoxContainer/Lower/Button.disabled  = true
+#	$VBoxContainer/Lower/Button.disabled  = true
 #	var _a     = get_tree().reload_current_scene()
-	var tween  = get_tree().create_tween().set_trans(Tween.TRANS_SINE)
-	$"../".allow_board_input  = false
+	var tween  := get_tree().create_tween().set_trans(Tween.TRANS_SINE)
+#	get_parent().allow_board_input  = false
 
-	if $"../".player_dead:
+	if get_parent().player_fail:
 	#if player chooses to redraw:
 		var node = $VBoxContainer
 		tween.tween_property(node, "modulate", Color(1,1,1,0), .6)
@@ -58,16 +58,18 @@ func _on_Restart_Button_pressed():
 #		$anim_color.start()
 
 		####  SHOW BUTTON AFTER SOME TIME:
-		yield(get_tree().create_timer(1.6), "timeout")
-		$VBoxContainer/Lower/Button.disabled = false
-		tween.tween_property(node, "modulate", Color(1,1,1,1), .8)
+#		yield(get_tree().create_timer(1.6), "timeout")
+#		$VBoxContainer/Lower/Button.disabled = false
+#		tween.tween_property(node, "modulate", Color(1,1,1,1), .8)
+
 #		$anim_color.remove_all()
 #		$anim_color.interpolate_property(node, "modulate",
 #			Color(1,1,1,0), Color(1,1,1,1), .8,
 #			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 #		$anim_color.start()
 
-
+	yield(get_tree().create_tween().tween_interval(.4), "finished")
+	get_tree().reload_current_scene()
 
 
 

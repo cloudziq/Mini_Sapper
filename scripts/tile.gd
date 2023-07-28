@@ -27,6 +27,7 @@ onready var	theme_data  = $"../../".theme_data[theme-1]
 func _ready() -> void:
 	yield(get_tree().create_tween().tween_interval(.01), "finished")
 
+	PARTICLES   = _particles.instance()
 	tween_idle  = self.create_tween().set_trans(Tween.TRANS_LINEAR)
 
 	$Sprite.flip_v   =  true if randf() > .5 else  false
@@ -159,14 +160,26 @@ func bump_tile() -> void:
 	if tween_bump:  tween_bump.kill()
 	tween_bump  = self.create_tween()
 
+	var mod  = $Sprite.modulate
+	var def  = mod
+	mod.r   *= 22
+	mod.g   *= 14
+	mod.b   *= 16
+
 	tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
 		).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
 
 	tween_bump.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
 		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
 
-	tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
+	tween_bump.parallel().tween_property(self, "modulate", mod, .44 + rand_range(-.04, .04)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+
+	tween_bump.parallel().tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.04)
+
+	tween_bump.tween_property(self, "modulate", def, 10 + rand_range(-.08, .08)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.02)
 
 
 
@@ -210,7 +223,6 @@ func reveal(counter := 0) -> void:
 		trans       = Tween.TRANS_ELASTIC
 		time_mod    = rand_range(-.4, .4)
 
-		PARTICLES = _particles.instance()
 		add_child(PARTICLES)
 #		PARTICLES.show(counter)
 
@@ -233,4 +245,8 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 func _exit_tree():
 	pass
+#	tween_bump.kill()
+#	tween_idle.kill()
+#	pass
 #	queue_free()
+

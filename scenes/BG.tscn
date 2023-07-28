@@ -11,7 +11,7 @@ shader_param/x_scroll = 120.0
 shader_param/y_scroll = 80.0
 
 [sub_resource type="CanvasItemMaterial" id=7]
-blend_mode = 1
+blend_mode = 2
 light_mode = 1
 
 [sub_resource type="CanvasItemMaterial" id=8]
@@ -50,21 +50,23 @@ scale = Vector2( 0.8, 0.8 )
 texture = ExtResource( 2 )
 
 [node name="BG2_mix" type="Sprite" parent="BG_static"]
-self_modulate = Color( 0.396078, 0.611765, 0.678431, 0.0470588 )
+self_modulate = Color( 0.396078, 0.611765, 0.678431, 0.0313726 )
 material = SubResource( 7 )
 position = Vector2( 160, 340 )
 scale = Vector2( 0.6, 0.9 )
 
-[node name="BG3_detail" type="Sprite" parent="BG_static"]
-modulate = Color( 0.862745, 0.0980392, 0.0980392, 0.4 )
+[node name="BG_object" type="CanvasLayer" parent="."]
+layer = 0
+follow_viewport_enable = true
+
+[node name="BG3_detail" type="Sprite" parent="BG_object"]
+unique_name_in_owner = true
+modulate = Color( 0.862745, 0.203922, 0.203922, 0.321569 )
 light_mask = 0
 material = SubResource( 8 )
 position = Vector2( 158, 342 )
 rotation = 0.785398
 scale = Vector2( 6.2, 6.2 )
-
-[node name="BG_object" type="CanvasLayer" parent="."]
-follow_viewport_enable = true
 
 [node name="Holder" type="Node2D" parent="BG_object"]
 position = Vector2( 158, 340 )

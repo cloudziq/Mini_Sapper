@@ -51,7 +51,6 @@ func load_config():
 #	var err = config.load_encrypted(config_path, key)
 	if err != OK:
 		set_defaults()
-#		return
 	else:
 		if config.get_value("config", "save_version") == save_version:
 			SETTINGS = config.get_value("config", "settings")
