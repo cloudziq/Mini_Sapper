@@ -11,6 +11,8 @@ var def_pos     :  Vector2
 var def_sca     :  Vector2
 var def_rot     :  float
 
+#var allow_spawn_sound := false
+
 
 var tween_idle  : SceneTreeTween
 var tween_bump  : SceneTreeTween
@@ -28,6 +30,7 @@ func _ready() -> void:
 	yield(get_tree().create_tween().tween_interval(.01), "finished")
 
 	PARTICLES   = _particles.instance()
+	add_child(PARTICLES)
 	tween_idle  = self.create_tween().set_trans(Tween.TRANS_LINEAR)
 
 	$Sprite.flip_v   =  true if randf() > .5 else  false
@@ -61,30 +64,34 @@ func _ready() -> void:
 	var a             : float = rand_range(.1, .6)
 	scale             = Vector2(a, a)
 
+
 	#1
-	a  = rand_range(.42, .88)
-	tween_idle.set_parallel(true)
+	tween_idle.parallel().tween_property(
+		self, "rotation_degrees", def_rot, rand_range(.44, .77) #(.20, .32)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+	tween_idle.parallel().tween_property(self, "scale", def_sca, .44
+		).set_ease(Tween.EASE_OUT)
+
+	tween_idle.set_parallel(false)
+	a  = rand_range(.42, .64)
 	tween_idle.tween_property(self, "position", def_pos, a
 		).set_ease(Tween.EASE_IN)
 
-	tween_idle.tween_callback($TileMain, "play").set_delay(a)
+	# tile spawn sound:
+	if OS.get_system_time_msecs() >= get_parent().sound_timeout:
+		get_parent().sound_timeout  = OS.get_system_time_msecs() + 4
+		tween_idle.tween_callback(get_parent().get_node("TileMain"), "play")
 
-	tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.64, 1.2) #(.20, .32)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
-	tween_idle.tween_property(self, "scale", def_sca, .6
-		).set_ease(Tween.EASE_OUT)
 
 	#2
 	tween_idle.tween_interval(.1)
-	tween_idle.set_parallel(false)
 	tween_idle.tween_property(self, "scale", def_sca * .4, .4
 		).set_ease(Tween.EASE_IN)
 
 	tween_idle.tween_property(self, "scale", def_sca, .2
 		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-#	tween_idle.set_parallel(true)
 	tween_idle.tween_callback(self, "tile_finish").set_delay(.025)
 
 
@@ -150,42 +157,6 @@ func idle_anim(type := 0) -> void:
 
 
 
-func bump_tile() -> void:
-	var i  : float
-	i  = rand_range(-.04, .02)
-	var s_min  : Vector2  = def_sca * 0.40 + Vector2(i, i)
-	i  = rand_range(-.02, .06)
-	var s_max  : Vector2  = def_sca * 1.16 + Vector2(i, i)
-
-	if tween_bump:  tween_bump.kill()
-	tween_bump  = self.create_tween()
-
-	var mod  = $Sprite.modulate
-	var def  = mod
-	mod.r   *= 22
-	mod.g   *= 14
-	mod.b   *= 16
-
-	tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
-		).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
-
-	tween_bump.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
-		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
-
-	tween_bump.parallel().tween_property(self, "modulate", mod, .44 + rand_range(-.04, .04)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
-
-	tween_bump.parallel().tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.04)
-
-	tween_bump.tween_property(self, "modulate", def, 10 + rand_range(-.08, .08)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.02)
-
-
-
-
-
-
 func reveal(counter := 0) -> void:
 	var col      :  Color
 	var delay    := rand_range(.12, .28)
@@ -223,11 +194,103 @@ func reveal(counter := 0) -> void:
 		trans       = Tween.TRANS_ELASTIC
 		time_mod    = rand_range(-.4, .4)
 
-		add_child(PARTICLES)
-#		PARTICLES.show(counter)
+		add_tile_particles(0)
+
 
 	tween_idle.tween_property(self, "scale", scale_to, 3.24 + time_mod
 		).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
+
+
+
+
+
+
+# type:
+# 0: original tile          1: neighbour tile
+func bump_tile(type := 0) -> void:
+
+	if tween_bump:  tween_bump.kill()
+
+	if type == 1:
+		var ttl    : float  = 3.2
+
+		var i      : float
+		i  = rand_range(-.04, .02)
+		var s_min  : Vector2  = def_sca * 0.40 + Vector2(i, i)
+		i  = rand_range(-.02, .06)
+		var s_max  : Vector2  = def_sca * 1.16 + Vector2(i, i)
+
+		var mod  = $Sprite.modulate
+		var def  = mod
+		mod.r   *= 8
+		mod.g   *= 4
+		mod.b   *= .4
+
+		tween_bump  = self.create_tween()
+
+		tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
+			).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
+
+		tween_bump.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
+			).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
+
+		tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.04)
+
+		tween_bump.parallel().tween_property(self, "modulate", mod, .36 + rand_range(-.04, .04)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+
+		#### PARTICLES ####
+		tween_bump.parallel().tween_callback(self, "add_tile_particles", [1])
+
+		tween_bump.tween_property(self, "modulate", def, ttl + rand_range(-ttl * .14 , ttl * .12)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+
+	else:
+		og_tile_shake_anim(4)
+
+
+
+
+
+
+func og_tile_shake_anim(count : int):
+	var x           := rand_range(-4, 4)
+	var y           := rand_range(-4, 4)
+	var new_pos     := position + Vector2(x, y)
+	var speed_scale := .4
+
+	tween_bump   = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+	tween_bump.tween_property(self, "position", new_pos, rand_range(.1, .16) * speed_scale
+		)
+	tween_bump.tween_property(self, "position", def_pos, rand_range(.06, .1) * speed_scale
+		)
+
+	if count > 0:
+		tween_bump.tween_callback(self, "og_tile_shake_anim", [count-1])
+
+
+
+
+
+
+func add_tile_particles(type := 0) ->void:
+	var p_small : CPUParticles2D =  PARTICLES.get_node("particles_small")
+	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
+
+	if type == 0:
+#		p_small.restart()
+		p_small.one_shot    = true
+		p_blink.one_shot    = true
+		p_small.emitting    = true
+		p_blink.emitting    = true
+	else:
+		p_small.preprocess  = 0.22
+		p_small.one_shot    = true
+		p_small.emitting    = true
+		p_small.modulate.a  = .044
+		p_small.restart()
 
 
 
@@ -245,6 +308,7 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 func _exit_tree():
 	pass
+#   chujicipatozgranaekipa
 #	tween_bump.kill()
 #	tween_idle.kill()
 #	pass

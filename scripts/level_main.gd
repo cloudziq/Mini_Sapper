@@ -20,6 +20,8 @@ var hold_touch_time    := 0.0
 var allow_board_input  := false
 var player_fail        := false
 
+var sound_timeout      := 0.0
+
 
 # board_data contents:
 # [tile_id, marker_id, bomb_id, label_id], tile_status, bomb_count]
@@ -107,7 +109,7 @@ func check_clicked_tile():    # called from touch collision
 	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = (-1)'
 		if not tile_stat[0][1]:
 			if tile_stat[1] == 0:
-					$TileReveal.play()
+					$TileRevealSingle.play()
 					tile_reveal(tile_coord, [])
 			#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 			#			$Sounds/TileReveal.play()
@@ -187,9 +189,18 @@ var near_coords = [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord : Vector2, neighbours_table := []) -> void:
+func tile_reveal(coord : Vector2, neighbours_table := [], count := 0) -> void:
 	var tx  : int
 	var ty  : int
+
+	match count:
+		2:
+#			var i  := rand_range(-.4, .4)
+			$TileRevealMedium.pitch_scale += rand_range(-.4, .4)
+			$TileRevealMedium.play()
+		20:
+			$TileRevealBig.pitch_scale    += rand_range(-.08, .08)
+			$TileRevealBig.play()
 
 	coord      -= Vector2(1,1)
 	tiles_left -= 1
@@ -231,7 +242,7 @@ func tile_reveal(coord : Vector2, neighbours_table := []) -> void:
 
 		#process only unrevealed tiles:
 		if board_data[x][y][1] == 0:
-			tile_reveal(Vector2(x+1, y+1), neighbours_table)
+			tile_reveal(Vector2(x+1, y+1), neighbours_table, count+1)
 
 
 
@@ -243,8 +254,11 @@ func show_near_tiles(start_coord : Vector2) -> void:
 	var ty      :  int
 	start_coord -= Vector2(1, 1)
 
-	$TileBump.pitch_scale  = .68 + rand_range(-.04, .04)
+	$TileBump.pitch_scale  = 0 + (.68 + rand_range(-.05, .05))
 	$TileBump.play()
+
+
+	board_data[start_coord.x][start_coord.y][0][0].bump_tile()
 
 	for index in near_coords:
 		tx = start_coord.x + index[0]
@@ -252,7 +266,7 @@ func show_near_tiles(start_coord : Vector2) -> void:
 
 		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[tx][ty][1] < 2:
-				board_data[tx][ty][0][0].bump_tile()
+				board_data[tx][ty][0][0].bump_tile(1)
 
 
 
@@ -267,9 +281,12 @@ func generate_board() -> void:
 	var TILE  :  Node2D
 	var BOMB  :  Node2D
 
+	#reset stuff:
 	board_data     = []
-	G.tiles_ready  =  0
+	G.tiles_ready  = 0
+	sound_timeout  = 0.0
 	$GUI.update()
+
 
 	#### GENERATE TILES:
 	for x in board_size.x:
@@ -282,8 +299,10 @@ func generate_board() -> void:
 			pos.y         += tile_size
 			add_child(TILE)
 			board_data[x].append([[TILE, null, null, null], 0, 0])
+
 		pos.x += tile_size
 		pos.y = y_def
+
 
 	#### GENERATE BOMBS:
 	pos = gen_pos()
@@ -294,6 +313,7 @@ func generate_board() -> void:
 		BOMB  = _bomb.instance()
 		board_data[pos.x][pos.y][0][2]  = BOMB
 		board_data[pos.x][pos.y][0][0].add_child(BOMB)
+
 
 	#### GENERATE NUMBERS:
 	for x in board_size.x:

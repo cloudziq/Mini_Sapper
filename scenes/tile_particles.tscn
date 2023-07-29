@@ -9,7 +9,7 @@ light_mode = 1
 particles_animation = true
 particles_anim_h_frames = 2
 particles_anim_v_frames = 2
-particles_anim_loop = true
+particles_anim_loop = false
 
 [sub_resource type="AtlasTexture" id=3]
 flags = 4
@@ -17,13 +17,12 @@ atlas = ExtResource( 1 )
 region = Rect2( 0, 0, 256, 256 )
 
 [sub_resource type="Curve" id=8]
-max_value = 0.5
 bake_resolution = 20
-_data = [ Vector2( 0, 0.5 ), 0.0, -0.0996199, 0, 0, Vector2( 0.592614, 0.215311 ), -1.22995, -1.22995, 0, 0, Vector2( 1, 0.00485992 ), -0.0355537, 0.0, 0, 0 ]
+_data = [ Vector2( 0, 0.118738 ), 0.0, -0.0996199, 0, 0, Vector2( 0.0921576, 0.706856 ), 1.58806, 1.58806, 0, 0, Vector2( 0.307438, 0.407813 ), -2.76976, -2.76976, 0, 0, Vector2( 0.550201, 0.0888335 ), -0.801772, -0.801772, 0, 0, Vector2( 1, 0 ), -0.107298, 0.0, 0, 0 ]
 
 [sub_resource type="Gradient" id=4]
-offsets = PoolRealArray( 0, 0.0786517, 0.258427, 0.966292, 1 )
-colors = PoolColorArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.606987, 1, 1, 1, 0, 1, 1, 1, 0 )
+offsets = PoolRealArray( 0, 0.171717, 0.368687, 0.966292, 1 )
+colors = PoolColorArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.432704, 1, 1, 1, 0, 1, 1, 1, 0 )
 
 [sub_resource type="Curve" id=15]
 max_value = 4.0
@@ -41,41 +40,42 @@ _data = [ Vector2( 0, 9.09523 ), 0.0, -30.4697, 0, 0, Vector2( 1, 0 ), -3.46956,
 [node name="Node2D" type="Node2D"]
 script = ExtResource( 2 )
 
-[node name="Particles_small" type="CPUParticles2D" parent="."]
+[node name="particles_small" type="CPUParticles2D" parent="."]
+modulate = Color( 0.862745, 0.729412, 0.729412, 0.705882 )
 light_mask = 0
 material = SubResource( 1 )
 z_index = 1
-amount = 10
-lifetime = 0.8
-speed_scale = 2.8
-randomness = 0.66
-lifetime_randomness = 0.86
+emitting = false
+amount = 2
+lifetime = 2.0
+explosiveness = 1.0
 local_coords = false
 texture = SubResource( 3 )
 emission_shape = 1
-emission_sphere_radius = 4.0
+emission_sphere_radius = 2.0
+flag_align_y = true
 direction = Vector2( 0, 0 )
 spread = 180.0
 gravity = Vector2( 0, 0 )
-initial_velocity = 28.0
-initial_velocity_random = 0.45
+initial_velocity = 80.0
 orbit_velocity_random = 1.0
-radial_accel = 4.0
+linear_accel = 6.0
+linear_accel_random = 0.2
 radial_accel_random = 0.2
-damping = 4.45
 damping_random = 0.25
 angle_random = 1.0
-scale_amount = 1.6
-scale_amount_random = 0.36
+scale_amount = 2.0
+scale_amount_random = 0.2
 scale_amount_curve = SubResource( 8 )
 color = Color( 1, 1, 1, 0.345098 )
 color_ramp = SubResource( 4 )
 anim_speed = 10.43
 
-[node name="Particles_blink" type="CPUParticles2D" parent="."]
+[node name="particles_blink" type="CPUParticles2D" parent="."]
 light_mask = 0
 material = SubResource( 1 )
 z_index = 1
+emitting = false
 amount = 1
 texture = SubResource( 3 )
 spread = 0.0
