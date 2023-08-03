@@ -189,16 +189,15 @@ var near_coords = [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord : Vector2, neighbours_table := [], count := 0) -> void:
+func tile_reveal(coord : Vector2, neighbours:= [], count := 0) -> void:
 	var tx  : int
 	var ty  : int
 
 	match count:
 		2:
-#			var i  := rand_range(-.4, .4)
 			$TileRevealMedium.pitch_scale += rand_range(-.4, .4)
 			$TileRevealMedium.play()
-		20:
+		22:
 			$TileRevealBig.pitch_scale    += rand_range(-.08, .08)
 			$TileRevealBig.play()
 
@@ -211,38 +210,45 @@ func tile_reveal(coord : Vector2, neighbours_table := [], count := 0) -> void:
 		#level_complete()
 #		return
 
-	#reveal tile:
-	board_data[coord.x][coord.y][0][0].reveal(board_data[coord.x][coord.y][2])
+	var tile_og  = board_data[coord.x][coord.y]
 
-	#reveal label:
-	if board_data[coord.x][coord.y][1] == 0 and board_data[coord.x][coord.y][2] > 0:
-		var angle = board_data[coord.x][coord.y][0][0].rotation_degrees
-		board_data[coord.x][coord.y][0][3].reveal(angle)
+	# reveal tile:
+	tile_og[0][0].reveal(tile_og[2])
 
-	#remove markers:
-	if board_data[coord.x][coord.y][0][1]:
+	# reveal label:
+	if tile_og[1] == 0 and tile_og[2] > 0:
+		var angle = tile_og[0][0].rotation_degrees
+		tile_og[0][3].reveal(angle)
+
+	# remove markers:
+	if tile_og[0][1]:
 		marker_amount -= 1
-		board_data[coord.x][coord.y][0][1].queue_free()
-		board_data[coord.x][coord.y][0][1]  = null
+		tile_og[0][1].queue_free()
+		tile_og[0][1]  = null
 
-	board_data[coord.x][coord.y][1]  = 2    #mark tile as 'revealed'
+	# mark tile as 'revealed' and remove bump tween:
+	tile_og[1]  = 2
+	if tile_og[0][0].tween_bump:
+		tile_og[0][0].tween_bump.set_speed_scale(4)
 
+	# create neighbours table:
 	for index in near_coords:
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
 
 		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
-			if board_data[coord.x][coord.y][2] == 0 and board_data[tx][ty][1] == 0:
-				neighbours_table.append(Vector2(tx, ty))
+			var tile       = board_data[tx][ty]
+			if tile_og[2] == 0 and tile[1] == 0:
+				neighbours.append(Vector2(tx, ty))
 
-	# process every found tiles:
-	for index in neighbours_table:
+	# process every found tile:
+	for index in neighbours:
 		var x = index.x
 		var y = index.y
 
 		#process only unrevealed tiles:
 		if board_data[x][y][1] == 0:
-			tile_reveal(Vector2(x+1, y+1), neighbours_table, count+1)
+			tile_reveal(Vector2(x+1, y+1), neighbours, count+1)
 
 
 

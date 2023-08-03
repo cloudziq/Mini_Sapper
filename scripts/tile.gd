@@ -7,6 +7,7 @@ export(PackedScene) var _particles ;  var PARTICLES
 var path        := "res://assets/graphics/tiles/TILE_"
 var dark_color  := Color(.24, .32, .36, 1)
 var reduce_mov  := false    #for 'empty revealed' tiles only
+var reduce_rot  := false    #for revealed tiles with > 0 count
 var def_pos     :  Vector2
 var def_sca     :  Vector2
 var def_rot     :  float
@@ -16,6 +17,7 @@ var def_rot     :  float
 
 var tween_idle  : SceneTreeTween
 var tween_bump  : SceneTreeTween
+var tween_rev   : SceneTreeTween
 
 
 onready var	theme       = G.SETTINGS.theme
@@ -65,26 +67,26 @@ func _ready() -> void:
 	scale             = Vector2(a, a)
 
 
-	#1
-	tween_idle.parallel().tween_property(
-		self, "rotation_degrees", def_rot, rand_range(.44, .77) #(.20, .32)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	#phase 1
+	tween_idle.set_parallel(true)
+	tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.2)
 
 	tween_idle.parallel().tween_property(self, "scale", def_sca, .44
 		).set_ease(Tween.EASE_OUT)
 
-	tween_idle.set_parallel(false)
 	a  = rand_range(.42, .64)
 	tween_idle.tween_property(self, "position", def_pos, a
 		).set_ease(Tween.EASE_IN)
 
-	# tile spawn sound:
+		#tile spawn sound:
 	if OS.get_system_time_msecs() >= get_parent().sound_timeout:
 		get_parent().sound_timeout  = OS.get_system_time_msecs() + 4
 		tween_idle.tween_callback(get_parent().get_node("TileMain"), "play")
 
 
-	#2
+	#phase 2
+	tween_idle.set_parallel(false)
 	tween_idle.tween_interval(.1)
 	tween_idle.tween_property(self, "scale", def_sca * .4, .4
 		).set_ease(Tween.EASE_IN)
@@ -112,9 +114,7 @@ func tile_finish() -> void:
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-	idle_anim(-1)
-	yield(get_tree().create_tween().tween_interval(.2), "finished")
-	idle_anim(1)
+	idle_anim([-1, 1])
 
 
 
@@ -126,31 +126,36 @@ func tile_finish() -> void:
 #	0  : position
 #	1  : rotation
 
-func idle_anim(type := 0) -> void:
+func idle_anim(type_list := [0]) -> void:
 	var pos        := def_pos
 	var rot        := def_rot
 
-	if tween_idle and type == -1:
-		tween_idle.kill()
-	tween_idle  = self.create_tween()
 
-	if type <= 0:
-		var distance  := 3.2 if not reduce_mov else 1.6
-		pos.x         += rand_range(-distance, distance)
-		pos.y         += rand_range(-distance, distance)
+	for type in type_list:
+#		yield(get_tree().create_tween().tween_interval(.25), "finished")
+		if type == -1 and tween_idle:
+#		rotation_degrees  = 0
+			tween_idle.kill()
+		tween_idle = self.create_tween().set_trans(
+			Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-		tween_idle.tween_property(self, "position", pos, rand_range(6, 8)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween_idle.tween_callback(self, "idle_anim").set_delay(.2)
+		match type:
+			0, -1:
+				var distance  := 3.2 if not reduce_mov else 1.6
+				pos.x         += rand_range(-distance, distance)
+				pos.y         += rand_range(-distance, distance)
 
+				tween_idle.tween_property(self, "position", pos, rand_range(6, 8)
+					)
+				tween_idle.tween_callback(self, "idle_anim").set_delay(.2)
+			1:
+				rot += rand_range(-22, 22)
+				if reduce_rot:
+					rot *= .46
 
-	elif type == 1:
-		var angle := 22
-		rot       += rand_range(-angle, angle)
-
-		tween_idle.tween_property(self, "rotation_degrees", rot, rand_range(6, 10)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween_idle.tween_callback(self, "idle_anim", [1]).set_delay(.2)
+				tween_idle.tween_property(self, "rotation_degrees", rot, rand_range(6, 10)
+					)
+				tween_idle.tween_callback(self, "idle_anim", [[1]]).set_delay(.2)
 
 
 
@@ -169,9 +174,7 @@ func reveal(counter := 0) -> void:
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-
-	if tween_idle:  tween_idle.kill()
-	tween_idle    = self.create_tween().set_parallel(true)
+	tween_rev    = self.create_tween().set_parallel(true)
 
 	if counter == 0:
 		reduce_mov  = true
@@ -185,7 +188,7 @@ func reveal(counter := 0) -> void:
 		else:
 			col.a  *= .36
 
-		tween_idle.tween_property($Sprite, "modulate", col, 3.24 + time_mod
+		tween_rev.tween_property($Sprite, "modulate", col, 3.24 + time_mod
 			).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
 	else:
@@ -195,9 +198,10 @@ func reveal(counter := 0) -> void:
 		time_mod    = rand_range(-.4, .4)
 
 		add_tile_particles(0)
+		reduce_rot  = true
 
 
-	tween_idle.tween_property(self, "scale", scale_to, 3.24 + time_mod
+	tween_rev.tween_property(self, "scale", scale_to, 3.24 + time_mod
 		).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
 
 
@@ -208,8 +212,6 @@ func reveal(counter := 0) -> void:
 # type:
 # 0: original tile          1: neighbour tile
 func bump_tile(type := 0) -> void:
-
-	if tween_bump:  tween_bump.kill()
 
 	if type == 1:
 		var ttl    : float  = 3.2
@@ -223,9 +225,11 @@ func bump_tile(type := 0) -> void:
 		var mod  = $Sprite.modulate
 		var def  = mod
 		mod.r   *= 8
-		mod.g   *= 4
+		mod.g   *= 4.4
 		mod.b   *= .4
 
+
+		if tween_bump:  tween_bump.kill()
 		tween_bump  = self.create_tween()
 
 		tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
@@ -235,7 +239,7 @@ func bump_tile(type := 0) -> void:
 			).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
 
 		tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.04)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.06)
 
 		tween_bump.parallel().tween_property(self, "modulate", mod, .36 + rand_range(-.04, .04)
 			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
@@ -286,10 +290,11 @@ func add_tile_particles(type := 0) ->void:
 		p_small.emitting    = true
 		p_blink.emitting    = true
 	else:
-		p_small.preprocess  = 0.22
+		p_small.preprocess  = 0.42
 		p_small.one_shot    = true
 		p_small.emitting    = true
-		p_small.modulate.a  = .044
+		p_small.modulate.a  = .046
+		p_small.speed_scale = .22
 		p_small.restart()
 
 
