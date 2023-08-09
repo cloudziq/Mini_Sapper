@@ -70,22 +70,23 @@ func _process(_dt) -> void:
 
 
 func _input(event):
+	if allow_board_input:
+		if event is InputEventScreenTouch:
+			if event.is_pressed():
+	#			print("pressed")
+				hold_touch_time    = OS.get_system_time_msecs() + 500
 
-	if allow_board_input and event is InputEventScreenTouch:
-		if event.is_pressed():
-#			print("pressed")
-			hold_touch_time    = OS.get_system_time_msecs() + 500
+			elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
+	#				print("released")
+					hold_touch_time    = 0
+					if not TOUCH:  add_touch()
 
-		elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
-#				print("released")
-				hold_touch_time    = 0
+		elif event is InputEventMouseButton and event.is_pressed():
+			if event.button_index == BUTTON_RIGHT:
+	#			print("right pressed")
+				hold_touch_time  =  -1
 				if not TOUCH:  add_touch()
 
-	elif event is InputEventMouseButton and event.is_pressed():
-		if event.button_index == BUTTON_RIGHT:
-#			print("right pressed")
-			hold_touch_time  =  -1
-			if not TOUCH:  add_touch()
 
 
 
@@ -110,7 +111,7 @@ func check_clicked_tile():    # called from touch collision
 		if not tile_stat[0][1]:
 			if tile_stat[1] == 0:
 					$TileRevealSingle.play()
-					tile_reveal(tile_coord, [])
+					tile_reveal(tile_coord)
 			#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 			#			$Sounds/TileReveal.play()
 			elif tile_stat[1] == 1:

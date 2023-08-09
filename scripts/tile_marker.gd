@@ -2,7 +2,7 @@ extends Sprite
 
 
 var anim_dir  := 1
-var scale_def := scale * 1.44
+var scale_def := scale
 
 
 
@@ -10,8 +10,8 @@ var scale_def := scale * 1.44
 
 
 func _ready():
-	z_index = 2
-	scale      = scale_def
+#	z_index = 2
+#	scale      = scale_def
 	modulate   = Color(.4, 2, 1, 1)
 	yield(get_tree().create_timer(.01), "timeout")
 	anim_dir   = 1  ;  marker_anim()
@@ -35,7 +35,7 @@ func marker_anim():
 	var scale_to
 
 	if anim_dir  == 1:
-		scale_to  = scale_def * 1.26
+		scale_to  = scale_def * 1.22
 		anim_dir  = -1
 	else:
 		scale_to  = scale_def

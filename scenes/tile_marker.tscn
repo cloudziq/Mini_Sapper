@@ -10,6 +10,7 @@ light_mode = 1
 [node name="Sprite" type="Sprite" groups=["marker"]]
 light_mask = 0
 material = SubResource( 1 )
+scale = Vector2( 1.4, 1.4 )
 texture = ExtResource( 2 )
 script = ExtResource( 1 )
 

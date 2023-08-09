@@ -72,17 +72,17 @@ func _ready() -> void:
 	tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.2)
 
-	tween_idle.parallel().tween_property(self, "scale", def_sca, .44
+	tween_idle.tween_property(self, "scale", def_sca, .44
 		).set_ease(Tween.EASE_OUT)
 
-	a  = rand_range(.42, .64)
+	a  = rand_range(.26, .68)
 	tween_idle.tween_property(self, "position", def_pos, a
 		).set_ease(Tween.EASE_IN)
 
-		#tile spawn sound:
+	#tile spawn sound:
 	if OS.get_system_time_msecs() >= get_parent().sound_timeout:
-		get_parent().sound_timeout  = OS.get_system_time_msecs() + 4
-		tween_idle.tween_callback(get_parent().get_node("TileMain"), "play")
+		get_parent().sound_timeout  = OS.get_system_time_msecs() + 10
+		tween_idle.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
 
 
 	#phase 2
@@ -102,10 +102,11 @@ func _ready() -> void:
 
 
 func tile_finish() -> void:
-	var num : Array  = $"../../".level_data[G.SETTINGS.level-1]
+	var num       : Array  = $"../../".level_data[G.SETTINGS.level-1]
+	var num_tiles : int    = (num[0] * num[1]) * .1
 
 	G.tiles_ready  += 1
-	if G.tiles_ready == (num[0] * num[1]):
+	if G.tiles_ready >= num_tiles:
 		get_parent().allow_board_input  = true
 		G.tiles_ready  = 0
 
@@ -177,7 +178,6 @@ func reveal(counter := 0) -> void:
 	tween_rev    = self.create_tween().set_parallel(true)
 
 	if counter == 0:
-		reduce_mov  = true
 		scale_to    = Vector2(.1, .1)
 		trans       = Tween.TRANS_BOUNCE
 		col         = $Sprite.modulate
@@ -198,6 +198,7 @@ func reveal(counter := 0) -> void:
 		time_mod    = rand_range(-.4, .4)
 
 		add_tile_particles(0)
+		reduce_mov  = true
 		reduce_rot  = true
 
 
@@ -284,17 +285,16 @@ func add_tile_particles(type := 0) ->void:
 	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
 
 	if type == 0:
-#		p_small.restart()
 		p_small.one_shot    = true
 		p_blink.one_shot    = true
 		p_small.emitting    = true
 		p_blink.emitting    = true
 	else:
-		p_small.preprocess  = 0.42
+		p_small.preprocess  = 0.44
 		p_small.one_shot    = true
 		p_small.emitting    = true
-		p_small.modulate.a  = .046
-		p_small.speed_scale = .22
+		p_small.modulate.a  = .068
+		p_small.speed_scale = .24
 		p_small.restart()
 
 
