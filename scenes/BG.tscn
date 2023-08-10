@@ -3,7 +3,6 @@
 [ext_resource path="res://scripts/BG.gd" type="Script" id=1]
 [ext_resource path="res://assets/graphics/level_bg/BG.png" type="Texture" id=2]
 [ext_resource path="res://assets/godot_res/scrolling.gdshader" type="Shader" id=3]
-[ext_resource path="res://assets/graphics/particles/marker.png" type="Texture" id=4]
 [ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture" id=5]
 
 [sub_resource type="ShaderMaterial" id=6]
@@ -20,16 +19,22 @@ blend_mode = 2
 light_mode = 1
 
 [sub_resource type="CanvasItemMaterial" id=9]
-blend_mode = 1
+blend_mode = 2
 light_mode = 1
 
 [sub_resource type="Curve" id=10]
 max_value = 2.0
-_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.0692554, 1.77102 ), 1.08812, 1.08812, 0, 0, Vector2( 0.54562, 1.57166 ), -1.08812, -1.08812, 0, 0, Vector2( 0.902894, 0.355551 ), -2.67844, -2.67844, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+bake_resolution = 20
+_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.151703, 1.50242 ), 4.4589, 4.4589, 0, 0, Vector2( 0.54104, 1.74041 ), -1.79753, -1.79753, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
 
 [sub_resource type="Gradient" id=11]
-offsets = PoolRealArray( 0, 0.308081, 0.656566, 0.828283, 1 )
-colors = PoolColorArray( 0.0313726, 0.941176, 0.101961, 0, 0.380392, 0.486275, 0.862745, 0.0313726, 0.0470588, 0.372549, 0.545098, 0.0705882, 0.0705882, 0.478431, 0.890196, 0, 0.0823529, 0.188235, 0.298039, 0 )
+interpolation_mode = 2
+offsets = PoolRealArray( 0, 0.5, 1 )
+colors = PoolColorArray( 0, 0, 0, 0, 0.571178, 0.565816, 0.542173, 1, 0, 0, 0, 0 )
+
+[sub_resource type="CanvasItemMaterial" id=12]
+blend_mode = 1
+light_mode = 1
 
 [sub_resource type="PhysicsMaterial" id=3]
 
@@ -42,19 +47,8 @@ script = ExtResource( 1 )
 [node name="BG_static" type="CanvasLayer" parent="."]
 layer = -1
 
-[node name="Light2D" type="Light2D" parent="BG_static"]
-position = Vector2( 260, 64 )
-texture = ExtResource( 4 )
-texture_scale = 12.0
-color = Color( 0.145098, 0.12549, 0.141176, 1 )
-energy = 12.0
-mode = 1
-range_height = 12.0
-range_layer_min = -1
-range_layer_max = -1
-
 [node name="BG_main" type="Sprite" parent="BG_static"]
-modulate = Color( 0.541176, 0.596078, 0.768627, 0.886275 )
+modulate = Color( 0.65098, 0.686275, 0.901961, 0.886275 )
 light_mask = 0
 material = SubResource( 6 )
 position = Vector2( 160, 340 )
@@ -63,10 +57,11 @@ scale = Vector2( 0.8, 0.8 )
 texture = ExtResource( 2 )
 
 [node name="BG2_mix" type="Sprite" parent="BG_static"]
-self_modulate = Color( 0.396078, 0.611765, 0.678431, 0.0313726 )
+modulate = Color( 0.588235, 0.470588, 0.513726, 0.0980392 )
 material = SubResource( 7 )
 position = Vector2( 160, 340 )
 scale = Vector2( 0.6, 0.9 )
+z_index = 2
 
 [node name="BG_object" type="CanvasLayer" parent="."]
 layer = 0
@@ -74,7 +69,7 @@ follow_viewport_enable = true
 
 [node name="BG3_detail" type="Sprite" parent="BG_object"]
 unique_name_in_owner = true
-modulate = Color( 0.862745, 0.203922, 0.203922, 0.321569 )
+modulate = Color( 0.682353, 0.411765, 0.686275, 0.321569 )
 light_mask = 0
 material = SubResource( 8 )
 position = Vector2( 158, 342 )
@@ -84,26 +79,63 @@ scale = Vector2( 6.2, 6.2 )
 [node name="Holder" type="Node2D" parent="BG_object"]
 position = Vector2( 158, 340 )
 
-[node name="CPUParticles2D" type="CPUParticles2D" parent="BG_object/Holder"]
-modulate = Color( 0.172549, 0.352941, 0.321569, 0.172549 )
+[node name="BG_particles" type="CPUParticles2D" parent="BG_object/Holder"]
 light_mask = 0
 material = SubResource( 9 )
-position = Vector2( 0, -1 )
-z_index = 2
-amount = 4
+amount = 6
 lifetime = 8.0
-lifetime_randomness = 0.17
+speed_scale = 0.2
+randomness = 1.0
+lifetime_randomness = 0.2
 texture = ExtResource( 5 )
 emission_shape = 1
-emission_sphere_radius = 6.0
-direction = Vector2( 0, 0 )
+emission_sphere_radius = 16.0
+direction = Vector2( 0.19, 0.19 )
 spread = 180.0
 gravity = Vector2( 0, 0 )
-initial_velocity = 26.0
-scale_amount = 4.63
+initial_velocity = 0.01
+orbit_velocity = 0.02
+linear_accel = 12.0
+radial_accel = 0.04
+tangential_accel = 0.08
+damping = 0.1
+damping_random = 0.06
+angle_random = 1.0
+scale_amount = 0.26
 scale_amount_curve = SubResource( 10 )
-color = Color( 1, 1, 1, 0.737255 )
+color = Color( 1, 1, 1, 0.54902 )
 color_ramp = SubResource( 11 )
+hue_variation = 0.32
+hue_variation_random = 0.06
+
+[node name="BG_particles2" type="CPUParticles2D" parent="BG_object/Holder"]
+light_mask = 0
+material = SubResource( 12 )
+amount = 4
+lifetime = 6.0
+speed_scale = 0.25
+randomness = 1.0
+lifetime_randomness = 0.2
+texture = ExtResource( 5 )
+emission_shape = 1
+emission_sphere_radius = 20.0
+direction = Vector2( 0.19, 0.19 )
+spread = 180.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 0.01
+orbit_velocity = 0.02
+linear_accel = 12.0
+radial_accel = 0.04
+tangential_accel = 0.08
+damping = 0.1
+damping_random = 0.06
+angle_random = 1.0
+scale_amount = 0.26
+scale_amount_curve = SubResource( 10 )
+color = Color( 0.145098, 0.027451, 0.027451, 0.54902 )
+color_ramp = SubResource( 11 )
+hue_variation = 0.32
+hue_variation_random = 0.06
 
 [node name="walls" type="StaticBody2D" parent="BG_object/Holder"]
 position = Vector2( -160, -340 )
