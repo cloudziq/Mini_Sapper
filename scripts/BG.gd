@@ -2,8 +2,8 @@ extends Node2D
 
 
 onready var _ball        = preload("res://scenes/BG/BG_object.tscn")
-onready var BALL_amount  = $"../../".BALL_amount
-onready var BG_amount    = $"../../".BG_amount
+onready var BG1_amount   = $"../../".BG1_amount
+onready var BG2_amount   = $"../../".BG2_amount
 
 
 
@@ -12,33 +12,34 @@ onready var BG_amount    = $"../../".BG_amount
 
 func _ready():
 	var path  ;  var num : String
-	var node  ;  var scale  ;  var val
-	var scale_mult  := 4
+	var node  ;  var sca  ;  var val
+	var scale_mult  := 2
 
 	randomize()
 	spawn_ball()
 
 	# BG1 texture is set in Inspector Tab, uses custom shader
 
-	node   = $BG_static/BG2_mix
-	num    = str(floor(rand_range(1, BALL_amount)))
-	scale  = node.scale
-	val    = rand_range(scale.x, scale.y * scale_mult)
+	node  = $BG_static/BG2_mix
+	num   = str(floor(rand_range(1, BG2_amount)))
+#	sca   = node.scale
+#	val   = rand_range(scale.x, scale.y * scale_mult)
 
-	path   = "res://assets/graphics/level_bg/BG/BG_"
+	path   = "res://assets/graphics/level_bg/additional/BG_"
 	node.texture     = load(path+num+".png")
 	node.normal_map  = load(path+num+"_n.png")
+#	node.scale       = Vector2(val, val)
+
+
+	node  = $"%BG3_overlay"
+	num   = str(floor(rand_range(1, BG1_amount)))
+	sca   = node.scale
+	val   = rand_range(sca.x * .84, sca.x * scale_mult)
+
+	path   = "res://assets/graphics/level_bg/main/BG_"
+	node.texture     = load(path+num+".png")
+#	node.normal_map  = load(path+num+"_n.png")
 	node.scale       = Vector2(val, val)
-
-
-	node   = $"%BG3_detail"
-	num    = str(floor(rand_range(1, BG_amount)))
-	scale  = node.scale
-	val    = rand_range(scale.x * .84, scale.x * scale_mult * .84)
-
-	path   = "res://assets/graphics/level_bg/OLD/BG_"
-	node.texture = load(path+num+".png")
-	node.scale    = Vector2(val, val)
 
 
 
@@ -48,8 +49,8 @@ func _ready():
 func _process(dt: float):
 	$BG_static/BG_main.rotate   ( .024 * dt)
 #	$BG_static/BG2_mix.rotate   (-.016 * dt)
-	$"%BG3_detail".rotate(-.018 * dt)
-
+	$"%BG3_overlay".rotate(-.018 * dt)
+	$BG_object/Holder/Light2D.rotate(0.4 * dt)
 
 
 
@@ -73,7 +74,7 @@ func _input(event: InputEvent):
 
 
 func spawn_ball():
-	yield(get_tree().create_timer(.2), "timeout")
+	yield(get_tree().create_timer(.4), "timeout")
 	var offset := 32
 	var TILE   : Node2D  = $"../".board_data[0][0][0][0]
 	var sprite : Node2D
@@ -100,7 +101,7 @@ func spawn_ball():
 #		var node = ball.get_node("CollisionShape2D/Sprite")
 #		ball.get_node("CollisionShape2D")       .scale = Vector2(.02, .02)
 		sprite.scale    = Vector2(s, s)
-#		sprite.z_index  = -1
+		sprite.z_index  = 1
 		$BG_object/Holder.add_child(BALL)
 #		print("object added at: " + str(Vector2(x, y)))
 

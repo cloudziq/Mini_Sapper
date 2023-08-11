@@ -1,9 +1,12 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://scripts/BG.gd" type="Script" id=1]
 [ext_resource path="res://assets/graphics/level_bg/BG.png" type="Texture" id=2]
 [ext_resource path="res://assets/godot_res/scrolling.gdshader" type="Shader" id=3]
+[ext_resource path="res://assets/graphics/level_bg/additional/BG_1.png" type="Texture" id=4]
 [ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture" id=5]
+[ext_resource path="res://assets/graphics/level_bg/main/bg2.png" type="Texture" id=6]
+[ext_resource path="res://assets/graphics/level_bg/additional/BG_1_n.png" type="Texture" id=7]
 
 [sub_resource type="ShaderMaterial" id=6]
 shader = ExtResource( 3 )
@@ -11,8 +14,6 @@ shader_param/x_scroll = 120.0
 shader_param/y_scroll = 80.0
 
 [sub_resource type="CanvasItemMaterial" id=7]
-blend_mode = 2
-light_mode = 1
 
 [sub_resource type="CanvasItemMaterial" id=8]
 blend_mode = 2
@@ -29,8 +30,8 @@ _data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.151703, 1.50242 ), 4.4589,
 
 [sub_resource type="Gradient" id=11]
 interpolation_mode = 2
-offsets = PoolRealArray( 0, 0.5, 1 )
-colors = PoolColorArray( 0, 0, 0, 0, 0.571178, 0.565816, 0.542173, 1, 0, 0, 0, 0 )
+offsets = PoolRealArray( 0, 0.469697, 1 )
+colors = PoolColorArray( 0, 0, 0, 0, 0.705882, 0.784314, 0.235294, 0.313726, 0, 0, 0, 0 )
 
 [sub_resource type="CanvasItemMaterial" id=12]
 blend_mode = 1
@@ -57,27 +58,40 @@ scale = Vector2( 0.8, 0.8 )
 texture = ExtResource( 2 )
 
 [node name="BG2_mix" type="Sprite" parent="BG_static"]
-modulate = Color( 0.588235, 0.470588, 0.513726, 0.0980392 )
+modulate = Color( 0.156863, 0.211765, 0.243137, 0.0784314 )
 material = SubResource( 7 )
 position = Vector2( 160, 340 )
-scale = Vector2( 0.6, 0.9 )
-z_index = 2
+scale = Vector2( 0.58, 0.68 )
+texture = ExtResource( 4 )
+normal_map = ExtResource( 7 )
 
 [node name="BG_object" type="CanvasLayer" parent="."]
 layer = 0
 follow_viewport_enable = true
 
-[node name="BG3_detail" type="Sprite" parent="BG_object"]
+[node name="Holder" type="Node2D" parent="BG_object"]
+position = Vector2( 160, 340 )
+
+[node name="Light2D" type="Light2D" parent="BG_object/Holder"]
+light_mask = 0
+scale = Vector2( 1.6, 4.4 )
+texture = ExtResource( 5 )
+texture_scale = 0.4
+color = Color( 0.239216, 0.596078, 0.188235, 1 )
+energy = 4.0
+mode = 1
+range_height = 2.0
+range_layer_min = -1
+
+[node name="BG3_overlay" type="Sprite" parent="BG_object/Holder"]
 unique_name_in_owner = true
-modulate = Color( 0.682353, 0.411765, 0.686275, 0.321569 )
+modulate = Color( 0.686275, 0.411765, 0.411765, 0.54902 )
 light_mask = 0
 material = SubResource( 8 )
-position = Vector2( 158, 342 )
+position = Vector2( 2, 0 )
 rotation = 0.785398
-scale = Vector2( 6.2, 6.2 )
-
-[node name="Holder" type="Node2D" parent="BG_object"]
-position = Vector2( 158, 340 )
+scale = Vector2( 0.6, 0.6 )
+texture = ExtResource( 6 )
 
 [node name="BG_particles" type="CPUParticles2D" parent="BG_object/Holder"]
 light_mask = 0
@@ -132,7 +146,7 @@ damping_random = 0.06
 angle_random = 1.0
 scale_amount = 0.26
 scale_amount_curve = SubResource( 10 )
-color = Color( 0.145098, 0.027451, 0.027451, 0.54902 )
+color = Color( 1, 1, 1, 0.823529 )
 color_ramp = SubResource( 11 )
 hue_variation = 0.32
 hue_variation_random = 0.06

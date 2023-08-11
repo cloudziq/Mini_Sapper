@@ -17,6 +17,7 @@ _particles = ExtResource( 3 )
 
 [node name="Sprite" type="Sprite" parent="."]
 modulate = Color( 0.678431, 0.803922, 0.8, 0.882353 )
+light_mask = 0
 material = SubResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

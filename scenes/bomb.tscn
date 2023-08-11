@@ -4,6 +4,7 @@
 [ext_resource path="res://scripts/bomb.gd" type="Script" id=2]
 
 [node name="Sprite" type="Sprite"]
+light_mask = 0
 texture = ExtResource( 1 )
 offset = Vector2( 0, -4 )
 script = ExtResource( 2 )

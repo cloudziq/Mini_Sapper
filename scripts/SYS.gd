@@ -18,8 +18,8 @@ var tile_size_in_pixels  := 32
 #var board_max_tiles_h    := 60
 
 
-onready var BG_amount     = countImages("res://assets/graphics/level_bg/OLD")
-onready var BALL_amount   = countImages("res://assets/graphics/level_bg/BG")
+onready var BG1_amount  = countImages("res://assets/graphics/level_bg/main")
+onready var BG2_amount  = countImages("res://assets/graphics/level_bg/additional")
 
 
 
