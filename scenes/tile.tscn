@@ -9,14 +9,15 @@ light_mode = 1
 
 [sub_resource type="RectangleShape2D" id=1]
 
-[node name="Area2D" type="Area2D"]
+[node name="Area2D" type="Area2D" groups=["tile"]]
+z_index = 1
 collision_mask = 0
 monitorable = false
 script = ExtResource( 2 )
 _particles = ExtResource( 3 )
 
 [node name="Sprite" type="Sprite" parent="."]
-modulate = Color( 0.678431, 0.803922, 0.8, 0.882353 )
+modulate = Color( 0.427451, 0.733333, 0.823529, 0.772549 )
 light_mask = 0
 material = SubResource( 2 )
 

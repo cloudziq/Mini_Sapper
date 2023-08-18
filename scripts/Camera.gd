@@ -26,6 +26,7 @@ func _ready():
 	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
 	target_zoom       = Vector2(i, i)
 
+#	get_parent().get_node("BG").parr(target_zoom.x, .4)
 
 
 

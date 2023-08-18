@@ -4,6 +4,7 @@
 [ext_resource path="res://scripts/tile_label.gd" type="Script" id=2]
 
 [node name="CenterContainer" type="CenterContainer"]
+light_mask = 0
 margin_left = -50.0
 margin_top = -50.0
 margin_right = 50.0

@@ -8,8 +8,6 @@ export(PackedScene) var _marker
 export(PackedScene) var _touch  ;  var TOUCH : Node2D
 
 
-#export var textures_ready = false
-
 var tile_size          :  int
 var bombs_amount       :  int
 var marker_amount      :  int
@@ -17,12 +15,13 @@ var tiles_left         :  int
 var board_size         :  Vector2
 var tile_coord         :  Vector2
 var hold_touch_time    := 0.0
+var sound_timeout      := 0.0
 var allow_board_input  := false
 var player_fail        := false
 
-var sound_timeout      := 0.0
 
-
+################################################################################
+var board_data         :  Array
 # board_data contents:
 # [tile_id, marker_id, bomb_id, label_id], tile_status, bomb_count]
 # tile status:
@@ -30,14 +29,13 @@ var sound_timeout      := 0.0
 # 1: contains a bomb
 # 2: revealed
 # 3: detector tile
-var board_data         :  Array
+################################################################################
 
 
 
 
 
-
-func _ready():
+func _ready() -> void:
 	var level        = G.SETTINGS.level-1
 	var val_1        = $"../".level_data[level][0]
 	var val_2        = $"../".level_data[level][1]
@@ -69,7 +67,7 @@ func _process(_dt) -> void:
 
 
 
-func _input(event):
+func _input(event) -> void:
 	if allow_board_input:
 		if event is InputEventScreenTouch:
 			if event.is_pressed():
@@ -92,7 +90,7 @@ func _input(event):
 
 
 
-func check_clicked_tile():    # called from touch collision
+func check_clicked_tile() -> void:    # called from touch collision
 	# normal click (checking if there is a bomb, if not - reveal), or placing a marker:
 
 	var pos := get_global_mouse_position()
@@ -125,7 +123,7 @@ func check_clicked_tile():    # called from touch collision
 
 
 
-func add_touch():    # result of check_clicked_tile()
+func add_touch() -> void:    # result of check_clicked_tile()
 	var pos        := get_global_mouse_position()
 
 	TOUCH           = _touch.instance()
@@ -140,7 +138,7 @@ func add_touch():    # result of check_clicked_tile()
 
 
 
-func add_marker():    # result of check_clicked_tile()
+func add_marker() -> void:    # result of check_clicked_tile()
 	var pos  := get_global_mouse_position()
 	var x     = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size) -1
 	var y     = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size) -1
@@ -168,10 +166,19 @@ func add_marker():    # result of check_clicked_tile()
 
 
 
-func game_over():
+func level_complete() -> void:
+	G.SETTINGS.level += 1
+	restart_board()
+
+
+
+
+
+
+func game_over() -> void:
 	var tile_rot  : float
 
-	print("BOOM!")
+	print("JEBUT!")
 
 	for x in board_size.x:
 		for y in board_size.y:
@@ -184,13 +191,13 @@ func game_over():
 
 
 
-var near_coords = [
+var near_coords := [
 	[-1, -1], [0, -1], [1, -1],
 	[-1,  0],          [1,  0],
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord : Vector2, neighbours:= [], count := 0) -> void:
+func tile_reveal(coord:Vector2, neighbours:= [], count:= 0) -> void:
 	var tx  : int
 	var ty  : int
 
@@ -208,7 +215,7 @@ func tile_reveal(coord : Vector2, neighbours:= [], count := 0) -> void:
 
 	if tiles_left == 0:
 		print("LEVEL COMPLETED!")
-		#level_complete()
+		level_complete()
 #		return
 
 	var tile_og  = board_data[coord.x][coord.y]
@@ -333,6 +340,18 @@ func generate_board() -> void:
 
 
 
+func restart_board() -> void:
+	for i in get_tree().get_nodes_in_group("tile"):
+		i.set_deferred("queue_free", true)
+		yield(get_tree().create_tween().tween_interval(.1), "finished")
+		_ready()
+
+
+
+
+
+
+
 func gen_pos() -> Vector2:
 	var x = floor(rand_range(0, board_size.x))
 	var y = floor(rand_range(0, board_size.y))
@@ -351,7 +370,6 @@ func gen_num(x, y) -> void:
 		var cx = x + index[0]
 		var cy = y + index[1]
 
-#		if (cx >= 0 and cx <= board_size.x-1) and (cy >= 0 and cy <= board_size.y-1):
 		if cx == clamp(cx, 0, board_size.x-1) and cy == clamp(cy, 0, board_size.y-1):
 			if board_data[cx][cy][1] == 1:    #if tile has a bomb
 				counter = counter + 1

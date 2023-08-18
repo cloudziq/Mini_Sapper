@@ -1,6 +1,5 @@
 extends Area2D
 
-#var test_num  := 0
 export(PackedScene) var _particles ;  var PARTICLES
 
 
@@ -29,7 +28,7 @@ onready var	theme_data  = $"../../".theme_data[theme-1]
 
 
 func _ready() -> void:
-	yield(get_tree().create_tween().tween_interval(.01), "finished")
+#	yield(get_tree().create_tween().tween_interval(.01), "finished")
 
 	PARTICLES   = _particles.instance()
 	add_child(PARTICLES)
@@ -39,7 +38,7 @@ func _ready() -> void:
 	$Sprite.flip_h   =  true if randf() > .5 else  false
 	$Sprite.modulate = dark_color
 
-	yield(get_tree().create_timer(.02), "timeout")
+#	yield(get_tree().create_timer(.02), "timeout")
 
 	if theme_data[0] == 1:
 		if theme_data[2] == false:
@@ -77,7 +76,7 @@ func _ready() -> void:
 
 	a  = rand_range(.26, .68)
 	tween_idle.tween_property(self, "position", def_pos, a
-		).set_ease(Tween.EASE_IN)
+		).set_ease(Tween.EASE_OUT)
 
 	#tile spawn sound:
 	if OS.get_system_time_msecs() >= get_parent().sound_timeout:
@@ -87,14 +86,14 @@ func _ready() -> void:
 
 	#phase 2
 	tween_idle.set_parallel(false)
-	tween_idle.tween_interval(.1)
-	tween_idle.tween_property(self, "scale", def_sca * .4, .4
+#	tween_idle.tween_interval(.1)
+	tween_idle.tween_property(self, "scale", def_sca * .4, .22
 		).set_ease(Tween.EASE_IN)
 
-	tween_idle.tween_property(self, "scale", def_sca, .2
+	tween_idle.tween_property(self, "scale", def_sca, .16
 		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-	tween_idle.tween_callback(self, "tile_finish").set_delay(.025)
+	tween_idle.tween_callback(self, "tile_finish").set_delay(.012)
 
 
 
@@ -111,7 +110,7 @@ func tile_finish() -> void:
 		G.tiles_ready  = 0
 
 	if theme_data[2] == false:
-		$Sprite.modulate  = Color(1,1,1,1)
+		$Sprite.modulate  = Color(1,1,1,.82)
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
@@ -312,10 +311,8 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 
 func _exit_tree():
-	pass
+	if tween_idle : tween_idle.kill()
+	if tween_bump : tween_bump.kill()
+	if tween_rev  : tween_rev .kill()
 #   chujicipatozgranaekipa
-#	tween_bump.kill()
-#	tween_idle.kill()
-#	pass
-#	queue_free()
 

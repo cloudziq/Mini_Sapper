@@ -10,35 +10,35 @@ onready var BG2_amount   = $"../../".BG2_amount
 
 
 
-func _ready():
+func _ready() -> void:
 	var path  ;  var num : String
-	var node  ;  var sca  ;  var val
-	var scale_mult  := 2
-
-	randomize()
-	spawn_ball()
+	var node  ;  var sca  ;  var val ; var dist
+	randomize() ; spawn_ball()
 
 	# BG1 texture is set in Inspector Tab, uses custom shader
+	dist   = .16   # (0 - 1)
+	val    = $"%BG_main".modulate
+	val.r  = rand_range(val.r - dist, val.r + dist)
+	val.g  = rand_range(val.g - dist, val.g + dist)
+	val.b  = rand_range(val.b - dist, val.b + dist)
+	$"%BG_main".modulate  = val
 
-	node  = $BG_static/BG2_mix
+
+	node  = $"%BG_detail"
 	num   = str(floor(rand_range(1, BG2_amount)))
-#	sca   = node.scale
-#	val   = rand_range(scale.x, scale.y * scale_mult)
 
 	path   = "res://assets/graphics/level_bg/additional/BG_"
 	node.texture     = load(path+num+".png")
 	node.normal_map  = load(path+num+"_n.png")
-#	node.scale       = Vector2(val, val)
 
 
-	node  = $"%BG3_overlay"
+	node  = $"%BG_overlay"
 	num   = str(floor(rand_range(1, BG1_amount)))
 	sca   = node.scale
-	val   = rand_range(sca.x * .84, sca.x * scale_mult)
+	val   = rand_range(sca.x, sca.x * 1.2)
 
 	path   = "res://assets/graphics/level_bg/main/BG_"
 	node.texture     = load(path+num+".png")
-#	node.normal_map  = load(path+num+"_n.png")
 	node.scale       = Vector2(val, val)
 
 
@@ -46,17 +46,18 @@ func _ready():
 
 
 
-func _process(dt: float):
-	$BG_static/BG_main.rotate   ( .024 * dt)
-#	$BG_static/BG2_mix.rotate   (-.016 * dt)
-	$"%BG3_overlay".rotate(-.018 * dt)
-	$BG_object/Holder/Light2D.rotate(0.4 * dt)
+func _process(dt: float) -> void:
+	$"%BG_main".rotate    ( .024 * dt)
+	$"%BG_overlay".rotate (-.018 * dt)
+	$"%BG_detail".rotate  ( .022 * dt)
+	$"%Light".rotate      (  0.4 * dt)
 
 
 
 
 
-func _input(event: InputEvent):
+
+func _input(event: InputEvent) -> void:
 	if get_parent().allow_board_input:
 		if event.is_action_pressed("reload_BG"):
 			var i  = get_tree().reload_current_scene()
@@ -73,68 +74,54 @@ func _input(event: InputEvent):
 
 
 
-func spawn_ball():
-	yield(get_tree().create_timer(.4), "timeout")
+func spawn_ball() -> void:
+	yield(get_tree().create_timer(1), "timeout")
 	var offset := 32
-	var TILE   : Node2D  = $"../".board_data[0][0][0][0]
+	var TILE   : Node2D  = get_parent().board_data[0][0][0][0]
 	var sprite : Node2D
 
 	# spawnuje kratki:
-	for i in 12:
-		var x    := rand_range(offset, G.window.x - offset) - G.window.x/2
-		var y    := rand_range(offset, G.window.y - offset) - G.window.y/2
-		var BALL :  Node2D = _ball.instance()
-		sprite    = BALL.get_node("CollisionShape2D/Sprite")
+	for i in 4:
+		var tween := self.create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+		var x     := rand_range(offset, G.window.x - offset) - G.window.x/2
+		var y     := rand_range(offset, G.window.y - offset) - G.window.y/2
+		var BALL  :  Node2D  = _ball.instance()
+
+		sprite     = BALL.get_node("CollisionShape2D/Sprite")
+		var col   := sprite.modulate
 
 		BALL.position                = Vector2(x, y)
 		BALL.linear_velocity.x       = rand_range(  -4,   4)
 		BALL.linear_velocity.y       = rand_range(  -8,   8)
-		BALL.angular_velocity        = rand_range(-.12, .12)
-		sprite.texture  = TILE.get_node("Sprite").texture
-#		var r = rand_range(.2, .3)
-#		var g = rand_range(.3, .8)
-#		var b = rand_range(.4,  1)
+		BALL.angular_velocity        = rand_range(-.034, .062)
 
-		var s = rand_range(2.6, 8.2)
+		sprite.texture     = TILE.get_node("Sprite").texture
+		sprite.modulate.a  = 0
+		tween.tween_property(sprite, "modulate", Color(col.r, col.g, col.b, col.a), 8)
 
-#		sprite.modulate = Color(r,g,b, .025)
-#		var node = ball.get_node("CollisionShape2D/Sprite")
-#		ball.get_node("CollisionShape2D")       .scale = Vector2(.02, .02)
-		sprite.scale    = Vector2(s, s)
-		sprite.z_index  = 1
+		var s = rand_range(1.2, 3.6)
+		sprite.scale    = Vector2(sprite.scale.x*s, sprite.scale.y*s)
 		$BG_object/Holder.add_child(BALL)
-#		print("object added at: " + str(Vector2(x, y)))
-
-
-#	# add additional normal maps to BG2
-#	for i in 2:
-#		var BALL :  Node2D  = _ball.instance()
-#		sprite              = BALL.get_node("CollisionShape2D/Sprite")
-#
-#		$BG_static/BG2_mix.add_child(BALL)
-##		yield(get_tree().create_timer(.02), "timeout")
-##		sprite.material.blend_mode  = BLEND_MODE_ADD
-#
-##		BALL.position         = G.window * .5
-#		sprite.scale         *= 1.1
-#		sprite.self_modulate *= Color(1,1,1, 1)
-#
-#		var num          = floor(rand_range(1, BALL_amount))
-##		var sprite_path  = "res://assets/graphics/level_bg/BG/BG_" + str(num) + ".png"
-#		var normal_path  = "res://assets/graphics/level_bg/BG/BG_" + str(num) + "_n.png"
-##		print(normal_path)
-##		sprite.texture     = load(sprite_path)
-##		sprite.texture     = null
-#		$BG_static/BG2_mix.normal_map  = load(normal_path)
-##		sprite.z_index     = 1
 
 
 
 
 
 
-func parr(zoom : float):
-	var tween  = get_tree().create_tween().set_ease(Tween.EASE_OUT)
-	var i  := 22 * zoom
-	tween.tween_property($BG_object, "follow_viewport_scale", i*zoom*.22, .4)
-	tween.tween_property($BG_object/Holder, "scale", Vector2(i, i*1.4), .8)
+func variate_color():
+	pass
+
+
+
+
+
+
+func parr(zoom : float) -> void:
+	var tween := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel()
+	var i     := 6 * zoom
+
+	tween.tween_property($BG_object,        "follow_viewport_scale", i*zoom*.1, .72)
+	tween.tween_property($BG_object/Holder, "scale",  $BG_object.scale * 2.6,  .94)
+
+	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   .4)
+	tween.tween_property($BG_detail/Holder, "scale",  Vector2(-i*3.2, -i*3.2),   1)
