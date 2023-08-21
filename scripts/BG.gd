@@ -60,8 +60,7 @@ func _process(dt: float) -> void:
 func _input(event: InputEvent) -> void:
 	if get_parent().allow_board_input:
 		if event.is_action_pressed("reload_BG"):
-			var i  = get_tree().reload_current_scene()
-			print(i)
+			var _i  = get_tree().reload_current_scene()
 		elif event.is_action_pressed("change_tile"):
 			var theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
 			print("tile_theme = "  +str(theme))
@@ -120,7 +119,7 @@ func parr(zoom : float) -> void:
 	var tween := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel()
 	var i     := 6 * zoom
 
-	tween.tween_property($BG_object,        "follow_viewport_scale", i*zoom*.1, .72)
+	tween.tween_property($BG_object,        "follow_viewport_scale", i*zoom*.12, .72)
 	tween.tween_property($BG_object/Holder, "scale",  $BG_object.scale * 2.6,  .94)
 
 	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   .4)

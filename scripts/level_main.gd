@@ -37,11 +37,12 @@ var board_data         :  Array
 
 func _ready() -> void:
 	var level        = G.SETTINGS.level-1
-	var val_1        = $"../".level_data[level][0]
-	var val_2        = $"../".level_data[level][1]
+	var val_1        = get_parent().level_data[level][0]
+	var val_2        = get_parent().level_data[level][1]
+
 	board_size       = Vector2(val_1, val_2)
-	tile_size        = $"../".tile_size_in_pixels
-	bombs_amount     = $"../".level_data[G.SETTINGS.level-1][2]
+	tile_size        = get_parent().tile_size_in_pixels
+	bombs_amount     = get_parent().level_data[G.SETTINGS.level-1][2]
 	tiles_left       = int(board_size.x * board_size.y - bombs_amount)
 	marker_amount    = 0
 	generate_board()
@@ -299,7 +300,7 @@ func generate_board() -> void:
 	board_data     = []
 	G.tiles_ready  = 0
 	sound_timeout  = 0.0
-	$GUI.update()
+	$GUI.update(1)
 
 
 	#### GENERATE TILES:
@@ -342,9 +343,9 @@ func generate_board() -> void:
 
 func restart_board() -> void:
 	for i in get_tree().get_nodes_in_group("tile"):
-		i.set_deferred("queue_free", true)
-		yield(get_tree().create_tween().tween_interval(.1), "finished")
-		_ready()
+		i.queue_free()
+	yield(get_tree().create_tween().tween_interval(.1), "finished")
+	_ready()
 
 
 

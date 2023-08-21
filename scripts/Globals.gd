@@ -63,7 +63,7 @@ func set_defaults():
 		"sound_vol":     1,
 		"music_vol":     0.4,
 		"range_display": true,
-		"theme":         1,
+		"theme":         2,
 		"zoom_level":    1,
 		"level":         1
 	}

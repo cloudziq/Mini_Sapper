@@ -67,7 +67,7 @@ angle_random = 1.0
 scale_amount = 2.0
 scale_amount_random = 0.2
 scale_amount_curve = SubResource( 8 )
-color = Color( 1, 1, 1, 0.345098 )
+color = Color( 1, 1, 1, 0.235294 )
 color_ramp = SubResource( 4 )
 anim_speed = 10.43
 
@@ -82,7 +82,7 @@ spread = 0.0
 gravity = Vector2( 0, 0 )
 scale_amount = 1.6
 scale_amount_curve = SubResource( 15 )
-color = Color( 0.914688, 0.899737, 0.805212, 0.470588 )
+color = Color( 0.913725, 0.898039, 0.803922, 0.313726 )
 color_ramp = SubResource( 14 )
 anim_speed = 10.96
 anim_speed_curve = SubResource( 12 )

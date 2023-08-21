@@ -1,5 +1,5 @@
 # Dziq 2022 - 2023
-# v -0.2 ultra alfa beta gamma
+# v -0.1 ultra alfa beta
 
 
 
@@ -8,19 +8,22 @@
 extends Node2D
 
 
-export(PackedScene)  var _LEVEL
-export var rec           : bool
+#export(PackedScene)  var _LEVEL
+export var rec          : bool
 
-var tile_size_in_pixels  := 32
+var tile_size_in_pixels := 32
 
 # should be later affected by performance setting?:
 #var board_max_tiles_w    := 60
 #var board_max_tiles_h    := 60
 
 
-onready var BG1_amount  = countImages("res://assets/graphics/level_bg/main")
-onready var BG2_amount  = countImages("res://assets/graphics/level_bg/additional")
+var BG1_amount  = countImages("res://assets/graphics/level_bg/main")
+var BG2_amount  = countImages("res://assets/graphics/level_bg/additional")
 
+
+var level  = preload("res://scenes/LEVEL.tscn")
+var menu   = preload("res://scenes/main_menu.tscn")
 
 
 
@@ -65,7 +68,7 @@ var theme_data = [
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
 	[4,        4,       1,      0],        # 1
-	[25,      25,      48,      0],        # 2
+	[25,      25,      50,      0],        # 2
 	[5,        5,       1,      0],        # 3
 	[5,        6,       1,      0],        # 4
 	[6,        6,       0,      1],        # 5
@@ -106,13 +109,13 @@ var level_data = [
 
 
 
-func _ready():
+func _ready() -> void:
 	randomize()
 	G.load_config()
 	window_prepare()
 
-#	yield(get_tree().create_timer(.4), "timeout")
-	add_child(_LEVEL.instance())
+#	yield(get_tree().create_timer(1), "timeout")
+	add_child(menu.instance())
 #	$AudioStreamPlayer.play()
 
 
@@ -120,15 +123,15 @@ func _ready():
 
 
 
+func start_game() -> void:
+	add_child(level.instance())
 
 
 
 
 
 
-
-
-func window_prepare():
+func window_prepare() -> void:
 	var display_size = OS.get_screen_size()
 	var window_size  = G.window
 

@@ -52,6 +52,7 @@ func _on_Restart_Button_pressed():
 	#if player dies:
 		var node = $VBoxContainer/Lower/Button
 		tween.tween_property(node, "modulate", Color(1,1,1,0), .4)
+		node.disabled = true
 #		$anim_color.interpolate_property(node, "modulate",
 #			Color(1,1,1,1), Color(1,1,1,0), .4,
 #			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
@@ -68,13 +69,26 @@ func _on_Restart_Button_pressed():
 #			Tween.TRANS_SINE, Tween.EASE_IN_OUT)
 #		$anim_color.start()
 
-	yield(get_tree().create_tween().tween_interval(.4), "finished")
-	get_tree().reload_current_scene()
+	yield(get_tree().create_tween().tween_interval(.6), "finished")
+	get_parent().restart_board()
 
 
 
 
-func update():
+
+
+#func show() -> void:
+#	var tween := get_tree().create_tween().set_trans(Tween.TRANS_SINE)
+#	var node   = $VBoxContainer/Lower/Button
+#
+#	tween.tween_property(node, "modulate", Color(1,1,1,1), .4)
+
+
+
+
+
+
+func update(show := 0) -> void:
 	var node = $VBoxContainer/Upper/Left/HBox/Level/num
 	node.text = str(G.SETTINGS.level)
 
@@ -86,3 +100,11 @@ func update():
 
 	node = $VBoxContainer/Upper/Left/HBox/Tiles/num
 	node.text = str($"../".tiles_left)
+
+
+	if show != 0:
+		var tween := get_tree().create_tween().set_trans(Tween.TRANS_SINE)
+
+		node   = $VBoxContainer/Lower/Button
+		tween.tween_property(node, "modulate", Color(1,1,1,1), .4).set_delay(1)
+		tween.tween_property(node, "disabled", false, 0)
