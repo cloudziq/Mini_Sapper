@@ -6,12 +6,10 @@ export(PackedScene) var _particles ;  var PARTICLES
 var path        := "res://assets/graphics/tiles/TILE_"
 var dark_color  := Color(.24, .32, .36, 1)
 var reduce_mov  := false    #for 'empty revealed' tiles only
-var reduce_rot  := false    #for revealed tiles with > 0 count
+var reduce_rot  := false    #for revealed tiles with > 0 count only
 var def_pos     :  Vector2
 var def_sca     :  Vector2
 var def_rot     :  float
-
-#var allow_spawn_sound := false
 
 
 var tween_idle  : SceneTreeTween
@@ -28,17 +26,14 @@ onready var	theme_data  = $"../../".theme_data[theme-1]
 
 
 func _ready() -> void:
-#	yield(get_tree().create_tween().tween_interval(.01), "finished")
+	PARTICLES         = _particles.instance()
+	tween_idle        = self.create_tween().set_trans(Tween.TRANS_LINEAR)
 
-	PARTICLES   = _particles.instance()
+	$Sprite.flip_v    =  true if randf() > .5 else  false
+	$Sprite.flip_h    =  true if randf() > .5 else  false
+	$Sprite.modulate  = dark_color
+
 	add_child(PARTICLES)
-	tween_idle  = self.create_tween().set_trans(Tween.TRANS_LINEAR)
-
-	$Sprite.flip_v   =  true if randf() > .5 else  false
-	$Sprite.flip_h   =  true if randf() > .5 else  false
-	$Sprite.modulate = dark_color
-
-#	yield(get_tree().create_timer(.02), "timeout")
 
 	if theme_data[0] == 1:
 		if theme_data[2] == false:
@@ -54,47 +49,62 @@ func _ready() -> void:
 	else:
 		rotation_degrees = rand_range(0, 360)
 
-
-	#### START LEVEL TILES ANIMATION:
-	def_pos  = position
-	def_rot  = rotation_degrees
-	def_sca  = scale * 0.92
-
-	position          = G.gen_offscreen_pos(100)
-	rotation_degrees  = randi() % 361
-	var a             : float = rand_range(.1, .6)
-	scale             = Vector2(a, a)
+	io_anim()
 
 
-	#phase 1
-	tween_idle.set_parallel(true)
-	tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.2)
-
-	tween_idle.tween_property(self, "scale", def_sca, .44
-		).set_ease(Tween.EASE_OUT)
-
-	a  = rand_range(.26, .68)
-	tween_idle.tween_property(self, "position", def_pos, a
-		).set_ease(Tween.EASE_OUT)
-
-	#tile spawn sound:
-	if OS.get_system_time_msecs() >= get_parent().sound_timeout:
-		get_parent().sound_timeout  = OS.get_system_time_msecs() + 10
-		tween_idle.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
 
 
-	#phase 2
-	tween_idle.set_parallel(false)
-#	tween_idle.tween_interval(.1)
-	tween_idle.tween_property(self, "scale", def_sca * .4, .22
-		).set_ease(Tween.EASE_IN)
 
-	tween_idle.tween_property(self, "scale", def_sca, .16
-		).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+func io_anim(type := 0) -> void:
+	if type == 0:
+		def_pos  = position
+		def_rot  = rotation_degrees
+		def_sca  = scale * 0.92
 
-	tween_idle.tween_callback(self, "tile_finish").set_delay(.012)
+		position          = G.gen_offscreen_pos(100)
+		rotation_degrees  = randi() % 361
+		var a            := rand_range(.1, .6)
+		scale             = Vector2(a, a)
 
+
+		#phase 1
+		tween_idle.set_parallel(true)
+		tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
+			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.2)
+
+		tween_idle.tween_property(self, "scale", def_sca, .44
+			).set_ease(Tween.EASE_OUT)
+
+		a  = rand_range(.26, .68)
+		tween_idle.tween_property(self, "position", def_pos, a
+			).set_ease(Tween.EASE_OUT)
+
+		#tile spawn sound:
+		if OS.get_system_time_msecs() >= get_parent().sound_timeout:
+			get_parent().sound_timeout  = OS.get_system_time_msecs() + 10
+			tween_idle.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
+
+		#phase 2
+		tween_idle.set_parallel(false)
+		tween_idle.tween_property(self, "scale", def_sca * .4, .22
+			).set_ease(Tween.EASE_IN)
+
+		tween_idle.tween_property(self, "scale", def_sca, .16
+			).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+
+		tween_idle.tween_callback(self, "tile_finish").set_delay(.012)
+
+	else:
+		var time  = rand_range(.26, .68)
+		def_pos   = G.gen_offscreen_pos(100)
+
+		if tween_idle:
+			tween_idle.kill()
+		tween_idle = self.create_tween().set_trans(
+			Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN)
+
+		tween_idle.tween_property(self, "position", def_pos, time)
+		tween_idle.tween_callback(self, "queue_free")
 
 
 
@@ -132,9 +142,7 @@ func idle_anim(type_list := [0]) -> void:
 
 
 	for type in type_list:
-#		yield(get_tree().create_tween().tween_interval(.25), "finished")
 		if type == -1 and tween_idle:
-#		rotation_degrees  = 0
 			tween_idle.kill()
 		tween_idle = self.create_tween().set_trans(
 			Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

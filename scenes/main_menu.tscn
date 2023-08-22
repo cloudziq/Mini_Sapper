@@ -15,11 +15,24 @@ margin_bottom = -20.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Button" type="Button" parent="CenterContainer"]
-margin_left = 115.0
-margin_top = 310.0
-margin_right = 165.0
-margin_bottom = 330.0
+[node name="VSplitContainer" type="VSplitContainer" parent="CenterContainer"]
+margin_left = 104.0
+margin_top = 294.0
+margin_right = 175.0
+margin_bottom = 346.0
+
+[node name="START" type="Button" parent="CenterContainer/VSplitContainer"]
+margin_right = 71.0
+margin_bottom = 20.0
+input_pass_on_modal_close_click = false
 text = "START"
 
-[connection signal="pressed" from="CenterContainer/Button" to="." method="_on_Start_Button_pressed"]
+[node name="OPTIONS" type="Button" parent="CenterContainer/VSplitContainer"]
+margin_top = 32.0
+margin_right = 71.0
+margin_bottom = 52.0
+input_pass_on_modal_close_click = false
+text = "OPTIONS"
+
+[connection signal="pressed" from="CenterContainer/VSplitContainer/START" to="." method="_on_Start_Button_pressed"]
+[connection signal="pressed" from="CenterContainer/VSplitContainer/OPTIONS" to="." method="_on_Start_Button_pressed"]

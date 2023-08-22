@@ -50,7 +50,7 @@ func _process(dt: float) -> void:
 	$"%BG_main".rotate    ( .024 * dt)
 	$"%BG_overlay".rotate (-.018 * dt)
 	$"%BG_detail".rotate  ( .022 * dt)
-	$"%Light".rotate      (  0.4 * dt)
+	$"%Light".rotate      ( -0.4 * dt)
 
 
 

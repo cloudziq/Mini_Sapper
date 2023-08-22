@@ -343,8 +343,8 @@ func generate_board() -> void:
 
 func restart_board() -> void:
 	for i in get_tree().get_nodes_in_group("tile"):
-		i.queue_free()
-	yield(get_tree().create_tween().tween_interval(.1), "finished")
+		i.io_anim(1)
+	yield(get_tree().create_tween().tween_interval(1), "finished")
 	_ready()
 
 
