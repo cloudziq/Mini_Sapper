@@ -17,7 +17,8 @@ func _ready() -> void:
 
 	# BG1 texture is set in Inspector Tab, uses custom shader
 	dist   = .16   # (0 - 1)
-	val    = $"%BG_main".modulate
+	val    = G.SETTINGS.BG_color
+
 	val.r  = rand_range(val.r - dist, val.r + dist)
 	val.g  = rand_range(val.g - dist, val.g + dist)
 	val.b  = rand_range(val.b - dist, val.b + dist)
@@ -50,7 +51,7 @@ func _process(dt: float) -> void:
 	$"%BG_main".rotate    ( .024 * dt)
 	$"%BG_overlay".rotate (-.018 * dt)
 	$"%BG_detail".rotate  ( .022 * dt)
-	$"%Light".rotate      ( -0.4 * dt)
+	$"%Light".rotate      (-.032 * dt)
 
 
 
@@ -124,3 +125,8 @@ func parr(zoom : float) -> void:
 
 	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   .4)
 	tween.tween_property($BG_detail/Holder, "scale",  Vector2(-i*3.2, -i*3.2),   1)
+
+
+
+func _exit_tree() -> void:
+		G.SETTINGS.BG_color  = $"%BG_main".modulate

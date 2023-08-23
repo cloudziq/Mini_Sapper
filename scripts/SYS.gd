@@ -22,7 +22,7 @@ var BG1_amount  = countImages("res://assets/graphics/level_bg/main")
 var BG2_amount  = countImages("res://assets/graphics/level_bg/additional")
 
 
-var level  = preload("res://scenes/LEVEL.tscn")
+var level  = preload("res://scenes/LEVEL.tscn")     ; var LEVEL : Node2D
 var menu   = preload("res://scenes/main_menu.tscn")
 
 
@@ -115,6 +115,7 @@ func _ready() -> void:
 	window_prepare()
 
 #	yield(get_tree().create_timer(1), "timeout")
+	LEVEL = level.instance()
 	add_child(menu.instance())
 #	$AudioStreamPlayer.play()
 
@@ -124,7 +125,7 @@ func _ready() -> void:
 
 
 func start_game() -> void:
-	add_child(level.instance())
+	add_child(LEVEL)
 
 
 
@@ -184,5 +185,5 @@ func countImages(path : String) -> int:
 
 
 func _exit_tree():
-	$AudioStreamPlayer.playing = false
+#	$AudioStreamPlayer.playing = false
 	G.save_config()

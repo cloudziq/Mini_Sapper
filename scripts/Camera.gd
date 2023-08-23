@@ -20,6 +20,8 @@ var is_moving            := false
 
 
 func _ready():
+	position = Vector2.ZERO
+
 	var i  = G.SETTINGS.zoom_level
 
 	yield(get_tree().create_timer(.04), "timeout")

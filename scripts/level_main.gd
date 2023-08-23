@@ -235,10 +235,10 @@ func tile_reveal(coord:Vector2, neighbours:= [], count:= 0) -> void:
 		tile_og[0][1].queue_free()
 		tile_og[0][1]  = null
 
-	# mark tile as 'revealed' and remove bump tween:
+	# mark tile as 'revealed' and get rid of a bump tween if exists:
 	tile_og[1]  = 2
 	if tile_og[0][0].tween_bump:
-		tile_og[0][0].tween_bump.set_speed_scale(4)
+		tile_og[0][0].bump_tile(-1)
 
 	# create neighbours table:
 	for index in near_coords:
@@ -250,12 +250,11 @@ func tile_reveal(coord:Vector2, neighbours:= [], count:= 0) -> void:
 			if tile_og[2] == 0 and tile[1] == 0:
 				neighbours.append(Vector2(tx, ty))
 
-	# process every found tile:
+	# process every found unrevealed tile:
 	for index in neighbours:
 		var x = index.x
 		var y = index.y
 
-		#process only unrevealed tiles:
 		if board_data[x][y][1] == 0:
 			tile_reveal(Vector2(x+1, y+1), neighbours, count+1)
 

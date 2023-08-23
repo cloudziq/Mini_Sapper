@@ -14,7 +14,8 @@ var window := Vector2(
 
 
 
-var save_version = round(rand_range(1, 9999))
+#var save_version := round(rand_range(1, 9999))
+var save_version = 2
 var SETTINGS
 var config_path
 
@@ -46,10 +47,9 @@ func load_config():
 		"Android":
 			config_path = "user://config.cfg"
 
-	var err  = config.load(config_path)
-#	var err   = config.load(config_path)
-#	var err = config.load_encrypted(config_path, key)
-	if err != OK:
+	var check  = config.load(config_path)
+#	var check  = config.load_encrypted(config_path, key)
+	if check != OK:
 		set_defaults()
 	else:
 		if config.get_value("config", "save_version") == save_version:
@@ -60,12 +60,15 @@ func load_config():
 
 func set_defaults():
 	SETTINGS = {
-		"sound_vol":     1,
-		"music_vol":     0.4,
-		"range_display": true,
-		"theme":         2,
-		"zoom_level":    1,
-		"level":         1
+		"sound_vol":      1,
+		"music_vol":      0.4,
+		"theme":          1,
+		"theme_style":    1,
+		"zoom_level":     1,
+		"level":          1,
+		"range_display":  true,
+		"BG_color":       Color(.6, .7, .8,  1),
+		"tile_color":     Color(.4, .6, .8, .8)
 	}
 
 
@@ -73,15 +76,13 @@ func set_defaults():
 
 
 
-func gen_offscreen_pos(distance):
+func gen_offscreen_pos(distance: float, pos: Vector2):
 	var a      := randi() % 4 + 1
-	var pos    := Vector2()
-#	var window := get_viewport_rect().size
 
 	match a:
 		1:    #### LEFT
-			pos.x = -distance
-			pos.y = rand_range(-distance, window.y + distance)
+			pos.x = -pos.x -distance
+			pos.y = rand_range(-pos.x -distance, window.y + distance)
 		2:    #### RIGHT
 			pos.x = window.x + distance
 			pos.y = rand_range(-distance, window.y + distance)

@@ -1,5 +1,8 @@
 extends Area2D
 
+
+####  NOTES:
+####  sprawdzić czy allow_idle_anim jest potrzebne w ogóle
 export(PackedScene) var _particles ;  var PARTICLES
 
 
@@ -17,6 +20,8 @@ var tween_bump  : SceneTreeTween
 var tween_rev   : SceneTreeTween
 
 
+var allow_idle_anim := false
+
 onready var	theme       = G.SETTINGS.theme
 onready var	theme_data  = $"../../".theme_data[theme-1]
 
@@ -29,11 +34,11 @@ func _ready() -> void:
 	PARTICLES         = _particles.instance()
 	tween_idle        = self.create_tween().set_trans(Tween.TRANS_LINEAR)
 
-	$Sprite.flip_v    =  true if randf() > .5 else  false
-	$Sprite.flip_h    =  true if randf() > .5 else  false
-	$Sprite.modulate  = dark_color
+	$Sprite.flip_v    = true if randf() > .5 else  false
+	$Sprite.flip_h    = true if randf() > .5 else  false
 
-	add_child(PARTICLES)
+	$Sprite.modulate             = dark_color
+	$Sprite.material.blend_mode  = G.SETTINGS.theme_style
 
 	if theme_data[0] == 1:
 		if theme_data[2] == false:
@@ -49,6 +54,7 @@ func _ready() -> void:
 	else:
 		rotation_degrees = rand_range(0, 360)
 
+	allow_idle_anim  = true
 	io_anim()
 
 
@@ -61,7 +67,7 @@ func io_anim(type := 0) -> void:
 		def_rot  = rotation_degrees
 		def_sca  = scale * 0.92
 
-		position          = G.gen_offscreen_pos(100)
+		position          = G.gen_offscreen_pos(100, Vector2.ZERO)
 		rotation_degrees  = randi() % 361
 		var a            := rand_range(.1, .6)
 		scale             = Vector2(a, a)
@@ -92,11 +98,12 @@ func io_anim(type := 0) -> void:
 		tween_idle.tween_property(self, "scale", def_sca, .16
 			).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-		tween_idle.tween_callback(self, "tile_finish").set_delay(.012)
+		tween_idle.tween_callback(self, "tile_ready").set_delay(.012)
 
 	else:
 		var time  = rand_range(.26, .68)
-		def_pos   = G.gen_offscreen_pos(100)
+		def_pos   = G.gen_offscreen_pos(100, position)
+		allow_idle_anim  = false
 
 		if tween_idle:
 			tween_idle.kill()
@@ -110,7 +117,7 @@ func io_anim(type := 0) -> void:
 
 
 
-func tile_finish() -> void:
+func tile_ready() -> void:
 	var num       : Array  = $"../../".level_data[G.SETTINGS.level-1]
 	var num_tiles : int    = (num[0] * num[1]) * .1
 
@@ -120,7 +127,13 @@ func tile_finish() -> void:
 		G.tiles_ready  = 0
 
 	if theme_data[2] == false:
-		$Sprite.modulate  = Color(1,1,1,.82)
+		var dist  = .1
+		var col   = G.SETTINGS.tile_color
+
+		col.r += rand_range(-dist, dist)
+		col.g += rand_range(-dist, dist)
+		col.b += rand_range(-dist, dist)
+		$Sprite.modulate  =  col
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
@@ -163,7 +176,8 @@ func idle_anim(type_list := [0]) -> void:
 
 				tween_idle.tween_property(self, "rotation_degrees", rot, rand_range(6, 10)
 					)
-				tween_idle.tween_callback(self, "idle_anim", [[1]]).set_delay(.2)
+				if allow_idle_anim:
+					tween_idle.tween_callback(self, "idle_anim", [[1]]).set_delay(.2)
 
 
 
@@ -218,50 +232,59 @@ func reveal(counter := 0) -> void:
 
 
 # type:
-# 0: original tile          1: neighbour tile
+#  0: original tile
+#  1: neighbour tile
+# -1: recolour (in case tile become revealed)
 func bump_tile(type := 0) -> void:
 
-	if type == 1:
-		var ttl    : float  = 3.2
+	match type:
+		0:
+			og_tile_shake_anim(4)
+		1:
+			var ttl    : float  = 3.2
 
-		var i      : float
-		i  = rand_range(-.04, .02)
-		var s_min  : Vector2  = def_sca * 0.40 + Vector2(i, i)
-		i  = rand_range(-.02, .06)
-		var s_max  : Vector2  = def_sca * 1.16 + Vector2(i, i)
+			var i      : float
+			i  = rand_range(-.04, .02)
+			var s_min  : Vector2  = def_sca * 0.40 + Vector2(i, i)
+			i  = rand_range(-.02, .06)
+			var s_max  : Vector2  = def_sca * 1.16 + Vector2(i, i)
 
-		var mod  = $Sprite.modulate
-		var def  = mod
-		mod.r   *= 8
-		mod.g   *= 4.4
-		mod.b   *= .4
+			if tween_bump:  tween_bump.kill()
+			tween_bump  = self.create_tween()
 
+			var mod  = G.SETTINGS.tile_color
+			var def  = mod
+			mod.r   *= 8
+			mod.g   *= 4.4
+			mod.b   *= .4
 
-		if tween_bump:  tween_bump.kill()
-		tween_bump  = self.create_tween()
+			tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
+				).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
 
-		tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
-			).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
+			tween_bump.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
+				).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
 
-		tween_bump.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
-			).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
+			tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
+				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.06)
 
-		tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.06)
+			tween_bump.parallel().tween_property($Sprite, "modulate", mod,
+				.36 + rand_range(-.04, .04)
+				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
 
-		tween_bump.parallel().tween_property(self, "modulate", mod, .36 + rand_range(-.04, .04)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+			#### PARTICLES ####
+			tween_bump.parallel().tween_callback(self, "add_tile_particles", [1])
 
-		#### PARTICLES ####
-		tween_bump.parallel().tween_callback(self, "add_tile_particles", [1])
+			tween_bump.tween_property($Sprite, "modulate", def,
+				ttl + rand_range(-ttl * .14 , ttl * .12)
+				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+		-1:
+			var col  = $Sprite.modulate
 
-		tween_bump.tween_property(self, "modulate", def, ttl + rand_range(-ttl * .14 , ttl * .12)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+			if tween_bump:  tween_bump.kill()
+			tween_bump  = self.create_tween()
 
-	else:
-		og_tile_shake_anim(4)
-
-
+			tween_bump.tween_property($Sprite, "modulate", col, 1
+				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 
@@ -288,6 +311,7 @@ func og_tile_shake_anim(count : int):
 
 
 func add_tile_particles(type := 0) ->void:
+	add_child(PARTICLES)
 	var p_small : CPUParticles2D =  PARTICLES.get_node("particles_small")
 	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
 
@@ -319,6 +343,7 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 
 func _exit_tree():
+	G.SETTINGS.theme_style = $Sprite.material.blend_mode
 	if tween_idle : tween_idle.kill()
 	if tween_bump : tween_bump.kill()
 	if tween_rev  : tween_rev .kill()

@@ -54,7 +54,7 @@ layer = -1
 
 [node name="BG_main" type="Sprite" parent="BG_static"]
 unique_name_in_owner = true
-modulate = Color( 0.34902, 0.898039, 0.482353, 0.870588 )
+modulate = Color( 0.227451, 0.615686, 0.913725, 0.792157 )
 light_mask = 0
 material = SubResource( 6 )
 position = Vector2( 160, 340 )
@@ -174,7 +174,7 @@ hue_variation_random = 0.06
 
 [node name="BG_detail" type="Sprite" parent="BG_detail/Holder"]
 unique_name_in_owner = true
-modulate = Color( 0.745098, 0.823529, 0.54902, 0.0470588 )
+modulate = Color( 0.745098, 0.823529, 0.54902, 0.0392157 )
 material = SubResource( 13 )
 scale = Vector2( 0.52, 0.52 )
 texture = ExtResource( 4 )
