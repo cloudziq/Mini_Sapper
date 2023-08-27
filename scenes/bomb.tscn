@@ -5,6 +5,7 @@
 
 [node name="Sprite" type="Sprite"]
 light_mask = 0
+scale = Vector2( 0.74, 0.74 )
 texture = ExtResource( 1 )
 offset = Vector2( 0, -4 )
 script = ExtResource( 2 )

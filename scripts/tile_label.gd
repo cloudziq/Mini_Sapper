@@ -1,9 +1,9 @@
 extends CenterContainer
 
 
-var def_sca    := rect_scale
-var def_rot    := 0.0
-var skew_dist  := 16
+var def_sca   := rect_scale
+var def_rot   := 0.0
+var skew_dist := 16
 
 
 
@@ -11,7 +11,7 @@ var skew_dist  := 16
 
 
 func _ready():
-	visible        = false
+	visible    = false
 
 
 

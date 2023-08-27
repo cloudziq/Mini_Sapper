@@ -36,15 +36,16 @@ var board_data         :  Array
 
 
 func _ready() -> void:
-	var level        = G.SETTINGS.level-1
-	var val_1        = get_parent().level_data[level][0]
-	var val_2        = get_parent().level_data[level][1]
+	var level      = G.SETTINGS.level-1
+	var val_1      = get_parent().level_data[level][0]
+	var val_2      = get_parent().level_data[level][1]
 
-	board_size       = Vector2(val_1, val_2)
-	tile_size        = get_parent().tile_size_in_pixels
-	bombs_amount     = get_parent().level_data[G.SETTINGS.level-1][2]
-	tiles_left       = int(board_size.x * board_size.y - bombs_amount)
-	marker_amount    = 0
+	board_size     = Vector2(val_1, val_2)
+	tile_size      = get_parent().tile_size_in_pixels
+	bombs_amount   = get_parent().level_data[G.SETTINGS.level-1][2]
+	tiles_left     = int(board_size.x * board_size.y - bombs_amount)
+	marker_amount  = 0
+
 	generate_board()
 
 
@@ -72,17 +73,14 @@ func _input(event) -> void:
 	if allow_board_input:
 		if event is InputEventScreenTouch:
 			if event.is_pressed():
-	#			print("pressed")
-				hold_touch_time    = OS.get_system_time_msecs() + 500
+				hold_touch_time  = OS.get_system_time_msecs() + 500
 
 			elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
-	#				print("released")
 					hold_touch_time    = 0
 					if not TOUCH:  add_touch()
 
 		elif event is InputEventMouseButton and event.is_pressed():
 			if event.button_index == BUTTON_RIGHT:
-	#			print("right pressed")
 				hold_touch_time  =  -1
 				if not TOUCH:  add_touch()
 
@@ -106,7 +104,7 @@ func check_clicked_tile() -> void:    # called from touch collision
 		show_near_tiles(tile_coord)
 
 
-	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = (-1)'
+	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = -1'
 		if not tile_stat[0][1]:
 			if tile_stat[1] == 0:
 					$TileRevealSingle.play()
@@ -114,7 +112,7 @@ func check_clicked_tile() -> void:    # called from touch collision
 			#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
 			#			$Sounds/TileReveal.play()
 			elif tile_stat[1] == 1:
-				game_over()
+				game_over(tile_coord)
 
 	else:
 		if tile_stat[1] < 2:  add_marker()
@@ -176,10 +174,11 @@ func level_complete() -> void:
 
 
 
-func game_over() -> void:
+func game_over(tile : Vector2) -> void:
 	var tile_rot  : float
 
 	print("JEBUT!")
+	board_data[tile.x-1][tile.y-1][0][2].bomb_anim()
 
 	for x in board_size.x:
 		for y in board_size.y:
@@ -198,9 +197,9 @@ var near_coords := [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord:Vector2, neighbours:= [], count:= 0) -> void:
-	var tx  : int
-	var ty  : int
+func tile_reveal(coord : Vector2, neighbours := [], count := 0) -> void:
+	var tx : int
+	var ty : int
 
 	match count:
 		2:

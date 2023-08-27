@@ -13,7 +13,6 @@ func _ready():
 #	z_index = 2
 #	scale      = scale_def
 	modulate   = Color(.4, 2, 1, 1)
-#	yield(get_tree().create_timer(.01), "timeout")
 	anim_dir   = 1  ;  marker_anim()
 
 

@@ -1,9 +1,9 @@
 extends Node2D
 
 
-onready var _ball        = preload("res://scenes/BG/BG_object.tscn")
-onready var BG1_amount   = $"../../".BG1_amount
-onready var BG2_amount   = $"../../".BG2_amount
+onready var _ball       = preload("res://scenes/BG/BG_object.tscn")
+onready var BG1_amount  = $"../../".BG1_amount
+onready var BG2_amount  = $"../../".BG2_amount
 
 
 
@@ -128,5 +128,5 @@ func parr(zoom : float) -> void:
 
 
 
-func _exit_tree() -> void:
-		G.SETTINGS.BG_color  = $"%BG_main".modulate
+#func _exit_tree() -> void:
+#		G.SETTINGS.BG_color  = $"%BG_main".modulate

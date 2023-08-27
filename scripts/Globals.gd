@@ -1,7 +1,7 @@
 extends Node2D
 
 
-var tiles_ready  : int
+var tiles_ready : int
 
 
 var window := Vector2(
@@ -67,8 +67,8 @@ func set_defaults():
 		"zoom_level":     1,
 		"level":          1,
 		"range_display":  true,
-		"BG_color":       Color(.6, .7, .8,  1),
-		"tile_color":     Color(.4, .6, .8, .8)
+		"BG_color":       Color(.16, .64, .88, .8),
+		"tile_color":     Color(.42, .64, .86, .8)
 	}
 
 
@@ -79,10 +79,11 @@ func set_defaults():
 func gen_offscreen_pos(distance: float, pos: Vector2):
 	var a      := randi() % 4 + 1
 
+	a = 1
 	match a:
 		1:    #### LEFT
-			pos.x = -pos.x -distance
-			pos.y = rand_range(-pos.x -distance, window.y + distance)
+			pos.x = pos.x -distance
+			pos.y = rand_range(pos.y -distance, pos.y + distance)
 		2:    #### RIGHT
 			pos.x = window.x + distance
 			pos.y = rand_range(-distance, window.y + distance)

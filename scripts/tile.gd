@@ -12,6 +12,7 @@ var reduce_mov  := false    #for 'empty revealed' tiles only
 var reduce_rot  := false    #for revealed tiles with > 0 count only
 var def_pos     :  Vector2
 var def_sca     :  Vector2
+var def_col     :  Color
 var def_rot     :  float
 
 
@@ -54,6 +55,7 @@ func _ready() -> void:
 	else:
 		rotation_degrees = rand_range(0, 360)
 
+	add_child(PARTICLES)
 	allow_idle_anim  = true
 	io_anim()
 
@@ -110,7 +112,7 @@ func io_anim(type := 0) -> void:
 		tween_idle = self.create_tween().set_trans(
 			Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN)
 
-		tween_idle.tween_property(self, "position", def_pos, time)
+		tween_idle.tween_property(self, "global_position", def_pos, time)
 		tween_idle.tween_callback(self, "queue_free")
 
 
@@ -133,7 +135,8 @@ func tile_ready() -> void:
 		col.r += rand_range(-dist, dist)
 		col.g += rand_range(-dist, dist)
 		col.b += rand_range(-dist, dist)
-		$Sprite.modulate  =  col
+		$Sprite.modulate  = col
+		def_col           = col
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
@@ -252,11 +255,10 @@ func bump_tile(type := 0) -> void:
 			if tween_bump:  tween_bump.kill()
 			tween_bump  = self.create_tween()
 
-			var mod  = G.SETTINGS.tile_color
-			var def  = mod
-			mod.r   *= 8
-			mod.g   *= 4.4
-			mod.b   *= .4
+			var col  = def_col
+			col.r   *= 8
+			col.g   *= 4.4
+			col.b   *= .4
 
 			tween_bump.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
 				).set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
@@ -267,23 +269,21 @@ func bump_tile(type := 0) -> void:
 			tween_bump.tween_property(self, "scale", def_sca, .48 + rand_range(-.04, .02)
 				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.06)
 
-			tween_bump.parallel().tween_property($Sprite, "modulate", mod,
+			tween_bump.parallel().tween_property($Sprite, "modulate", col,
 				.36 + rand_range(-.04, .04)
 				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
 
 			#### PARTICLES ####
 			tween_bump.parallel().tween_callback(self, "add_tile_particles", [1])
 
-			tween_bump.tween_property($Sprite, "modulate", def,
+			tween_bump.tween_property($Sprite, "modulate", def_col,
 				ttl + rand_range(-ttl * .14 , ttl * .12)
 				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
 		-1:
-			var col  = $Sprite.modulate
-
 			if tween_bump:  tween_bump.kill()
 			tween_bump  = self.create_tween()
 
-			tween_bump.tween_property($Sprite, "modulate", col, 1
+			tween_bump.tween_property($Sprite, "modulate", dark_color, 2
 				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
@@ -310,8 +310,7 @@ func og_tile_shake_anim(count : int):
 
 
 
-func add_tile_particles(type := 0) ->void:
-	add_child(PARTICLES)
+func add_tile_particles(type := 0) -> void:
 	var p_small : CPUParticles2D =  PARTICLES.get_node("particles_small")
 	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
 
@@ -324,7 +323,7 @@ func add_tile_particles(type := 0) ->void:
 		p_small.preprocess  = 0.44
 		p_small.one_shot    = true
 		p_small.emitting    = true
-		p_small.modulate.a  = .068
+		p_small.modulate.a  = .42
 		p_small.speed_scale = .24
 		p_small.restart()
 
