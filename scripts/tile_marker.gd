@@ -10,8 +10,6 @@ var scale_def := scale
 
 
 func _ready():
-#	z_index = 2
-#	scale      = scale_def
 	modulate   = Color(.4, 2, 1, 1)
 	anim_dir   = 1  ;  marker_anim()
 

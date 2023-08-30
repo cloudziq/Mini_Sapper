@@ -18,6 +18,7 @@ var hold_touch_time    := 0.0
 var sound_timeout      := 0.0
 var allow_board_input  := false
 var player_fail        := false
+var num_tiles          := 0    # helper_var
 
 
 ################################################################################
@@ -41,6 +42,7 @@ func _ready() -> void:
 	var val_2      = get_parent().level_data[level][1]
 
 	board_size     = Vector2(val_1, val_2)
+	num_tiles      = int(board_size.x * board_size.y)
 	tile_size      = get_parent().tile_size_in_pixels
 	bombs_amount   = get_parent().level_data[G.SETTINGS.level-1][2]
 	tiles_left     = int(board_size.x * board_size.y - bombs_amount)
@@ -167,7 +169,7 @@ func add_marker() -> void:    # result of check_clicked_tile()
 
 func level_complete() -> void:
 	G.SETTINGS.level += 1
-	restart_board()
+	reset_board()
 
 
 
@@ -228,7 +230,7 @@ func tile_reveal(coord : Vector2, neighbours := [], count := 0) -> void:
 		var angle = tile_og[0][0].rotation_degrees
 		tile_og[0][3].reveal(angle)
 
-	# remove markers:
+	# remove marker:
 	if tile_og[0][1]:
 		marker_amount -= 1
 		tile_og[0][1].queue_free()
@@ -339,12 +341,15 @@ func generate_board() -> void:
 
 
 
-func restart_board() -> void:
-	for i in get_tree().get_nodes_in_group("tile"):
-		i.io_anim(1)
-	yield(get_tree().create_tween().tween_interval(1), "finished")
-	_ready()
-
+func reset_board(init := true) -> void:
+	if init:
+		for i in get_tree().get_nodes_in_group("tile"):
+			i.io_anim(1)
+	else:
+		for i in get_tree().get_nodes_in_group("tile"):
+			i.queue_free()
+		yield(get_tree().create_timer(.1), "timeout")
+		_ready()
 
 
 

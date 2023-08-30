@@ -28,7 +28,7 @@ func _on_Restart_Button_pressed():
 		tween.tween_property(node, "modulate", Color(1,1,1,0), .4)
 
 #	yield(get_tree().create_tween().tween_interval(.4), "finished")
-	get_parent().restart_board()
+	get_parent().reset_board()
 
 
 
