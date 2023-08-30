@@ -10,16 +10,15 @@ var skew_dist := 16
 
 
 
-func _ready():
-#	visible    = false
-	pass
+func _ready() -> void:
+	visible    = false
 
 
 
 
 
 
-func animate_label():
+func animate_label() -> void:
 	var tween  = self.create_tween()
 	var rot    = 0 - abs(get_parent().rotation_degrees)
 
@@ -36,7 +35,7 @@ func animate_label():
 
 
 
-func reveal(rot := 0):
+func reveal(rot := 0) -> void:
 	var tween      = self.create_tween()
 	def_rot        = 0 - abs(rot) + rand_range(-skew_dist, skew_dist)
 	rect_scale     = Vector2(.01, .01)

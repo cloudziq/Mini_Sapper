@@ -24,7 +24,7 @@ func _ready():
 
 	var i  = G.SETTINGS.zoom_level
 
-	yield(get_tree().create_timer(.04), "timeout")
+	yield(get_tree().create_timer(.01), "timeout")
 	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
 	target_zoom       = Vector2(i, i)
 

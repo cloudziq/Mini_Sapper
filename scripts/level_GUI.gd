@@ -27,7 +27,7 @@ func _on_Restart_Button_pressed():
 	else:
 		tween.tween_property(node, "modulate", Color(1,1,1,0), .4)
 
-#	yield(get_tree().create_tween().tween_interval(.4), "finished")
+#	yield(get_tree().create_tween().tween_interval(.1), "finished")
 	get_parent().reset_board()
 
 
@@ -47,7 +47,6 @@ func update(show := 0) -> void:
 
 	node = $VBoxContainer/Upper/Left/HBox/Tiles/num
 	node.text = str($"../".tiles_left)
-
 
 	if show != 0:
 		var tween := get_tree().create_tween().set_trans(Tween.TRANS_SINE)

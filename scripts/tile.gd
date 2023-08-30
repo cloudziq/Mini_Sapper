@@ -20,10 +20,10 @@ var def_col     :  Color
 var def_rot     :  float
 
 
+var tween_io    : SceneTreeTween
 var tween_idle  : SceneTreeTween
 var tween_bump  : SceneTreeTween
-var tween_rev1  : SceneTreeTween
-var tween_rev2  : SceneTreeTween
+var tween_rev   : SceneTreeTween
 
 
 var allow_idle_anim := false
@@ -60,8 +60,8 @@ func _ready() -> void:
 		rotation_degrees = rand_range(0, 360)
 
 	add_child(PARTICLES)
-	allow_idle_anim  = true
 	io_anim()
+
 
 
 
@@ -73,65 +73,68 @@ func io_anim(type := 0) -> void:
 		def_rot  = rotation_degrees
 		def_sca  = scale * 0.92
 
-		position          = G.gen_offscreen_pos(100, Vector2.ZERO)
-		rotation_degrees  = randi() % 361
+		var node         : Camera2D = get_parent().get_node("ZoomCam")
+		position          = G.gen_offscreen_pos(60, node.position)
+		rotation_degrees  = rand_range(-360, 360)
 		var a            := rand_range(.1, .6)
 		scale             = Vector2(a, a)
 
-		tween_idle        = self.create_tween().set_trans(Tween.TRANS_LINEAR)
+		allow_idle_anim   = true
+		tween_io        = self.create_tween().set_trans(
+			Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-		#phase 1
-		tween_idle.set_parallel(true)
-		tween_idle.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
-			).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.2)
+		#PHASE 1:
+		tween_io.set_parallel(true)
+		tween_io.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
+			).set_delay(.2)
 
-		tween_idle.tween_property(self, "scale", def_sca, .44
-			).set_ease(Tween.EASE_OUT)
+		tween_io.tween_property(self, "scale", def_sca, .44)
 
-		a  = rand_range(.26, .68)
-		tween_idle.tween_property(self, "position", def_pos, a
-			).set_ease(Tween.EASE_OUT)
+		a  = rand_range(.46, .82)
+		tween_io.tween_property(self, "position", def_pos, a)
 
-		#tile spawn sound:
+		#tile spawn sound
 		if OS.get_system_time_msecs() >= get_parent().sound_timeout:
 			get_parent().sound_timeout  = OS.get_system_time_msecs() + 12
-			tween_idle.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
+			tween_io.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
 
-		#phase 2
-		tween_idle.set_parallel(false)
-		tween_idle.tween_property(self, "scale", def_sca * .4, .22
+		#PHASE 2:
+		tween_io.set_parallel(false)
+		tween_io.tween_property(self, "scale", def_sca * .4, .22
 			).set_ease(Tween.EASE_IN)
 
-		tween_idle.tween_property(self, "scale", def_sca, .16
+		tween_io.tween_property(self, "scale", def_sca, .16
 			).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-		tween_idle.tween_callback(self, "tile_ready").set_delay(.012)
+		tween_io.tween_callback(self, "tile_ready").set_delay(.012)
 
 	else:
-		var time         = rand_range(.26, .68)
-		def_pos          = G.gen_offscreen_pos(100, position)
+		var time         = rand_range(.56, .88)
+		var node         = get_parent().get_node("ZoomCam")
+		def_pos          = G.gen_offscreen_pos(60, node.position)
 		allow_idle_anim  = false
 
-		if tween_idle : tween_idle.kill()
-#		if tween_bump : tween_bump.kill()
-#		if tween_rev1 : tween_rev1 .kill()
-#		if tween_rev2 : tween_rev2 .kill()
+#		if tween_io : tween_io.kill()
+#		if tween_idle : tween_idle.kill()
+#		yield(get_tree().create_timer(.2), "timeout")
+		tween_io  = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-		tween_idle  = self.create_tween().set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN)
-
-		tween_idle.tween_property(self, "position", def_pos, time)
-		tween_idle.tween_callback(self, "tile_ready", [false])
+		tween_io.tween_property(self, "position", def_pos, time)
+		tween_io.tween_callback(self, "tile_ready", [false])
 
 
 
 
 
 
-func tile_ready(init := true) -> void:
+# type:
+# true   = intro
+# false  = outro
+func tile_ready(type := true) -> void:
 	G.tiles_ready  += 1
 
-	if init:
-		if G.tiles_ready >= get_parent().num_tiles:
+	if type:
+		if G.tiles_ready == get_parent().num_tiles:
 			get_parent().allow_board_input  = true
 			G.tiles_ready  = 0
 
@@ -147,13 +150,13 @@ func tile_ready(init := true) -> void:
 		else:
 			$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
-		idle_anim([-1, 1])
+		idle_anim([0, 1])
 	else:
 		if G.tiles_ready == get_parent().num_tiles:
 			G.tiles_ready  = 0
-			get_parent().reset_board(false)
-		else:
-			visible  = false
+			yield(get_tree().create_timer(.2), "timeout")
+			get_parent()._ready()
+		queue_free()
 
 
 
@@ -169,28 +172,25 @@ func idle_anim(type_list := [0]) -> void:
 	var pos        := def_pos
 	var rot        := def_rot
 
-
 	for type in type_list:
-		if type == -1 and tween_idle:
-			tween_idle.kill()
-		tween_idle = self.create_tween().set_trans(
-			Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		if allow_idle_anim:
+			tween_idle = self.create_tween().set_trans(
+				Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-		match type:
-			0, -1:
-				var distance  := 3.2 if not reduce_mov else 1.6
-				pos.x         += rand_range(-distance, distance)
-				pos.y         += rand_range(-distance, distance)
+			match type:
+				0:
+					var distance  := 3.2 if not reduce_mov else 1.6
+					pos.x         += rand_range(-distance, distance)
+					pos.y         += rand_range(-distance, distance)
 
-				tween_idle.tween_property(self, "position", pos, rand_range(6, 8))
-				tween_idle.tween_callback(self, "idle_anim").set_delay(.2)
-			1:
-				rot += rand_range(-22, 22)
-				if reduce_rot:
-					rot *= .46
+					tween_idle.tween_property(self, "position", pos, rand_range(6, 8))
+					tween_idle.tween_callback(self, "idle_anim").set_delay(.2)
+				1:
+					rot += rand_range(-22, 22)
+					if reduce_rot:
+						rot *= .46
 
-				tween_idle.tween_property(self, "rotation_degrees", rot, rand_range(6, 10))
-				if allow_idle_anim:
+					tween_idle.tween_property(self, "rotation_degrees", rot, rand_range(6, 10))
 					tween_idle.tween_callback(self, "idle_anim", [[1]]).set_delay(.2)
 
 
@@ -210,6 +210,8 @@ func reveal(counter : int) -> void:
 	else:
 		$Sprite.texture   = load(path + str(theme) + "_ON.png")
 
+	tween_rev  = self.create_tween().set_ease(Tween.EASE_OUT).set_parallel()
+
 	if counter == 0:
 		scale_to    = Vector2(.1, .1)
 		trans       = Tween.TRANS_BOUNCE
@@ -221,9 +223,8 @@ func reveal(counter : int) -> void:
 		else:
 			col.a  *= .36
 
-		tween_rev1  = self.create_tween()
-		tween_rev1.tween_property($Sprite, "modulate", col, 3.24 + time_mod
-			).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
+		tween_rev.tween_property($Sprite, "modulate", col, 3.24 + time_mod
+			).set_trans(trans).set_delay(delay)
 
 	else:
 		var mult    = counter * .02
@@ -235,9 +236,8 @@ func reveal(counter : int) -> void:
 		reduce_mov  = true
 		reduce_rot  = true
 
-	tween_rev2  = self.create_tween()
-	tween_rev2.tween_property(self, "scale", scale_to, 3.24 + time_mod
-		).set_trans(trans).set_ease(Tween.EASE_OUT).set_delay(delay)
+	tween_rev.tween_property(self, "scale", scale_to, 3.24 + time_mod
+		).set_trans(trans).set_delay(delay)
 
 
 
@@ -353,9 +353,9 @@ func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
 
 func _exit_tree():
 	G.SETTINGS.theme_style = $Sprite.material.blend_mode
-	if tween_idle : tween_idle.kill()
-	if tween_bump : tween_bump.kill()
-	if tween_rev1 : tween_rev1 .kill()
-	if tween_rev2 : tween_rev2 .kill()
+#	if tween_idle : tween_idle.kill()
+#	if tween_bump : tween_bump.kill()
+#	if tween_rev1 : tween_rev1 .kill()
+#	if tween_rev2 : tween_rev2 .kill()
 #   chujicipatozgranaekipa
 

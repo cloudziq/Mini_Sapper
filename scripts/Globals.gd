@@ -15,7 +15,7 @@ var window := Vector2(
 
 
 #var save_version := round(rand_range(1, 9999))
-var save_version = 12
+var save_version = 21
 var SETTINGS
 var config_path
 
@@ -76,22 +76,23 @@ func set_defaults():
 
 
 
-func gen_offscreen_pos(distance: float, pos: Vector2):
+func gen_offscreen_pos(add:float, pos:Vector2) -> Vector2:
 	var a      := randi() % 4 + 1
+	var dist_x :  float = (G.window.x * SETTINGS.zoom_level) * .5
+	var dist_y :  float = (G.window.y * SETTINGS.zoom_level) * .5
 
-	a = 1
 	match a:
 		1:    #### LEFT
-			pos.x = pos.x -distance
-			pos.y = rand_range(pos.y -distance, pos.y + distance)
+			pos.x = pos.x - dist_x - add
+			pos.y = rand_range(pos.y - dist_y -add, pos.y + dist_y + add)
 		2:    #### RIGHT
-			pos.x = window.x + distance
-			pos.y = rand_range(-distance, window.y + distance)
+			pos.x = pos.x + dist_x + add
+			pos.y = rand_range(pos.y - dist_y -add, pos.y + dist_y + add)
 		3:    #### UP
-			pos.x = rand_range(-distance, window.x + distance)
-			pos.y = -distance
+			pos.x = rand_range(pos.x - dist_x -add, pos.x + dist_x + add)
+			pos.y = pos.y - dist_y - add
 		4:    #### DOWN
-			pos.x = rand_range(-distance, window.x + distance)
-			pos.y = window.y + distance
+			pos.x = rand_range(pos.x - dist_x -add, pos.x + dist_x + add)
+			pos.y = pos.y + dist_y + add
 
 	return pos

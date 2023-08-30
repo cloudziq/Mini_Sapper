@@ -341,15 +341,9 @@ func generate_board() -> void:
 
 
 
-func reset_board(init := true) -> void:
-	if init:
-		for i in get_tree().get_nodes_in_group("tile"):
-			i.io_anim(1)
-	else:
-		for i in get_tree().get_nodes_in_group("tile"):
-			i.queue_free()
-		yield(get_tree().create_timer(.1), "timeout")
-		_ready()
+func reset_board() -> void:
+	for i in get_tree().get_nodes_in_group("tile"):
+		i.io_anim(1)
 
 
 

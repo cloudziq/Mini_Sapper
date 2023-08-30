@@ -112,7 +112,8 @@ texture = ExtResource( 5 )
 texture_scale = 6.0
 color = Color( 0.462745, 0.521569, 0.647059, 0.737255 )
 energy = 8.0
-range_height = 32.0
+mode = 3
+range_height = 64.0
 range_layer_min = -2
 range_layer_max = 1
 
