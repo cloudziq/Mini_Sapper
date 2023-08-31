@@ -15,7 +15,7 @@ var window := Vector2(
 
 
 #var save_version := round(rand_range(1, 9999))
-var save_version = 21
+var save_version = 1
 var SETTINGS
 var config_path
 

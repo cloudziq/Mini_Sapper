@@ -109,17 +109,16 @@ func io_anim(type := 0) -> void:
 		tween_io.tween_callback(self, "tile_ready").set_delay(.012)
 
 	else:
-		var time         = rand_range(.56, .88)
+#		var time         = rand_range(.8, 1.2)
+		var time         = 1
 		var node         = get_parent().get_node("ZoomCam")
-		def_pos          = G.gen_offscreen_pos(60, node.position)
+		def_pos          = G.gen_offscreen_pos(20, node.position)
 		allow_idle_anim  = false
 
-#		if tween_io : tween_io.kill()
-#		if tween_idle : tween_idle.kill()
-#		yield(get_tree().create_timer(.2), "timeout")
-		tween_io  = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
+		tween_io  = self.create_tween().set_trans(Tween.TRANS_LINEAR)
 		tween_io.tween_property(self, "position", def_pos, time)
+		var col  = $Sprite.modulate ; col.a    = 0
+		tween_io.parallel().tween_property($Sprite, "modulate", col, time - (time*.1))
 		tween_io.tween_callback(self, "tile_ready", [false])
 
 
@@ -154,7 +153,7 @@ func tile_ready(type := true) -> void:
 	else:
 		if G.tiles_ready == get_parent().num_tiles:
 			G.tiles_ready  = 0
-			yield(get_tree().create_timer(.2), "timeout")
+			yield(get_tree().create_timer(.1), "timeout")
 			get_parent()._ready()
 		queue_free()
 
