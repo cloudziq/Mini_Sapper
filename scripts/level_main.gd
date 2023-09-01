@@ -148,6 +148,7 @@ func add_marker() -> void:    # result of check_clicked_tile()
 			board_data[x][y][0][0].add_child(node)
 			board_data[x][y][0][1]   = node
 			$TileMarker.pitch_scale  = 3.22
+			node.game_over_tint = true if board_data[x][y][1] == 1 else false
 		else:
 			marker_amount -= 1
 			board_data[x][y][0][1].queue_free()
@@ -173,16 +174,13 @@ func level_complete() -> void:
 
 
 func game_over(tile : Vector2) -> void:
-	var tile_rot  : float
+	for i in get_tree().get_nodes_in_group("bomb"):
+		i.reveal_bomb()
 
-	print("JEBUT!")
+	for i in get_tree().get_nodes_in_group("marker"):
+		i.color_tint()
+
 	board_data[tile.x-1][tile.y-1][0][2].bomb_anim()
-
-	for x in board_size.x:
-		for y in board_size.y:
-			if board_data[x][y][1] == 1:
-				tile_rot  = board_data[x][y][0][0].rotation
-				board_data[x][y][0][2].reveal_bomb(tile_rot)
 
 
 

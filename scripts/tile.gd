@@ -95,7 +95,7 @@ func io_anim(type := 0) -> void:
 		a  = rand_range(.62, 1.1)
 		tween_io.tween_property(self, "position", def_pos, a)
 
-		var col   = $Sprite.modulate  ;  col.a  = 1
+		var col   = $Sprite.modulate  ;  col.a  = def_col.a
 		var time  =  1.1
 		tween_io.tween_property($Sprite, "modulate", col, time - (time*.1))
 

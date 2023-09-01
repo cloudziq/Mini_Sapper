@@ -1,12 +1,6 @@
 extends Sprite
 
 
-var pos : Vector2
-#var t_sca : SceneTreeTween
-#var t_pos : SceneTreeTween
-#var t_col : SceneTreeTween
-
-
 onready var def_sca : Vector2  = scale
 
 
@@ -14,7 +8,7 @@ onready var def_sca : Vector2  = scale
 
 
 
-func _ready():
+func _ready() -> void:
 	visible  = false
 
 
@@ -22,16 +16,16 @@ func _ready():
 
 
 
-func reveal_bomb(tile_rotation):
+func reveal_bomb() -> void:
 	visible   = true
-	rotation  = 0 - abs(tile_rotation)
+	rotation  = 0 - abs(get_parent().rotation)
 
 
 
 
 
 
-func bomb_anim() -> void:
+func bomb_anim() -> void:    # animates a bomb which was clicked (ready to blow)
 	var t_sca  = self.create_tween().set_loops()
 	var t_col  = self.create_tween().set_loops()
 
@@ -49,7 +43,7 @@ func bomb_anim() -> void:
 
 
 func new_shake_pos() -> void:
-	pos = Vector2.ZERO
+	var pos := Vector2.ZERO
 	pos.x += rand_range(-6, 6)
 	pos.y += rand_range(-6, 6)
 
@@ -57,13 +51,3 @@ func new_shake_pos() -> void:
 
 	t_pos.tween_property(self, "position", pos, .2).set_delay(.01)
 	t_pos.tween_callback(self, "new_shake_pos")
-
-
-
-
-
-
-#func _exit_tree() -> void:
-#	t_pos.kill()
-#	t_sca.kill()
-#	t_col.kill()
