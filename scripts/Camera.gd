@@ -28,7 +28,6 @@ func _ready():
 	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
 	target_zoom       = Vector2(i, i)
 
-#	get_parent().get_node("BG").parr(target_zoom.x, .4)
 
 
 
@@ -45,7 +44,6 @@ func _process(delta: float) -> void:
 		get_parent().get_node("BG").parr(target_zoom.x)
 
 	#drag limits
-#	new_pos  = position + drag_vector
 	var x1       = -cam_limit_coords.x + G.window.x/2
 	var x2       = cam_limit_coords.x + G.window.x/2
 	var y1       = -cam_limit_coords.y + G.window.y/2
@@ -94,3 +92,14 @@ func _input(event: InputEvent) -> void:
 			is_moving  = true
 		else:
 			is_moving  = false
+
+
+
+
+
+
+func center(val : Vector2, tile_size : int) -> void:
+	var pos := Vector2.ZERO
+	pos.x  = (G.window.x - (val.x / tile_size)) * .5
+	pos.y  = (G.window.y - (val.y / tile_size)) * .5
+	new_pos   = pos

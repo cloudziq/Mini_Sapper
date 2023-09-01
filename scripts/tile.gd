@@ -43,6 +43,7 @@ func _ready() -> void:
 	$Sprite.flip_h    = true if randf() > .5 else  false
 
 	$Sprite.modulate             = dark_color
+	$Sprite.modulate.a           = 0
 	$Sprite.material.blend_mode  = G.SETTINGS.theme_style
 
 	if theme_data[0] == 1:
@@ -73,52 +74,57 @@ func io_anim(type := 0) -> void:
 		def_rot  = rotation_degrees
 		def_sca  = scale * 0.92
 
-		var node         : Camera2D = get_parent().get_node("ZoomCam")
+		var node : Camera2D = get_parent().get_node("ZoomCam")
+		var a    := rand_range(.1, .6)
+
 		position          = G.gen_offscreen_pos(60, node.position)
 		rotation_degrees  = rand_range(-360, 360)
-		var a            := rand_range(.1, .6)
 		scale             = Vector2(a, a)
-
 		allow_idle_anim   = true
-		tween_io        = self.create_tween().set_trans(
-			Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
 
 		#PHASE 1:
+		tween_io  = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
 		tween_io.set_parallel(true)
-		tween_io.tween_property(self, "rotation_degrees", def_rot, rand_range(.44, .82)
+		tween_io.tween_property(self, "rotation_degrees", def_rot, rand_range(.64, 1.22)
 			).set_delay(.2)
 
 		tween_io.tween_property(self, "scale", def_sca, .44)
 
-		a  = rand_range(.46, .82)
+		a  = rand_range(.62, 1.1)
 		tween_io.tween_property(self, "position", def_pos, a)
+
+		var col   = $Sprite.modulate  ;  col.a  = 1
+		var time  =  1.1
+		tween_io.tween_property($Sprite, "modulate", col, time - (time*.1))
 
 		#tile spawn sound
 		if OS.get_system_time_msecs() >= get_parent().sound_timeout:
 			get_parent().sound_timeout  = OS.get_system_time_msecs() + 12
 			tween_io.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
 
+
 		#PHASE 2:
 		tween_io.set_parallel(false)
-		tween_io.tween_property(self, "scale", def_sca * .4, .22
-			).set_ease(Tween.EASE_IN)
+		tween_io.tween_property(self, "scale", def_sca * .4, .22).set_ease(Tween.EASE_IN)
 
 		tween_io.tween_property(self, "scale", def_sca, .16
 			).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 		tween_io.tween_callback(self, "tile_ready").set_delay(.012)
 
+
 	else:
-#		var time         = rand_range(.8, 1.2)
-		var time         = 1
+		var time         = rand_range(.8, 1.2)
 		var node         = get_parent().get_node("ZoomCam")
 		def_pos          = G.gen_offscreen_pos(20, node.position)
 		allow_idle_anim  = false
 
-		tween_io  = self.create_tween().set_trans(Tween.TRANS_LINEAR)
+		tween_io  = self.create_tween().set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
 		tween_io.tween_property(self, "position", def_pos, time)
-		var col  = $Sprite.modulate ; col.a    = 0
-		tween_io.parallel().tween_property($Sprite, "modulate", col, time - (time*.1))
+		var col  = modulate ; col.a    = 0
+		tween_io.parallel().tween_property(self, "modulate", col, time - (time*.1))
 		tween_io.tween_callback(self, "tile_ready", [false])
 
 
@@ -198,7 +204,6 @@ func idle_anim(type_list := [0]) -> void:
 
 
 func reveal(counter : int) -> void:
-	var col      :  Color
 	var delay    := rand_range(.12, .28)
 	var scale_to :  Vector2
 	var trans    :  int
@@ -214,31 +219,42 @@ func reveal(counter : int) -> void:
 	if counter == 0:
 		scale_to    = Vector2(.1, .1)
 		trans       = Tween.TRANS_BOUNCE
-		col         = $Sprite.modulate
 		time_mod    = rand_range(-.8, .8)
 
-		if $Sprite.material.blend_mode == BLEND_MODE_MIX:
-			col.a  *= .22
-		else:
-			col.a  *= .36
-
-		tween_rev.tween_property($Sprite, "modulate", col, 3.24 + time_mod
-			).set_trans(trans).set_delay(delay)
+		change_tile_alpha(.22, .36, time_mod, delay, trans)
 
 	else:
 		var mult    = counter * .02
 		scale_to    = Vector2(.125, .125) + Vector2(mult, mult)
 		trans       = Tween.TRANS_ELASTIC
 		time_mod    = rand_range(-.4, .4)
-
-		add_tile_particles(0)
 		reduce_mov  = true
 		reduce_rot  = true
+
+		add_tile_particles(0)
+		change_tile_alpha(.46, .92, time_mod, delay, trans)
 
 	tween_rev.tween_property(self, "scale", scale_to, 3.24 + time_mod
 		).set_trans(trans).set_delay(delay)
 
 
+
+
+
+
+func change_tile_alpha(mix:float, add:float, time:float, delay:float, trans:int) -> void:
+	var col : Color
+
+	bump_tile(-1)
+	col  = $Sprite.modulate
+
+	if $Sprite.material.blend_mode == BLEND_MODE_MIX:
+		col.a  *= mix
+	else:
+		col.a  *= add
+
+	tween_rev.tween_property($Sprite, "modulate", col, 3.24 + time
+		).set_trans(trans).set_delay(delay)
 
 
 
@@ -290,10 +306,8 @@ func bump_tile(type := 0) -> void:
 				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
 		-1:
 			if tween_bump:  tween_bump.kill()
-			tween_bump  = self.create_tween()
 
-			tween_bump.tween_property($Sprite, "modulate", dark_color, 2
-				).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
 
 
 

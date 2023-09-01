@@ -42,12 +42,13 @@ func _ready() -> void:
 	var val_2      = get_parent().level_data[level][1]
 
 	board_size     = Vector2(val_1, val_2)
-	num_tiles      = int(board_size.x * board_size.y)
+	num_tiles      = int(val_1 * val_2)    # just helper var for childs
 	tile_size      = get_parent().tile_size_in_pixels
 	bombs_amount   = get_parent().level_data[G.SETTINGS.level-1][2]
 	tiles_left     = int(board_size.x * board_size.y - bombs_amount)
 	marker_amount  = 0
 
+	$ZoomCam.center(board_size, tile_size)
 	generate_board()
 
 
@@ -56,7 +57,6 @@ func _ready() -> void:
 
 
 func _process(_dt) -> void:
-
 	# triggering a marker:
 	if $ZoomCam.is_moving:
 		hold_touch_time  =  0
@@ -78,7 +78,7 @@ func _input(event) -> void:
 				hold_touch_time  = OS.get_system_time_msecs() + 500
 
 			elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
-					hold_touch_time    = 0
+					hold_touch_time  = 0
 					if not TOUCH:  add_touch()
 
 		elif event is InputEventMouseButton and event.is_pressed():
@@ -91,9 +91,22 @@ func _input(event) -> void:
 
 
 
-func check_clicked_tile() -> void:    # called from touch collision
-	# normal click (checking if there is a bomb, if not - reveal), or placing a marker:
+func add_touch() -> void:
+	var pos        := get_global_mouse_position()
 
+	TOUCH           = _touch.instance()
+	TOUCH.position  = pos
+	add_child(TOUCH)
+	yield(get_tree().create_timer(.02), "timeout")
+	TOUCH.queue_free()
+	TOUCH            = null
+
+
+
+
+
+
+func check_clicked_tile() -> void:    # called from touch collision
 	var pos := get_global_mouse_position()
 	var x    = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
 	var y    = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
@@ -111,28 +124,11 @@ func check_clicked_tile() -> void:    # called from touch collision
 			if tile_stat[1] == 0:
 					$TileRevealSingle.play()
 					tile_reveal(tile_coord)
-			#			$Sounds/TileReveal.pitch = rand_range(.8, 1.4)
-			#			$Sounds/TileReveal.play()
 			elif tile_stat[1] == 1:
 				game_over(tile_coord)
 
 	else:
 		if tile_stat[1] < 2:  add_marker()
-
-
-
-
-
-
-func add_touch() -> void:    # result of check_clicked_tile()
-	var pos        := get_global_mouse_position()
-
-	TOUCH           = _touch.instance()
-	TOUCH.position  = pos
-	add_child(TOUCH)
-	yield(get_tree().create_timer(.02), "timeout")
-	TOUCH.queue_free()
-	TOUCH            = null
 
 
 
@@ -147,15 +143,15 @@ func add_marker() -> void:    # result of check_clicked_tile()
 
 	if board_data[x][y][1] < 2:
 		if not node:
+			node           = _marker.instance()
 			marker_amount += 1
-			node  = _marker.instance()
 			board_data[x][y][0][0].add_child(node)
-			board_data[x][y][0][1]  = node
+			board_data[x][y][0][1]   = node
 			$TileMarker.pitch_scale  = 3.22
 		else:
 			marker_amount -= 1
 			board_data[x][y][0][1].queue_free()
-			board_data[x][y][0][1]  = null
+			board_data[x][y][0][1]   = null
 			$TileMarker.pitch_scale  = 6.48
 
 	$GUI.update()
@@ -233,7 +229,7 @@ func tile_reveal(coord : Vector2, neighbours := [], count := 0) -> void:
 	# remove marker:
 	if tile_og[0][1]:
 		marker_amount -= 1
-		tile_og[0][1].queue_free()
+		tile_og[0][1].remove()
 		tile_og[0][1]  = null
 
 	# mark tile as 'revealed' and get rid of a bump tween if exists:
