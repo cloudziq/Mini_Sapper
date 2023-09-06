@@ -37,7 +37,7 @@ max_value = 20.0
 bake_resolution = 20
 _data = [ Vector2( 0, 9.09523 ), 0.0, -30.4697, 0, 0, Vector2( 1, 0 ), -3.46956, 0.0, 0, 0 ]
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D" type="Node2D" groups=["tile_particle"]]
 script = ExtResource( 2 )
 
 [node name="particles_small" type="CPUParticles2D" parent="."]

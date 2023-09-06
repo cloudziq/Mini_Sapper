@@ -14,10 +14,28 @@ var window := Vector2(
 
 
 
-#var save_version := round(rand_range(1, 9999))
-var save_version = 1
-var SETTINGS
+var save_version      := 2
+var CONFIG
 var config_path
+
+
+func set_defaults():
+	CONFIG = {
+		"sound_vol":      1,
+		"music_vol":      0.4,
+		"theme":          1,
+		"theme_style":    1,
+		"zoom_level":     1,
+		"level":          1,
+		"tile_helper":    2,
+		"BG_color":       Color(.16, .64, .88, .8),
+		"tile_color":     Color(.42, .64, .86, .8)
+	}
+
+
+
+
+
 
 func save_config():
 #	var password = "87643287643876243876241"
@@ -25,7 +43,7 @@ func save_config():
 	var config = ConfigFile.new()
 
 	config.set_value("config", "save_version", save_version)
-	config.set_value("config", "settings", SETTINGS)
+	config.set_value("config", "settings", CONFIG)
 
 	config.save(config_path)
 #	config.save_encrypted(config_path, key)
@@ -53,23 +71,9 @@ func load_config():
 		set_defaults()
 	else:
 		if config.get_value("config", "save_version") == save_version:
-			SETTINGS = config.get_value("config", "settings")
+			CONFIG = config.get_value("config", "settings")
 		else:
 			set_defaults()
-
-
-func set_defaults():
-	SETTINGS = {
-		"sound_vol":      1,
-		"music_vol":      0.4,
-		"theme":          1,
-		"theme_style":    1,
-		"zoom_level":     1,
-		"level":          1,
-		"range_display":  true,
-		"BG_color":       Color(.16, .64, .88, .8),
-		"tile_color":     Color(.42, .64, .86, .8)
-	}
 
 
 
@@ -78,8 +82,8 @@ func set_defaults():
 
 func gen_offscreen_pos(add:float, pos:Vector2) -> Vector2:
 	var a      := randi() % 4 + 1
-	var dist_x :  float = (G.window.x * SETTINGS.zoom_level) * .5
-	var dist_y :  float = (G.window.y * SETTINGS.zoom_level) * .5
+	var dist_x :  float = (G.window.x * CONFIG.zoom_level) * .5
+	var dist_y :  float = (G.window.y * CONFIG.zoom_level) * .5
 
 	match a:
 		1:    #### LEFT

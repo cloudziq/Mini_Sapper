@@ -24,12 +24,12 @@ var num_tiles          := 0    # helper_var
 ################################################################################
 var board_data         :  Array
 # board_data contents:
-# [tile_id, marker_id, bomb_id, label_id], tile_status, bomb_count]
-# tile status:
+# [tile_id, marker_id, bomb_id, label_id], *tile_status, bomb_count]
+# *tile status:
 # 0: unrevealed
 # 1: contains a bomb
 # 2: revealed
-# 3: detector tile
+# 3: detector tile (unusable now) - keep it?
 ################################################################################
 
 
@@ -37,15 +37,13 @@ var board_data         :  Array
 
 
 func _ready() -> void:
-	var level      = G.SETTINGS.level-1
+	var level      = G.CONFIG.level-1
 	var val_1      = get_parent().level_data[level][0]
 	var val_2      = get_parent().level_data[level][1]
 
 	board_size     = Vector2(val_1, val_2)
 	num_tiles      = int(val_1 * val_2)    # just helper var for childs
 	tile_size      = get_parent().tile_size_in_pixels
-	bombs_amount   = get_parent().level_data[G.SETTINGS.level-1][2]
-	tiles_left     = int(board_size.x * board_size.y - bombs_amount)
 	marker_amount  = 0
 
 	$ZoomCam.center(board_size, tile_size)
@@ -57,8 +55,7 @@ func _ready() -> void:
 
 
 func _process(_dt) -> void:
-	# triggering a marker:
-	if $ZoomCam.is_moving:
+	if $ZoomCam.is_moving:    # cancels marker creation
 		hold_touch_time  =  0
 
 	if hold_touch_time > 0:
@@ -90,7 +87,7 @@ func _input(event) -> void:
 
 
 
-
+####>> some touching
 func add_touch() -> void:
 	var pos        := get_global_mouse_position()
 
@@ -105,28 +102,36 @@ func add_touch() -> void:
 
 
 
-
-func check_clicked_tile() -> void:    # called from touch collision
+####>> called from touch collision
+func check_clicked_tile() -> void:
 	var pos := get_global_mouse_position()
-	var x    = ceil((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
-	var y    = ceil((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
+	var x    = floor((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
+	var y    = floor((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
+	var val :  bool
 
-	if x == clamp(x, 1, board_size.x) and y == clamp(y, 1, board_size.y):
+	#setup:
+	if x == clamp(x, 0, board_size.x-1) and y == clamp(y, 0, board_size.y-1):
 		tile_coord = Vector2(x, y)
-	var tile_stat = board_data[tile_coord.x-1][tile_coord.y-1]
+	var tile_stat = board_data[tile_coord.x][tile_coord.y]
 
-	if tile_stat[2] > 0 and tile_stat[1] == 2:
-		show_near_tiles(tile_coord)
-
-
+	#comm_center:
 	if hold_touch_time >= 0:    #if tile is clicked but not when 'hold = -1'
+
+	#tile_helper:
+	#if tile have a number and its revealed
+		if (tile_stat[2] > 0 and tile_stat[1] == 2) or G.CONFIG.tile_helper == 2:
+			if tile_stat[1] == 0:
+				val  = true
+			elif tile_stat[1] == 2:
+				val  = false
+			show_near_tiles(tile_coord, val)
+
 		if not tile_stat[0][1]:
 			if tile_stat[1] == 0:
 					$TileRevealSingle.play()
 					tile_reveal(tile_coord)
 			elif tile_stat[1] == 1:
 				game_over(tile_coord)
-
 	else:
 		if tile_stat[1] < 2:  add_marker()
 
@@ -165,7 +170,7 @@ func add_marker() -> void:    # result of check_clicked_tile()
 
 
 func level_complete() -> void:
-	G.SETTINGS.level += 1
+	G.CONFIG.level += 1
 	reset_board()
 
 
@@ -180,7 +185,7 @@ func game_over(tile : Vector2) -> void:
 	for i in get_tree().get_nodes_in_group("marker"):
 		i.color_tint()
 
-	board_data[tile.x-1][tile.y-1][0][2].bomb_anim()
+	board_data[tile.x][tile.y][0][2].bomb_anim()
 
 
 
@@ -193,7 +198,7 @@ var near_coords := [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
-func tile_reveal(coord : Vector2, neighbours := [], count := 0) -> void:
+func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) -> void:
 	var tx : int
 	var ty : int
 
@@ -205,12 +210,11 @@ func tile_reveal(coord : Vector2, neighbours := [], count := 0) -> void:
 			$TileRevealBig.pitch_scale    += rand_range(-.08, .08)
 			$TileRevealBig.play()
 
-	coord      -= Vector2(1,1)
 	tiles_left -= 1
 	$GUI.update()
 
 	if tiles_left == 0:
-		print("LEVEL COMPLETED!")
+		print("UDAŁO SIĘ!")
 		level_complete()
 #		return
 
@@ -233,50 +237,61 @@ func tile_reveal(coord : Vector2, neighbours := [], count := 0) -> void:
 	# mark tile as 'revealed' and get rid of a bump tween if exists:
 	tile_og[1]  = 2
 	if tile_og[0][0].tween_bump:
-		tile_og[0][0].bump_tile(-1)
+		tile_og[0][0].tile_bump(-1)
 
 	# create neighbours table:
+	if not single_tile:
+		for index in near_coords:
+			tx = coord.x + index[0]
+			ty = coord.y + index[1]
+
+			if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
+				var tile       = board_data[tx][ty]
+				if tile_og[2] == 0 and tile[1] == 0:
+					neighbours.append(Vector2(tx, ty))
+
+		# process every found neighbour unrevealed tile:
+		for index in neighbours:
+			var x = index.x
+			var y = index.y
+
+			if board_data[x][y][1] == 0:
+				tile_reveal(Vector2(x, y), neighbours, count+1)
+
+
+
+
+
+
+func show_near_tiles(coord:Vector2, delay:=false) -> void:
+	var tx          :  int
+	var ty          :  int
+	var shake_speed := 1.0
+
+	$TileBump.pitch_scale  = 0 + (.68 + rand_range(-.05, .05))
+	$TileBump.play()
+
+	for node in get_tree().get_nodes_in_group("bump_overlay"):
+		node.tween_bump.set_speed_scale(4)
+	for node in get_tree().get_nodes_in_group("tile_particle"):
+		node.smooth_remove(.6)
+
 	for index in near_coords:
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
 
 		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
-			var tile       = board_data[tx][ty]
-			if tile_og[2] == 0 and tile[1] == 0:
-				neighbours.append(Vector2(tx, ty))
-
-	# process every found unrevealed tile:
-	for index in neighbours:
-		var x = index.x
-		var y = index.y
-
-		if board_data[x][y][1] == 0:
-			tile_reveal(Vector2(x+1, y+1), neighbours, count+1)
-
-
-
-
-
-
-func show_near_tiles(start_coord : Vector2) -> void:
-	var tx      :  int
-	var ty      :  int
-	start_coord -= Vector2(1, 1)
-
-	$TileBump.pitch_scale  = 0 + (.68 + rand_range(-.05, .05))
-	$TileBump.play()
-
-
-	board_data[start_coord.x][start_coord.y][0][0].bump_tile()
-
-	for index in near_coords:
-		tx = start_coord.x + index[0]
-		ty = start_coord.y + index[1]
-
-		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[tx][ty][1] < 2:
-				board_data[tx][ty][0][0].bump_tile(1)
+				var node = board_data[tx][ty]
+				node[0][0].tile_bump(1)
 
+	if delay:
+		shake_speed  = .4
+		yield(get_tree().create_timer(.01), "timeout")
+
+	#shake the clicked tile
+	if board_data[coord.x][coord.y][2] > 0:
+		board_data[coord.x][coord.y][0][0].tile_bump(0, shake_speed)
 
 
 
@@ -286,15 +301,15 @@ func show_near_tiles(start_coord : Vector2) -> void:
 func generate_board() -> void:
 	var x_def := (G.window.x - (board_size.x * tile_size)) / 2 + (tile_size / 2)
 	var y_def := (G.window.y - (board_size.y * tile_size)) / 2 + (tile_size / 2)
-	var pos    = Vector2(x_def, y_def)
+	var pos   := Vector2(x_def, y_def)
 	var TILE  :  Node2D
 	var BOMB  :  Node2D
 
 	#reset stuff:
 	board_data     = []
 	G.tiles_ready  = 0
+	bombs_amount   = 0
 	sound_timeout  = 0.0
-	$GUI.update(1)
 
 
 	#### GENERATE TILES:
@@ -314,10 +329,15 @@ func generate_board() -> void:
 
 
 	#### GENERATE BOMBS:
-	pos = gen_pos()
+	for a in G.CONFIG.level-1:
+		bombs_amount += get_parent().level_data[a][2]
+
+	tiles_left = int(board_size.x * board_size.y - bombs_amount)
+
+	pos  = gen_pos()
 	for a in bombs_amount:
 		while board_data[pos.x][pos.y][1] == 1:
-			pos = gen_pos()
+			pos  = gen_pos()
 		board_data[pos.x][pos.y][1]  = 1
 		BOMB  = _bomb.instance()
 		board_data[pos.x][pos.y][0][2]  = BOMB
@@ -329,6 +349,23 @@ func generate_board() -> void:
 		for y in board_size.y:
 			if board_data[x][y][1] != 1:   #if tile have no bomb
 				gen_num(x, y)
+
+	$GUI.update(1)
+
+
+
+
+
+
+func reveal_starter_tiles() -> void:
+	for a in get_parent().level_data[G.CONFIG.level-1][3]:
+		var pos := gen_pos()
+
+		while board_data[pos.x][pos.y][2] == 0:
+			pos  = gen_pos()
+		tiles_left -= 1
+		tile_reveal(pos, [], 0, true)
+		yield(get_tree().create_timer(.01), "timeout")
 
 
 
@@ -355,22 +392,23 @@ func gen_pos() -> Vector2:
 
 
 func gen_num(x, y) -> void:
-	var counter  = 0
-	var LABEL    : CenterContainer
+	var LABEL   :  CenterContainer
+	var counter := 0
 
 	for index in near_coords:
 		var cx = x + index[0]
 		var cy = y + index[1]
 
 		if cx == clamp(cx, 0, board_size.x-1) and cy == clamp(cy, 0, board_size.y-1):
-			if board_data[cx][cy][1] == 1:    #if tile has a bomb
-				counter = counter + 1
+			if board_data[cx][cy][1] == 1:    #if near tile have a bomb
+				counter += 1
 
 	if counter > 0:
 		LABEL                         = _label.instance()
 		board_data[x][y][0][0].add_child(LABEL)    #assign as a child of tile
-		board_data[x][y][2]           = counter
 		board_data[x][y][0][3]        = LABEL
+		board_data[x][y][2]           = counter
+
 		if counter != 1:
 			LABEL.get_node("Label").text  = str(counter)
 		else:

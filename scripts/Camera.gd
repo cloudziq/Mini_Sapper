@@ -22,7 +22,7 @@ var is_moving            := false
 func _ready():
 	position = Vector2.ZERO
 
-	var i  = G.SETTINGS.zoom_level
+	var i  = G.CONFIG.zoom_level
 
 	yield(get_tree().create_timer(.01), "timeout")
 	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
@@ -65,11 +65,11 @@ func _input(event: InputEvent) -> void:
 	#cam zooming:
 	if event.is_pressed():
 		if event.is_action_pressed("zoom+"):
-			target_zoom += Vector2(zoom_step, zoom_step)
-		elif event.is_action_pressed("zoom-"):
 			target_zoom -= Vector2(zoom_step, zoom_step)
+		elif event.is_action_pressed("zoom-"):
+			target_zoom += Vector2(zoom_step, zoom_step)
 
-		G.SETTINGS.zoom_level  = target_zoom.x
+		G.CONFIG.zoom_level  = target_zoom.x
 
 
 	#cam dragging:

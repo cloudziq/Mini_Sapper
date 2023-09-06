@@ -11,7 +11,6 @@ var scale_def      := scale
 
 
 func _ready()  -> void:
-	z_index           = 1
 	modulate          = Color(.4, 2, 1, 1)
 	rotation_degrees  = rand_range(0, 360)
 	marker_anim()
@@ -24,8 +23,8 @@ func _ready()  -> void:
 # true=correct, false=incorrect
 func color_tint() -> void:
 	match game_over_tint:
-		true  : self.modulate  = Color(0.4, 1.20, .45, .8)
-		false : self.modulate  = Color(1.2, 0.22, .20, .8)
+		true  : self.modulate  = Color(.2,  2, .2, 1)
+		false : self.modulate  = Color( 2, .1, .1, 1)
 
 
 

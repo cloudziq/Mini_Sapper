@@ -17,7 +17,7 @@ func _ready() -> void:
 
 	# BG1 texture is set in Inspector Tab, uses custom shader
 	dist   = .16   # (0 - 1)
-	val    = G.SETTINGS.BG_color
+	val    = G.CONFIG.BG_color
 
 	val.r  = rand_range(val.r - dist, val.r + dist)
 	val.g  = rand_range(val.g - dist, val.g + dist)
@@ -65,7 +65,7 @@ func _input(event: InputEvent) -> void:
 		elif event.is_action_pressed("change_tile"):
 			var theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
 			print("tile_theme = "  +str(theme))
-			G.SETTINGS.theme  = theme
+			G.CONFIG.theme  = theme
 			G.save_config()
 			var _i  = get_tree().reload_current_scene()
 
@@ -120,13 +120,13 @@ func parr(zoom : float) -> void:
 	var tween := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel()
 	var i     := 6 * zoom
 
-	tween.tween_property($BG_object,        "follow_viewport_scale", i*zoom*.12, .72)
-	tween.tween_property($BG_object/Holder, "scale",  $BG_object.scale * 2.6,  .94)
+	tween.tween_property($BG_object,        "follow_viewport_scale", i*zoom*.12, 4.72).from_current()
+	tween.tween_property($BG_object/Holder, "scale",  $BG_object.scale * 2.6,  16.4)
 
-	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   .4)
-	tween.tween_property($BG_detail/Holder, "scale",  Vector2(-i*3.2, -i*3.2),   1)
+	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   12.4)
+	tween.tween_property($BG_detail/Holder, "scale",  Vector2(-i*3.2, -i*3.2),   2)
 
 
 
 #func _exit_tree() -> void:
-#		G.SETTINGS.BG_color  = $"%BG_main".modulate
+#		G.CONFIG.BG_color  = $"%BG_main".modulate
