@@ -1,5 +1,5 @@
 # Dziq 2022 - 2023
-# v -0.1 ultra alfa beta
+# v 0.1 ultra alfa
 
 
 
@@ -8,12 +8,12 @@
 extends Node2D
 
 
-#export(PackedScene)  var _LEVEL
 export var rec          : bool
+
 
 var tile_size_in_pixels := 32
 
-# should be later affected by performance setting?:
+# should be later affected by some kind of a performance setting?:
 #var board_max_tiles_w    := 60
 #var board_max_tiles_h    := 60
 
@@ -22,7 +22,7 @@ var BG1_amount  = countImages("res://assets/graphics/level_bg/main")
 var BG2_amount  = countImages("res://assets/graphics/level_bg/additional")
 
 
-var level  = preload("res://scenes/LEVEL.tscn")     ; var LEVEL : Node2D
+var level  = preload("res://scenes/level_main.tscn")  ; var LEVEL : Node2D
 var menu   = preload("res://scenes/main_menu.tscn")
 
 
@@ -67,8 +67,8 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[4,        4,       1,      0],        # 1
-	[4,        5,       1,      0],        # 2
+	[2,        2,       1,      0],        # 1
+	[4,        4,       1,      0],        # 2
 	[5,        5,       1,      0],        # 3
 	[5,        6,       1,      0],        # 4
 	[6,        6,       1,      1],        # 5
@@ -114,8 +114,7 @@ func _ready() -> void:
 	G.load_config()
 	window_prepare()
 
-#	yield(get_tree().create_timer(1), "timeout")
-	LEVEL = level.instance()
+	LEVEL  = level.instance()
 	add_child(menu.instance())
 #	$AudioStreamPlayer.play()
 

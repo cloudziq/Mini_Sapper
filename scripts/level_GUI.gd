@@ -13,7 +13,6 @@ extends CanvasLayer
 
 
 
-
 func _on_Restart_Button_pressed() -> void:
 	var node   := $VBoxContainer
 	var button := $VBoxContainer/Lower/Button

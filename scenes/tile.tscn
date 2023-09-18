@@ -26,4 +26,4 @@ material = SubResource( 2 )
 scale = Vector2( 3.2, 3.2 )
 shape = SubResource( 1 )
 
-[connection signal="area_shape_entered" from="." to="." method="_on_Area2D_area_shape_entered"]
+[connection signal="area_shape_entered" from="." to="." method="_on_touch_collision"]

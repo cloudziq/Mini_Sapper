@@ -1,9 +1,6 @@
 extends Area2D
 
 
-####  NOTES:
-####  sprawdzić czy allow_idle_anim jest potrzebne w ogóle
-####  i czy w idle_anim jest potrzebne match = -1
 
 
 export(PackedScene) var _particles ;  var PARTICLES
@@ -160,8 +157,9 @@ func tile_ready(type := true) -> void:
 		if G.tiles_ready == get_parent().num_tiles:
 			G.tiles_ready  = 0
 			yield(get_tree().create_timer(.1), "timeout")
+			for i in get_tree().get_nodes_in_group("tile"):
+				i.queue_free()
 			get_parent()._ready()
-		queue_free()
 
 
 
@@ -177,11 +175,10 @@ func idle_anim(type_list := [0]) -> void:
 	var pos        := def_pos
 	var rot        := def_rot
 
-	for type in type_list:
-		if allow_idle_anim:
-			tween_idle = self.create_tween().set_trans(
-				Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if allow_idle_anim:
+		tween_idle = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
+		for type in type_list:
 			match type:
 				0:
 					var distance  := 3.2 if not reduce_mov else 1.6
@@ -287,16 +284,74 @@ func tile_bump(type:=0, shake_speed:=1.0) -> void:
 
 
 
+func tile_blast() -> void:
+	var node       : Node2D = get_parent().get_node("bomb_explosion")
+	var dir        = global_position.direction_to(node.global_position)
+	var dist       = position.distance_to(node.global_position)
+	var factor     = 1 - (dist / node.max_blast_range)
+	var new_pos    = global_position - dir * factor * 200 * rand_range(factor*.6, factor)
+	var t_pos      = self.create_tween()
+
+	allow_idle_anim  = false
+	tween_idle.kill()
+
+	var time  = factor * 2 * rand_range(factor*.6, factor)
+	t_pos.tween_property(self, "position", new_pos, time)
+	t_pos.tween_callback(self, "tile_ready", [false])
+
+#if message.group == hash("wave") then
+#			local max_angle, max_blast_range = 140, 635
+#			local pos1 = go.get_position()
+#			local pos2 = go.get_position(message.other_id)
+#			local rot = go.get(".", "euler.z")
+#
+#			local distance_temp = math.sqrt( (pos1.x - pos2.x)^2 + (pos1.y - pos2.y)^2 )
+#			local distance = math.max(0, math.min(distance_temp / max_blast_range, 1))
+#			local angle = max_angle * (1.02 - distance)
+#			local pos = pos1 + message.normal * (message.distance * (4.62 * (1.12 - distance)))
+#			rot = vmath.quat_rotation_z((rot + math.random(-angle, angle)) * math.pi / 180)
+#
+#			--print("dist: "..distance_temp.."    dist_range: "..distance.."    angle: "..angle)
+#
+#			go.cancel_animations(".", "euler")
+#			go.cancel_animations(".", "scale")
+#			go.cancel_animations(".", "position")
+#			msg.post("#collide_wave", "disable")
+#
+#			if math.max(1, math.floor(distance * 100)) <= 50 then
+#				local steps = math.random(3, 6)
+#				z = z + 0.001
+#				bounce_sound_delay = socket.gettime()
+#				pos = pos + message.normal * message.distance * 3.2 * (steps * .44) ; pos.z = z
+#				tile_bounce(self, pos, (math.random(44, 82) / 100) * (steps * .12) * (1.12 - distance), steps)
+#				timer.delay(.4, false, function()
+#					msg.post("#collide_tile", "enable")
+#				end)
+#			else
+#				go.animate(".", "position", go.PLAYBACK_ONCE_FORWARD, vmath.vector3(pos.x, pos.y, pos1.z), go.EASING_OUTSINE, .32)
+#				local rotate_time = .6 * (1 - distance)
+#				local r_min = (rotate_time - rotate_time / 20) * 100
+#				local r_max = (rotate_time + rotate_time / 20) * 100
+#				go.animate(".", "rotation", go.PLAYBACK_ONCE_FORWARD, rot, go.EASING_OUTSINE, math.random(r_min, r_max) / 100)
+#			end
+#		end
+#	end
+
+
+
+
+
+
 func og_tile_shake_anim(count:int, shake_speed:float):
-	var x           := rand_range(-4, 4)
-	var y           := rand_range(-4, 4)
+	var dist        := 4
+	var x           := rand_range(-dist, dist)
+	var y           := rand_range(-dist, dist)
 	var new_pos     := position + Vector2(x, y)
-	var speed_scale := .4 * shake_speed
 
 	tween_bump   = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-	tween_bump.tween_property(self, "position", new_pos, rand_range(.1, .16) * speed_scale)
-	tween_bump.tween_property(self, "position", def_pos, rand_range(.06, .1) * speed_scale)
+	tween_bump.tween_property(self, "position", new_pos, rand_range(.1, .16) * shake_speed)
+	tween_bump.tween_property(self, "position", def_pos, rand_range(.06, .1) * shake_speed)
 
 	if count > 0:
 		tween_bump.tween_callback(self, "og_tile_shake_anim", [count-1, shake_speed])
@@ -328,8 +383,13 @@ func add_tile_particles(type := 0) -> void:
 
 
 
-func _on_Area2D_area_shape_entered(_a, _b, _c, _d):
-	get_parent().check_clicked_tile()
+func _on_touch_collision(_a, _b, _c, _d):
+#	if obj.get_collision_layer_bit(3):
+#		print("explosion")
+#		tile_push()
+#	else:
+		get_parent().check_clicked_tile()
+#		print("touch")
 
 
 

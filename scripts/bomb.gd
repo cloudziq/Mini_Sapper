@@ -1,6 +1,9 @@
 extends Sprite
 
 
+export(PackedScene) var _explosion  ;  var EXPLOSION : Node2D
+
+
 onready var def_sca : Vector2  = scale
 
 
@@ -51,3 +54,13 @@ func new_shake_pos() -> void:
 
 	t_pos.tween_property(self, "position", pos, .2).set_delay(.01)
 	t_pos.tween_callback(self, "new_shake_pos")
+
+
+
+
+
+
+func explode() -> void:
+	EXPLOSION  = _explosion.instance()
+	EXPLOSION.position  = get_parent().position
+	$"../../".add_child(EXPLOSION)
