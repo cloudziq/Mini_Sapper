@@ -6,7 +6,7 @@
 blend_mode = 1
 light_mode = 1
 
-[node name="Node2D" type="Node2D" groups=["bump_overlay"]]
+[node name="Node2D" type="Node2D" groups=["tile_bump"]]
 script = ExtResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]

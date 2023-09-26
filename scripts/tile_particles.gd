@@ -1,20 +1,28 @@
 extends Node2D
 
 
+var t  :  SceneTreeTween
+
+
 
 
 func _ready():
 	z_index  = 1
-	$particles_small.emitting    = false
-	$particles_blink.emitting    = false
+	$particles_small.one_shot  = true
+	$particles_blink.one_shot  = true
+	$particles_small.emitting  = true
+	$particles_blink.emitting  = false
+
+	var node  = $particles_small
+
+	t  = self.create_tween()
+	t.tween_callback(self, "fade").set_delay(node.lifetime + node.preprocess)
 
 
 
 
-
-func smooth_remove(time:float) -> void:
-	var t  = self.create_tween().set_parallel()
-
-	t.tween_property($particles_small, "modulate", Color(1,1,1,0), time)
-	t.tween_property($particles_blink, "modulate", Color(1,1,1,0), time)
-#	t.chain().tween_callback(self, "queue_free").set_delay(time)
+func fade() -> void:
+	if t:  t.kill()
+	t  = self.create_tween()
+	t.tween_property($particles_small, "modulate", Color(1,1,1,0), 1)
+	t.tween_callback(self, "queue_free")

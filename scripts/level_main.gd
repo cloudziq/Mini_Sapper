@@ -128,12 +128,14 @@ func check_clicked_tile() -> void:
 
 		#tile_helper:
 		if G.CONFIG.tile_helper > 0:
+			tile_helper_remove(10)
+
 			if tile_data[2] > 0:
 				if tile_stat == 0:
 					if G.CONFIG.tile_helper == 2:
-						show_near_tiles(tile_coord, shake_speed_scale * .4)
+						tile_helper_add(tile_coord, shake_speed_scale * .4)
 				else:
-					show_near_tiles(tile_coord, shake_speed_scale)
+					tile_helper_add(tile_coord, shake_speed_scale)
 
 	else:    # when hold
 		if tile_data[1] < 2:  add_marker()
@@ -240,10 +242,8 @@ func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) ->
 		tile_og[0][1].remove()
 		tile_og[0][1]  = null
 
-	# mark tile as 'revealed' and get rid of a bump tween if exists:
+	# mark tile as 'revealed'
 	tile_og[1]  = 2
-	if tile_og[0][0].tween_bump:
-		tile_og[0][0].tile_bump(-1)
 
 	# create neighbours table:
 	if not single_tile:
@@ -269,18 +269,14 @@ func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) ->
 
 
 
-func show_near_tiles(coord:Vector2, shake_speed_scale:float) -> void:
+func tile_helper_add(coord:Vector2, shake_speed_scale:float) -> void:
 	var tx          :  int
 	var ty          :  int
 
-	$TileBump.pitch_scale  = 0 + (.68 + rand_range(-.05, .05))
+	$TileBump.pitch_scale  = 0 + (.68 + rand_range(-.06, .06))
 	$TileBump.play()
 
-	for node in get_tree().get_nodes_in_group("bump_overlay"):
-		node.tween_bump.set_speed_scale(4)
-	for node in get_tree().get_nodes_in_group("tile_particle"):
-		node.smooth_remove(.6)
-
+	# create new tile_bumps:
 	for index in near_coords:
 		tx = coord.x + index[0]
 		ty = coord.y + index[1]
@@ -288,9 +284,24 @@ func show_near_tiles(coord:Vector2, shake_speed_scale:float) -> void:
 		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[tx][ty][1] < 2:
 				var node = board_data[tx][ty]
-				node[0][0].tile_bump(1)
+				node[0][0].tile_helper_control(1)
 
-	board_data[coord.x][coord.y][0][0].tile_bump(0, shake_speed_scale)
+	# shake only the clicked tile (with number)
+	board_data[coord.x][coord.y][0][0].tile_helper_control(0, shake_speed_scale)
+
+
+
+
+
+
+func tile_helper_remove(speed_scale := 1.0) -> void:
+	# remove previous tile_helper highlights:
+	for node in get_tree().get_nodes_in_group("tile_bump"):
+		node.remove_from_group("tile_bump")
+		node.t.set_speed_scale(speed_scale)
+	for node in get_tree().get_nodes_in_group("tile_particle"):
+		node.remove_from_group("tile_particle")
+		node.t.set_speed_scale(speed_scale)
 
 
 

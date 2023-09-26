@@ -1,5 +1,5 @@
 # Dziq 2022 - 2023
-# v 0.1 ultra alfa
+# v0.2
 
 
 

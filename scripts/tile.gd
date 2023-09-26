@@ -219,7 +219,7 @@ func reveal(counter:int) -> void:
 		time_mod    = rand_range(-.8, .8)
 		delay       = rand_range(.12, .28)
 
-		change_tile_alpha(.22, .36, time_mod, delay, trans)
+		change_alpha(.22, .36, time_mod, delay, trans)
 
 	else:
 		var mult    = counter * .02
@@ -230,7 +230,7 @@ func reveal(counter:int) -> void:
 		reduce_mov  = true
 		reduce_rot  = true
 
-		change_tile_alpha(.46, .92, time_mod, delay, trans)
+		change_alpha(.46, .92, time_mod, delay, trans)
 
 	tween_rev.tween_property(self, "scale", scale_to, 3.24 + time_mod
 		).set_trans(trans).set_delay(delay)
@@ -240,10 +240,9 @@ func reveal(counter:int) -> void:
 
 
 
-func change_tile_alpha(mix:float, add:float, time:float, delay:float, trans:int) -> void:
+func change_alpha(mix:float, add:float, time:float, delay:float, trans:int) -> void:
 	var col : Color
 
-	tile_bump(-1)
 	col  = $Sprite.modulate
 
 	if $Sprite.material.blend_mode == BLEND_MODE_MIX:
@@ -262,80 +261,19 @@ func change_tile_alpha(mix:float, add:float, time:float, delay:float, trans:int)
 # type:
 #  0: original tile
 #  1: neighbour tile
-# -1: remove bump anim (called from tile_reveal)
-func tile_bump(type:=0, shake_speed:=1.0) -> void:
-
+func tile_helper_control(type:=0, shake_speed:=1.0) -> void:
 	match type:
 		0:
 			og_tile_shake_anim(int(4*shake_speed), shake_speed)
 		1:
+			BUMP       = _bump.instance()
 			PARTICLES  = _particles.instance()
-			add_child(PARTICLES)
-			add_tile_particles(1)
-
-			BUMP  = _bump.instance()
 			add_child(BUMP)
-		-1:
-			if PARTICLES:  PARTICLES.smooth_remove(.4)
-			if BUMP:       BUMP.finito()
-
-
-
-
-
-
-func tile_blast() -> void:
-	var node       : Node2D = get_parent().get_node("bomb_explosion")
-	var dir        = global_position.direction_to(node.global_position)
-	var dist       = position.distance_to(node.global_position)
-	var factor     = 1 - (dist / node.max_blast_range)
-	var new_pos    = global_position - dir * factor * 200 * rand_range(factor*.6, factor)
-	var t_pos      = self.create_tween()
-
-	allow_idle_anim  = false
-	tween_idle.kill()
-
-	var time  = factor * 2 * rand_range(factor*.6, factor)
-	t_pos.tween_property(self, "position", new_pos, time)
-	t_pos.tween_callback(self, "tile_ready", [false])
-
-#if message.group == hash("wave") then
-#			local max_angle, max_blast_range = 140, 635
-#			local pos1 = go.get_position()
-#			local pos2 = go.get_position(message.other_id)
-#			local rot = go.get(".", "euler.z")
-#
-#			local distance_temp = math.sqrt( (pos1.x - pos2.x)^2 + (pos1.y - pos2.y)^2 )
-#			local distance = math.max(0, math.min(distance_temp / max_blast_range, 1))
-#			local angle = max_angle * (1.02 - distance)
-#			local pos = pos1 + message.normal * (message.distance * (4.62 * (1.12 - distance)))
-#			rot = vmath.quat_rotation_z((rot + math.random(-angle, angle)) * math.pi / 180)
-#
-#			--print("dist: "..distance_temp.."    dist_range: "..distance.."    angle: "..angle)
-#
-#			go.cancel_animations(".", "euler")
-#			go.cancel_animations(".", "scale")
-#			go.cancel_animations(".", "position")
-#			msg.post("#collide_wave", "disable")
-#
-#			if math.max(1, math.floor(distance * 100)) <= 50 then
-#				local steps = math.random(3, 6)
-#				z = z + 0.001
-#				bounce_sound_delay = socket.gettime()
-#				pos = pos + message.normal * message.distance * 3.2 * (steps * .44) ; pos.z = z
-#				tile_bounce(self, pos, (math.random(44, 82) / 100) * (steps * .12) * (1.12 - distance), steps)
-#				timer.delay(.4, false, function()
-#					msg.post("#collide_tile", "enable")
-#				end)
-#			else
-#				go.animate(".", "position", go.PLAYBACK_ONCE_FORWARD, vmath.vector3(pos.x, pos.y, pos1.z), go.EASING_OUTSINE, .32)
-#				local rotate_time = .6 * (1 - distance)
-#				local r_min = (rotate_time - rotate_time / 20) * 100
-#				local r_max = (rotate_time + rotate_time / 20) * 100
-#				go.animate(".", "rotation", go.PLAYBACK_ONCE_FORWARD, rot, go.EASING_OUTSINE, math.random(r_min, r_max) / 100)
-#			end
-#		end
-#	end
+			add_child(PARTICLES)
+			var node : CPUParticles2D =  PARTICLES.get_node("particles_small")
+			node.modulate.a   = .40
+			node.speed_scale  = .22
+			node.scale        = Vector2(2,2)
 
 
 
@@ -361,22 +299,43 @@ func og_tile_shake_anim(count:int, shake_speed:float):
 
 
 
-func add_tile_particles(type := 0) -> void:
-	var p_small : CPUParticles2D =  PARTICLES.get_node("particles_small")
-	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
+func tile_blast() -> void:
+	var node      : Node2D = get_parent().get_node("bomb_explosion")
+	var dir       = global_position.direction_to(node.global_position)
+	var dist      = position.distance_to(node.global_position)
+	var strength  = 1
+	var factor    = 1 - (dist / node.max_blast_range)
+	var new_pos   = global_position -dir * factor * 100 * strength * rand_range(factor*.6, factor)
+	var t_pos     = self.create_tween()
 
-	if type == 0:
-		p_small.one_shot    = true
-		p_blink.one_shot    = true
-		p_small.emitting    = true
-		p_blink.emitting    = true
-	else:
-		p_small.preprocess  = 0.44
-		p_small.one_shot    = true
-		p_small.emitting    = true
-		p_small.modulate.a  = .42
-		p_small.speed_scale = .24
-		p_small.restart()
+	allow_idle_anim  = false
+	tween_idle.kill()
+
+	var time  = factor * strength * rand_range(factor*.8*strength, factor)
+	t_pos.tween_property(self, "position", new_pos, time)
+	t_pos.tween_callback(self, "tile_ready", [false])
+
+
+
+
+
+
+#func add_particles(type := 0) -> void:
+#	var p_small : CPUParticles2D =  PARTICLES.get_node("particles_small")
+#	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
+#
+#	if type == 0:
+#		p_small.one_shot    = true
+#		p_blink.one_shot    = true
+#		p_small.emitting    = true
+#		p_blink.emitting    = true
+#	else:
+#		p_small.restart()
+#		p_small.one_shot    = true
+#		p_small.emitting    = true
+#		p_small.modulate.a  = .42
+#		p_small.speed_scale = .24
+#		p_small.scale       = Vector2(2,2)
 
 
 
@@ -384,20 +343,15 @@ func add_tile_particles(type := 0) -> void:
 
 
 func _on_touch_collision(_a, _b, _c, _d):
-#	if obj.get_collision_layer_bit(3):
-#		print("explosion")
-#		tile_push()
-#	else:
 		get_parent().check_clicked_tile()
-#		print("touch")
 
 
 
 
 
 
-func _exit_tree():
-	G.CONFIG.theme_style = $Sprite.material.blend_mode
+#func _exit_tree():
+#	G.CONFIG.theme_style = $Sprite.material.blend_mode
 #	if tween_idle : tween_idle.kill()
 #	if tween_bump : tween_bump.kill()
 #	if tween_rev1 : tween_rev1 .kill()
