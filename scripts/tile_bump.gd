@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 	t.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).from_current()
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 	t.tween_property(self, "scale", s_max, .22 + rand_range(-.04, .04)
 		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
@@ -45,7 +45,7 @@ func _ready() -> void:
 
 	rot += rand_range(-6, 6)
 	t.parallel().tween_property(self, "rotation_degrees", rot,
-		.52 + rand_range(-.06, .06)
+		.52 + rand_range(-.08, .08)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 	i  = rand_range(.06, .08)

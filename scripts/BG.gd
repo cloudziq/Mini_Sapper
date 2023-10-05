@@ -125,8 +125,3 @@ func parr(zoom : float) -> void:
 
 	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   12.4)
 	tween.tween_property($BG_detail/Holder, "scale",  Vector2(-i*3.2, -i*3.2),   2)
-
-
-
-#func _exit_tree() -> void:
-#		G.CONFIG.BG_color  = $"%BG_main".modulate

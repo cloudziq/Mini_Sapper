@@ -238,6 +238,7 @@ __meta__ = {
 }
 
 [node name="Button" type="Button" parent="VBoxContainer/Lower"]
+light_mask = 0
 margin_left = 113.0
 margin_right = 206.618
 margin_bottom = 26.0

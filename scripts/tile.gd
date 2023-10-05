@@ -231,6 +231,7 @@ func reveal(counter:int) -> void:
 		reduce_rot  = true
 
 		change_alpha(.46, .92, time_mod, delay, trans)
+		tile_particle_spawn()
 
 	tween_rev.tween_property(self, "scale", scale_to, 3.24 + time_mod
 		).set_trans(trans).set_delay(delay)
@@ -258,22 +259,39 @@ func change_alpha(mix:float, add:float, time:float, delay:float, trans:int) -> v
 
 
 
-# type:
-#  0: original tile
-#  1: neighbour tile
-func tile_helper_control(type:=0, shake_speed:=1.0) -> void:
-	match type:
-		0:
-			og_tile_shake_anim(int(4*shake_speed), shake_speed)
-		1:
-			BUMP       = _bump.instance()
-			PARTICLES  = _particles.instance()
-			add_child(BUMP)
-			add_child(PARTICLES)
-			var node : CPUParticles2D =  PARTICLES.get_node("particles_small")
-			node.modulate.a   = .40
-			node.speed_scale  = .22
-			node.scale        = Vector2(2,2)
+func tile_helper_spawn() -> void:
+	BUMP  = _bump.instance()
+	add_child(BUMP)
+	tile_particle_spawn(true)
+
+
+
+
+
+
+func tile_particle_spawn(type:=false) -> void:
+	var node1 : CPUParticles2D
+	var node2 : CPUParticles2D
+
+	PARTICLES  = _particles.instance()
+	add_child(PARTICLES)
+
+	if type:    #### tile_helper
+		node1              = PARTICLES.get_node("particles_small")
+		node1.modulate.a   = .40
+		node1.speed_scale  = .22
+		node1.scale        = Vector2(2,2)
+	else:       #### normal reveal
+		node1              = PARTICLES.get_node("particles_small")
+		node1.modulate.a   = .40
+		node1.speed_scale  = .06
+		node1.scale        = Vector2(2,2)
+
+		node2              = PARTICLES.get_node("particles_blink")
+		node2.emitting     = true
+		node2.modulate.a   = .20
+		node2.speed_scale  = .11
+
 
 
 
@@ -303,15 +321,15 @@ func tile_blast() -> void:
 	var node      : Node2D = get_parent().get_node("bomb_explosion")
 	var dir       = global_position.direction_to(node.global_position)
 	var dist      = position.distance_to(node.global_position)
-	var strength  = 1
+#	var strength  = .4
 	var factor    = 1 - (dist / node.max_blast_range)
-	var new_pos   = global_position -dir * factor * 100 * strength * rand_range(factor*.6, factor)
+	var new_pos   = global_position -dir * factor * 260 * rand_range(factor*.6, factor)
 	var t_pos     = self.create_tween()
 
 	allow_idle_anim  = false
 	tween_idle.kill()
 
-	var time  = factor * strength * rand_range(factor*.8*strength, factor)
+	var time  = factor * rand_range(factor*.68, factor*.84)
 	t_pos.tween_property(self, "position", new_pos, time)
 	t_pos.tween_callback(self, "tile_ready", [false])
 
@@ -320,41 +338,5 @@ func tile_blast() -> void:
 
 
 
-#func add_particles(type := 0) -> void:
-#	var p_small : CPUParticles2D =  PARTICLES.get_node("particles_small")
-#	var p_blink : CPUParticles2D =  PARTICLES.get_node("particles_blink")
-#
-#	if type == 0:
-#		p_small.one_shot    = true
-#		p_blink.one_shot    = true
-#		p_small.emitting    = true
-#		p_blink.emitting    = true
-#	else:
-#		p_small.restart()
-#		p_small.one_shot    = true
-#		p_small.emitting    = true
-#		p_small.modulate.a  = .42
-#		p_small.speed_scale = .24
-#		p_small.scale       = Vector2(2,2)
-
-
-
-
-
-
 func _on_touch_collision(_a, _b, _c, _d):
 		get_parent().check_clicked_tile()
-
-
-
-
-
-
-#func _exit_tree():
-#	G.CONFIG.theme_style = $Sprite.material.blend_mode
-#	if tween_idle : tween_idle.kill()
-#	if tween_bump : tween_bump.kill()
-#	if tween_rev1 : tween_rev1 .kill()
-#	if tween_rev2 : tween_rev2 .kill()
-#   chujicipatozgranaekipa
-

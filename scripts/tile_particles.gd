@@ -24,5 +24,5 @@ func _ready():
 func fade() -> void:
 	if t:  t.kill()
 	t  = self.create_tween()
-	t.tween_property($particles_small, "modulate", Color(1,1,1,0), 1)
+	t.tween_property(self, "modulate", Color(1,1,1,0), 1)
 	t.tween_callback(self, "queue_free")

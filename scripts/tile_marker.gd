@@ -1,9 +1,9 @@
 extends Sprite
 
 
-var t_sca          :  SceneTreeTween
-var game_over_tint :  bool
-var scale_def      := scale
+var t_sca     :  SceneTreeTween
+var tint_type :  bool
+var scale_def := scale
 
 
 
@@ -22,7 +22,7 @@ func _ready()  -> void:
 
 # true=correct, false=incorrect
 func color_tint() -> void:
-	match game_over_tint:
+	match tint_type:
 		true  : self.modulate  = Color(.2,  2, .2, 1)
 		false : self.modulate  = Color( 2, .1, .1, 1)
 

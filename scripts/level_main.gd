@@ -47,6 +47,8 @@ func _ready() -> void:
 	player_fail    = false
 	marker_amount  = 0
 
+	$GUI.get_node("VBoxContainer/Lower/Button/Label").text  = "RESTART"
+
 	$ZoomCam.center(board_size, tile_size)
 	generate_board()
 
@@ -158,7 +160,7 @@ func add_marker() -> void:    # result of check_clicked_tile()
 			board_data[x][y][0][0].add_child(node)
 			board_data[x][y][0][1]   = node
 			$TileMarker.pitch_scale  = 3.22
-			node.game_over_tint = true if board_data[x][y][1] == 1 else false
+			node.tint_type = true if board_data[x][y][1] == 1 else false
 		else:
 			marker_amount -= 1
 			board_data[x][y][0][1].queue_free()
@@ -195,6 +197,7 @@ func game_over(tile : Vector2) -> void:
 
 	board_data[tile.x][tile.y][0][2].bomb_anim()
 
+	$GUI.get_node("VBoxContainer/Lower/Button/Label").text  = "TRY AGAIN"
 
 
 
@@ -222,9 +225,8 @@ func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) ->
 	$GUI.update()
 
 	if tiles_left == 0:
-		print("UDAŁO SIĘ!")
 		level_complete()
-#		return
+		return
 
 	var tile_og  = board_data[coord.x][coord.y]
 
@@ -284,10 +286,11 @@ func tile_helper_add(coord:Vector2, shake_speed_scale:float) -> void:
 		if tx == clamp(tx, 0, board_size.x-1) and ty == clamp(ty, 0, board_size.y-1):
 			if board_data[tx][ty][1] < 2:
 				var node = board_data[tx][ty]
-				node[0][0].tile_helper_control(1)
+				node[0][0].tile_helper_spawn()
 
 	# shake only the clicked tile (with number)
-	board_data[coord.x][coord.y][0][0].tile_helper_control(0, shake_speed_scale)
+	var node  = board_data[coord.x][coord.y][0][0]
+	node.og_tile_shake_anim(int(4*shake_speed_scale), shake_speed_scale)
 
 
 
@@ -383,7 +386,8 @@ func reveal_starter_tiles() -> void:
 
 
 func reset_board() -> void:
-	hold_touch_time  = 0
+	hold_touch_time    = 0
+	allow_board_input  = false
 
 	if not player_fail:
 		for i in get_tree().get_nodes_in_group("tile"):

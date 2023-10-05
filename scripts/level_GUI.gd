@@ -13,13 +13,22 @@ extends CanvasLayer
 
 
 
+
+func _ready() -> void:
+	$VBoxContainer.modulate  = Color(1,1,1,0)
+	$VBoxContainer/Lower/Button.disabled  = true
+
+
+
+
+
+
 func _on_Restart_Button_pressed() -> void:
 	var node   := $VBoxContainer
 	var button := $VBoxContainer/Lower/Button
 	var tween  := get_tree().create_tween().set_trans(Tween.TRANS_SINE)
 
 	button.disabled                 = true
-	get_parent().allow_board_input  = false
 
 	if get_parent().player_fail:
 		tween.tween_property(node, "modulate", Color(1,1,1,0), .6)
@@ -33,7 +42,7 @@ func _on_Restart_Button_pressed() -> void:
 
 
 
-func update(show := 0) -> void:
+func update(show := false) -> void:
 	var node = $VBoxContainer/Upper/Left/HBox/Level/num
 	node.text = str(G.CONFIG.level)
 
@@ -46,8 +55,8 @@ func update(show := 0) -> void:
 	node = $VBoxContainer/Upper/Left/HBox/Tiles/num
 	node.text = str($"../".tiles_left)
 
-	# restart button
-	if show != 0:
+	# restart button:
+	if show:
 		var tween := get_tree().create_tween().set_trans(Tween.TRANS_SINE)
 
 		node   = $VBoxContainer/Lower/Button

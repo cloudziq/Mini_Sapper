@@ -142,6 +142,6 @@ quality/driver/driver_name="GLES2"
 quality/intended_usage/framebuffer_allocation=0
 quality/intended_usage/framebuffer_allocation.mobile=1
 quality/filters/anisotropic_filter_level=1
-batching/parameters/max_join_item_commands=8
 batching/lights/max_join_items=16
+batching/parameters/item_reordering_lookahead=8
 quality/filters/use_fxaa=true

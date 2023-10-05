@@ -12,7 +12,8 @@ onready var def_sca : Vector2  = scale
 
 
 func _ready() -> void:
-	visible  = false
+	pass
+#	visible  = false
 
 
 

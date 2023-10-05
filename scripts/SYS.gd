@@ -67,7 +67,7 @@ var theme_data = [
 
 #   board_x:  board_y:  bombs:  revealed tiles:
 var level_data = [
-	[2,        2,       1,      0],        # 1
+	[3,        3,       1,      0],        # 1
 	[4,        4,       1,      0],        # 2
 	[5,        5,       1,      0],        # 3
 	[5,        6,       1,      0],        # 4
@@ -116,7 +116,7 @@ func _ready() -> void:
 
 	LEVEL  = level.instance()
 	add_child(menu.instance())
-#	$AudioStreamPlayer.play()
+	$AudioStreamPlayer.play()
 
 
 

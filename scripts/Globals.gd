@@ -26,7 +26,7 @@ func set_defaults():
 		"theme_style":    1,
 		"zoom_level":     1,
 		"level":          1,
-		"tile_helper":    2,
+		"tile_helper":    1,
 		"BG_color":       Color(.16, .64, .88, .8),
 		"tile_color":     Color(.42, .64, .86, .8)
 	}
