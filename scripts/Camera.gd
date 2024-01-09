@@ -99,7 +99,10 @@ func _input(event: InputEvent) -> void:
 
 
 func center(val : Vector2, tile_size : int) -> void:
-	var pos := Vector2.ZERO
+	var pos   := Vector2.ZERO
+	var tween := get_tree().create_tween()
+
 	pos.x  = (G.window.x - (val.x / tile_size)) * .5
 	pos.y  = (G.window.y - (val.y / tile_size)) * .5
-	new_pos   = pos
+
+	tween.tween_property(self, "new_pos", pos, 1)

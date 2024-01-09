@@ -1,7 +1,7 @@
 extends Node2D
 
 
-var max_blast_range := 400
+var max_blast_range := 240
 
 
 

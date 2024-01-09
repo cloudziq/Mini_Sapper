@@ -226,7 +226,7 @@ func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) ->
 
 	if tiles_left == 0:
 		level_complete()
-		return
+#		return
 
 	var tile_og  = board_data[coord.x][coord.y]
 
@@ -373,12 +373,11 @@ func generate_board() -> void:
 func reveal_starter_tiles() -> void:
 	for a in get_parent().level_data[G.CONFIG.level-1][3]:
 		var pos := gen_pos()
-
 		while board_data[pos.x][pos.y][2] == 0:
 			pos  = gen_pos()
-		tiles_left -= 1
+
 		tile_reveal(pos, [], 0, true)
-		yield(get_tree().create_timer(.01), "timeout")
+#		yield(get_tree().create_timer(.01), "timeout")
 
 
 

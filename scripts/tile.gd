@@ -156,10 +156,10 @@ func tile_ready(type := true) -> void:
 	else:
 		if G.tiles_ready == get_parent().num_tiles:
 			G.tiles_ready  = 0
-			yield(get_tree().create_timer(.1), "timeout")
+			yield(get_tree().create_timer(1), "timeout")
 			for i in get_tree().get_nodes_in_group("tile"):
 				i.queue_free()
-			get_parent()._ready()
+			get_parent()._ready()    ## start the level in level_main
 
 
 
@@ -278,13 +278,15 @@ func tile_particle_spawn(type:=false) -> void:
 
 	if type:    #### tile_helper
 		node1              = PARTICLES.get_node("particles_small")
+		node1.emitting     = true
 		node1.modulate.a   = .40
 		node1.speed_scale  = .22
 		node1.scale        = Vector2(2,2)
 	else:       #### normal reveal
 		node1              = PARTICLES.get_node("particles_small")
+		node1.emitting     = true
 		node1.modulate.a   = .40
-		node1.speed_scale  = .06
+		node1.speed_scale  = 1.6
 		node1.scale        = Vector2(2,2)
 
 		node2              = PARTICLES.get_node("particles_blink")
@@ -329,7 +331,7 @@ func tile_blast() -> void:
 	allow_idle_anim  = false
 	tween_idle.kill()
 
-	var time  = factor * rand_range(factor*.68, factor*.84)
+	var time  = factor * (dist * .02) * rand_range(factor*.68, factor*.84)
 	t_pos.tween_property(self, "position", new_pos, time)
 	t_pos.tween_callback(self, "tile_ready", [false])
 

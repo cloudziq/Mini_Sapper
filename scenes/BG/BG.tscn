@@ -54,7 +54,7 @@ layer = -1
 
 [node name="BG_main" type="Sprite" parent="BG_static"]
 unique_name_in_owner = true
-modulate = Color( 0.164706, 0.639216, 0.862745, 0.792157 )
+modulate = Color( 0.270588, 0.921569, 0.580392, 0.792157 )
 light_mask = 0
 material = SubResource( 6 )
 position = Vector2( 160, 340 )

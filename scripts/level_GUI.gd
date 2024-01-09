@@ -28,7 +28,7 @@ func _on_Restart_Button_pressed() -> void:
 	var button := $VBoxContainer/Lower/Button
 	var tween  := get_tree().create_tween().set_trans(Tween.TRANS_SINE)
 
-	button.disabled                 = true
+	button.disabled  = true
 
 	if get_parent().player_fail:
 		tween.tween_property(node, "modulate", Color(1,1,1,0), .6)

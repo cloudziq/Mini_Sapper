@@ -116,7 +116,7 @@ func _ready() -> void:
 
 	LEVEL  = level.instance()
 	add_child(menu.instance())
-	$AudioStreamPlayer.play()
+#	$AudioStreamPlayer.play()
 
 
 
@@ -154,9 +154,9 @@ func window_prepare() -> void:
 
 
 func countImages(path : String) -> int:
-	var num       :=  0
+	var num := 0
 
-	var dir       := Directory.new()
+	var dir := Directory.new()
 #	var path       = "res://assets/graphics/level_bg/OLD"
 
 	if dir.open(path) == OK:

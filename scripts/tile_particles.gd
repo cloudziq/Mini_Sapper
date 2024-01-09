@@ -10,10 +10,10 @@ func _ready():
 	z_index  = 1
 	$particles_small.one_shot  = true
 	$particles_blink.one_shot  = true
-	$particles_small.emitting  = true
+	$particles_small.emitting  = false
 	$particles_blink.emitting  = false
 
-	var node  = $particles_small
+	var node  = $particles_blink
 
 	t  = self.create_tween()
 	t.tween_callback(self, "fade").set_delay(node.lifetime + node.preprocess)
