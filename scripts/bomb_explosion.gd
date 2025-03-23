@@ -1,34 +1,20 @@
 extends Node2D
 
 
-var max_blast_range := 240
+var path  = "res://assets/sounds/explode/"
 
 
 
 
 func _ready() -> void:
-#	max_blast_range                    = $bomb_wave/collision.shape.radius * 2
-#	$bomb_wave/collision.shape.radius  = .01
+	$explosion.stream  = load(path+"explode"+str(randi()%2+1)+".ogg")
+	$explosion.play()
 
-	$fires.one_shot  = true
-	$blink.one_shot  = true
-	$smoke.one_shot  = true
+	$explosion.pitch_scale  = rand_range(.32, .8)
+	$AnimationPlayer.play("explode")
 
-
-
-#	tween.tween_property($bomb_wave/collision.shape, "radius", max_blast_range, .6)
 	for i in get_tree().get_nodes_in_group("tile"):
-		i.tile_blast()
-
-#	yield(get_tree().create_timer(3), "timeout")
-#	finish()
-
-
-
-
-#func finish() -> void:
-#	for i in get_tree().get_nodes_in_group("tile"):
-#		i.queue_free()
+		i.tile_blast(position)
 
 	yield(get_tree().create_timer(3), "timeout")
 	queue_free()

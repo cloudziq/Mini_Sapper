@@ -1,14 +1,17 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://assets/graphics/bomb/smoke.png" type="Texture" id=1]
 [ext_resource path="res://assets/graphics/particles/spark.png" type="Texture" id=2]
 [ext_resource path="res://assets/graphics/bomb/explosion.png" type="Texture" id=3]
 [ext_resource path="res://scripts/bomb_explosion.gd" type="Script" id=4]
+[ext_resource path="res://assets/sounds/explode/explode1.ogg" type="AudioStream" id=5]
 
 [sub_resource type="CircleShape2D" id=33]
 radius = 120.0
 
 [sub_resource type="CanvasItemMaterial" id=18]
+blend_mode = 1
+light_mode = 1
 particles_animation = true
 particles_anim_h_frames = 8
 particles_anim_v_frames = 8
@@ -17,7 +20,7 @@ particles_anim_loop = false
 [sub_resource type="AtlasTexture" id=20]
 flags = 4
 atlas = ExtResource( 3 )
-region = Rect2( 256, 256, 256, 256 )
+region = Rect2( 0, 0, 2048, 2048 )
 
 [sub_resource type="Curve" id=30]
 max_value = 2.0
@@ -57,6 +60,86 @@ max_value = 20.0
 bake_resolution = 20
 _data = [ Vector2( 0, 9.09523 ), 0.0, -30.4697, 0, 0, Vector2( 1, 0 ), -3.46956, 0.0, 0, 0 ]
 
+[sub_resource type="Animation" id=34]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("../fires:emitting")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../smoke:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath(".:emitting")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
+[sub_resource type="Animation" id=35]
+resource_name = "explode"
+length = 2.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../fires:emitting")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../smoke:emitting")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, true ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath(".:emitting")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, true ]
+}
+
 [node name="bomb_explosion" type="Node2D"]
 z_index = 1
 script = ExtResource( 4 )
@@ -70,21 +153,27 @@ monitorable = false
 shape = SubResource( 33 )
 
 [node name="fires" type="CPUParticles2D" parent="."]
+modulate = Color( 1, 1, 1, 0.521569 )
 light_mask = 0
 material = SubResource( 18 )
-amount = 1
-lifetime = 2.0
-speed_scale = 3.0
+amount = 2
+one_shot = true
+preprocess = 0.32
+speed_scale = 1.4
 texture = SubResource( 20 )
 gravity = Vector2( 0, 0 )
-scale_amount = 2.0
+angular_velocity = 4.0
+angular_velocity_random = 1.0
+scale_amount = 4.0
 anim_speed = 1.0
 
 [node name="smoke" type="CPUParticles2D" parent="."]
 light_mask = 0
-amount = 25
+z_index = 1
+amount = 20
 lifetime = 3.0
-speed_scale = 1.4
+one_shot = true
+speed_scale = 6.0
 explosiveness = 0.8
 randomness = 1.0
 texture = ExtResource( 1 )
@@ -96,7 +185,7 @@ gravity = Vector2( 0, 0 )
 initial_velocity = 77.18
 linear_accel = 33.67
 damping = 44.3
-scale_amount = 2.0
+scale_amount = 3.0
 scale_amount_curve = SubResource( 30 )
 color_ramp = SubResource( 28 )
 
@@ -104,8 +193,10 @@ color_ramp = SubResource( 28 )
 modulate = Color( 0.968627, 0.921569, 0.67451, 1 )
 light_mask = 2
 material = SubResource( 21 )
+scale = Vector2( 1.72, 1.72 )
 z_index = 1
 amount = 1
+one_shot = true
 texture = SubResource( 27 )
 spread = 0.0
 gravity = Vector2( 0, 0 )
@@ -116,4 +207,12 @@ color_ramp = SubResource( 24 )
 anim_speed = 12.19
 anim_speed_curve = SubResource( 23 )
 
-[node name="Tween" type="Tween" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../blink")
+anims/RESET = SubResource( 34 )
+anims/explode = SubResource( 35 )
+
+[node name="explosion" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+volume_db = -20.0
+pitch_scale = 0.6

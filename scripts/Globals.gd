@@ -13,24 +13,25 @@ var window := Vector2(
 
 
 
-var save_version  = 12
+var save_version  = 112211
 var CONFIG
 var config_path
 
 
 func set_defaults():
 	CONFIG = {
-		"sound_vol":      1,
-		"music_vol":      0.4,
-		"theme":          1,
-		"theme_style":    1,
-		"zoom_level":     1,
-		"level":          10,
-		"tile_helper":    2,
-		"BG_color":       Color(.16, .64, .98, .8),
-		"tile_color":     Color(.22, .44, .66, .8)
+		"sound_vol":           1,
+		"music_vol":          .6,
+		"theme":               1,
+		"zoom_level":          1,
+		"level":               40,
+		"BG_color":            Color(.1, 1, .2, 1),
+		"BG_brightness":       2,  ##   1 - 5
+		"tile_transparency":   .5,
+		"tile_helper":         true,
+		"window_pos":          [0, 0],
 	}
-
+##  Hidan's purple:    Color(.4, .1, 1, 1)  Brightness: 4
 
 
 
@@ -70,7 +71,7 @@ func load_config():
 		set_defaults()
 	else:
 		if config.get_value("config", "save_version") == save_version:
-			CONFIG = config.get_value("config", "settings")
+			CONFIG   = config.get_value("config", "settings")
 		else:
 			set_defaults()
 
@@ -99,3 +100,21 @@ func gen_offscreen_pos(add:float, pos:Vector2) -> Vector2:
 			pos.y = pos.y + dist_y + add
 
 	return pos
+
+
+
+
+
+
+func rgb_smooth(color:Color, mod:float):
+	var sum  := 0.0
+	var col  := [color.r, color.g, color.b]
+
+	for val in col:
+		sum += val
+	var avg = sum/col.size()
+
+	for i in range(col.size()):
+		col[i] = lerp(col[i], avg, mod)
+
+	return Color(col[0], col[1], col[2], color.a)

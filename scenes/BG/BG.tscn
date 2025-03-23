@@ -1,73 +1,148 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://scripts/BG.gd" type="Script" id=1]
 [ext_resource path="res://assets/graphics/level_bg/BG.png" type="Texture" id=2]
-[ext_resource path="res://assets/godot_res/scrolling.gdshader" type="Shader" id=3]
+[ext_resource path="res://assets/graphics/level_bg/object.png" type="Texture" id=3]
 [ext_resource path="res://assets/graphics/level_bg/additional/BG_1.png" type="Texture" id=4]
-[ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture" id=5]
-[ext_resource path="res://assets/graphics/level_bg/main/bg2.png" type="Texture" id=6]
 
-[sub_resource type="ShaderMaterial" id=6]
-shader = ExtResource( 3 )
-shader_param/x_scroll = 120.0
-shader_param/y_scroll = 80.0
+[sub_resource type="CanvasItemMaterial" id=19]
+blend_mode = 3
+light_mode = 1
 
-[sub_resource type="PhysicsMaterial" id=3]
+[sub_resource type="CanvasItemMaterial" id=18]
+next_pass = SubResource( 19 )
+light_mode = 1
 
-[sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 360.5, 10 )
-
-[sub_resource type="CanvasItemMaterial" id=9]
+[sub_resource type="CanvasItemMaterial" id=15]
 blend_mode = 1
+light_mode = 1
+
+[sub_resource type="GradientTexture2D" id=16]
+
+[sub_resource type="CanvasItemMaterial" id=17]
+blend_mode = 1
+light_mode = 1
+
+[sub_resource type="CanvasItemMaterial" id=12]
 light_mode = 1
 
 [sub_resource type="Curve" id=10]
 max_value = 2.0
 bake_resolution = 20
-_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.170025, 0.930466 ), 4.4589, 4.4589, 0, 0, Vector2( 0.518138, 1.10989 ), -1.79753, -1.79753, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.158759, 0.202057 ), 2.50355, 2.50355, 0, 0, Vector2( 0.34658, 1.81689 ), 0.0, 0.0, 0, 0, Vector2( 0.549229, 0.23475 ), -2.07125, -2.07125, 0, 0, Vector2( 0.746936, 0 ), 0.0, 0.0, 0, 0 ]
 
 [sub_resource type="Gradient" id=11]
-offsets = PoolRealArray( 0, 0.475248, 1 )
-colors = PoolColorArray( 0, 0, 0, 0, 0.603354, 0.526153, 0.8525, 0.862745, 0, 0, 0, 0 )
-
-[sub_resource type="CanvasItemMaterial" id=12]
-blend_mode = 1
-light_mode = 1
-
-[sub_resource type="CanvasItemMaterial" id=14]
-blend_mode = 1
-light_mode = 2
+offsets = PoolRealArray( 0, 0.236264, 0.373626, 0.78022 )
+colors = PoolColorArray( 0, 0, 0, 0, 0.151172, 0.151172, 0.151172, 1, 0.17461, 0.17461, 0.17461, 1, 0, 0, 0, 0 )
 
 [sub_resource type="CanvasItemMaterial" id=13]
-render_priority = 1
-next_pass = SubResource( 14 )
 light_mode = 2
 
-[sub_resource type="CanvasItemMaterial" id=8]
-light_mode = 1
+[sub_resource type="PhysicsMaterial" id=3]
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 360.5, 10.0001 )
 
 [node name="BG" type="Node2D"]
+light_mask = 0
 script = ExtResource( 1 )
+bg_fade_dur = 6.0
 
 [node name="BG_static" type="CanvasLayer" parent="."]
 layer = -1
 
-[node name="BG_main" type="Sprite" parent="BG_static"]
+[node name="BG_static" type="Sprite" parent="BG_static"]
 unique_name_in_owner = true
-modulate = Color( 0.270588, 0.921569, 0.580392, 0.792157 )
 light_mask = 0
-material = SubResource( 6 )
+material = SubResource( 18 )
 position = Vector2( 160, 340 )
-scale = Vector2( 1.6, 1.6 )
+scale = Vector2( 1.8, 1.8 )
 texture = ExtResource( 2 )
 
+[node name="BG_detail" type="CanvasLayer" parent="."]
+layer = -1
+follow_viewport_enable = true
+
+[node name="BG_main1" type="Sprite" parent="BG_detail"]
+unique_name_in_owner = true
+modulate = Color( 0, 0, 0, 0 )
+light_mask = 0
+material = SubResource( 15 )
+position = Vector2( 160, 335 )
+scale = Vector2( 80, 80 )
+texture = SubResource( 16 )
+
+[node name="BG_main2" type="Sprite" parent="BG_detail"]
+unique_name_in_owner = true
+modulate = Color( 0.392157, 0.462745, 0.690196, 0.164706 )
+self_modulate = Color( 1, 1, 1, 0.47451 )
+light_mask = 0
+material = SubResource( 17 )
+position = Vector2( 160, 335 )
+scale = Vector2( 80, 80 )
+z_index = -1
+texture = SubResource( 16 )
+
+[node name="BG_particles" type="CPUParticles2D" parent="BG_detail"]
+modulate = Color( 1, 1, 1, 0.321569 )
+light_mask = 0
+material = SubResource( 12 )
+position = Vector2( 160, 340 )
+amount = 6
+lifetime = 8.0
+speed_scale = 0.16
+randomness = 1.0
+lifetime_randomness = 0.1
+texture = ExtResource( 3 )
+emission_shape = 1
+emission_sphere_radius = 32.0
+direction = Vector2( 0, 0 )
+spread = 180.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 30.0
+angular_velocity = 22.0
+orbit_velocity = 0.4
+linear_accel = 12.0
+radial_accel = 32.0
+tangential_accel = 0.08
+damping = 0.1
+damping_random = 0.06
+angle_random = 1.0
+scale_amount = 10.0
+scale_amount_curve = SubResource( 10 )
+color = Color( 0.415686, 0.478431, 0.505882, 1 )
+color_ramp = SubResource( 11 )
+
+[node name="Holder" type="Node2D" parent="BG_detail"]
+position = Vector2( 160, 340 )
+
+[node name="BG_detail" type="Sprite" parent="BG_detail/Holder"]
+unique_name_in_owner = true
+modulate = Color( 0.0313726, 0.0313726, 0.0313726, 0.109804 )
+material = SubResource( 13 )
+scale = Vector2( 2.4, 2.4 )
+z_index = -1
+texture = ExtResource( 4 )
+
+[node name="Light" type="Light2D" parent="BG_detail"]
+unique_name_in_owner = true
+light_mask = 0
+position = Vector2( 151, 349 )
+scale = Vector2( 1, 0.6 )
+texture = ExtResource( 3 )
+texture_scale = 22.0
+color = Color( 0.827451, 0.827451, 0.827451, 0.737255 )
+energy = 16.0
+range_height = -220.0
+range_layer_min = -1
+range_layer_max = 1
+
 [node name="BG_object" type="CanvasLayer" parent="."]
-layer = 2
 follow_viewport_enable = true
 
 [node name="Holder" type="Node2D" parent="BG_object"]
 light_mask = 0
-position = Vector2( 160, 340 )
+position = Vector2( 160, 345 )
 
 [node name="walls" type="StaticBody2D" parent="BG_object/Holder"]
 position = Vector2( -160, -340 )
@@ -96,95 +171,3 @@ shape = SubResource( 2 )
 position = Vector2( 152, 710 )
 z_index = 1
 shape = SubResource( 2 )
-
-[node name="BG_detail" type="CanvasLayer" parent="."]
-layer = -2
-follow_viewport_enable = true
-
-[node name="Holder" type="Node2D" parent="BG_detail"]
-position = Vector2( 160, 340 )
-
-[node name="Light" type="Light2D" parent="BG_detail/Holder"]
-unique_name_in_owner = true
-light_mask = 0
-scale = Vector2( 0.32, 1 )
-texture = ExtResource( 5 )
-texture_scale = 6.0
-color = Color( 0.462745, 0.521569, 0.647059, 0.737255 )
-energy = 8.0
-mode = 3
-range_height = 64.0
-range_layer_min = -2
-range_layer_max = 1
-
-[node name="BG_particles" type="CPUParticles2D" parent="BG_detail/Holder"]
-light_mask = 0
-material = SubResource( 9 )
-scale = Vector2( 3.25, 1 )
-amount = 6
-lifetime = 8.0
-speed_scale = 0.2
-randomness = 1.0
-lifetime_randomness = 0.2
-texture = ExtResource( 5 )
-emission_shape = 1
-emission_sphere_radius = 16.0
-spread = 180.0
-gravity = Vector2( 0, 0 )
-initial_velocity = 0.01
-orbit_velocity = 0.02
-linear_accel = 12.0
-radial_accel = 0.04
-tangential_accel = 0.08
-damping = 0.1
-damping_random = 0.06
-angle = 1.0
-angle_random = 1.0
-scale_amount = 2.0
-scale_amount_curve = SubResource( 10 )
-color_ramp = SubResource( 11 )
-hue_variation = 0.32
-hue_variation_random = 0.06
-
-[node name="BG_particles2" type="CPUParticles2D" parent="BG_detail/Holder"]
-light_mask = 0
-material = SubResource( 12 )
-scale = Vector2( 3.25, 1 )
-amount = 4
-lifetime = 6.0
-speed_scale = 0.25
-randomness = 1.0
-lifetime_randomness = 0.2
-texture = ExtResource( 5 )
-emission_shape = 1
-emission_sphere_radius = 20.0
-spread = 180.0
-gravity = Vector2( 0, 0 )
-initial_velocity = 0.01
-orbit_velocity = 0.02
-linear_accel = 12.0
-radial_accel = 0.04
-tangential_accel = 0.08
-damping = 0.1
-damping_random = 0.06
-angle_random = 1.0
-scale_amount_curve = SubResource( 10 )
-color_ramp = SubResource( 11 )
-hue_variation = 0.32
-hue_variation_random = 0.06
-
-[node name="BG_detail" type="Sprite" parent="BG_detail/Holder"]
-unique_name_in_owner = true
-modulate = Color( 0.745098, 0.823529, 0.54902, 0.0392157 )
-material = SubResource( 13 )
-scale = Vector2( 0.52, 0.52 )
-texture = ExtResource( 4 )
-
-[node name="BG_overlay" type="Sprite" parent="BG_detail/Holder"]
-unique_name_in_owner = true
-modulate = Color( 0.219608, 0.235294, 0.290196, 0.690196 )
-light_mask = 0
-material = SubResource( 8 )
-rotation = 0.785398
-scale = Vector2( 2.6, 2.6 )
-texture = ExtResource( 6 )

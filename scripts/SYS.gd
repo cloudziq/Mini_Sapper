@@ -1,5 +1,5 @@
-# Dziq 2022 - 2023
-# v0.2
+# Dziq 2022 - 2026
+# v0.3
 
 
 
@@ -7,8 +7,8 @@
 
 extends Node2D
 
-
-export var rec          : bool
+enum screens {normal, dev, rec}
+export(screens) var screen  = screens.normal
 
 
 var tile_size_in_pixels := 32
@@ -92,16 +92,21 @@ var level_data = [
 	[10,      14,       1,      3],        # 23
 	[10,      14,       1,      4],        # 24
 	[10,      15,       1,      4],        # 25
-	[10,      15,       1,      4],        # 26
-	[10,      16,       1,      4],        # 27
-	[10,      16,       1,      4],        # 28
-	[10,      16,       1,      4],        # 29
-	[10,      16,       1,      5],        # 30
-	[10,      16,       1,      5],        # 31
-	[10,      16,       1,      5],        # 32
-	[10,      16,       1,      5],        # 33
-	[10,      16,       1,      6],        # 34
-	[10,      16,       1,      6],        # 35
+	[11,      15,       1,      4],        # 26
+	[11,      15,       1,      4],        # 27
+	[12,      16,       1,      4],        # 28
+	[12,      16,       1,      4],        # 29
+	[12,      16,       1,      5],        # 30
+	[13,      17,       1,      5],        # 31
+	[13,      17,       1,      5],        # 32
+	[13,      17,       1,      5],        # 33
+	[14,      18,       1,      6],        # 34
+	[14,      18,       1,      6],        # 35
+	[14,      18,       1,      5],        # 36
+	[15,      19,       1,      5],        # 37
+	[15,      19,       1,      5],        # 38
+	[15,      19,       1,      6],        # 39
+	[16,      20,       1,      6],        # 40
 ]
 
 
@@ -135,18 +140,30 @@ func window_prepare() -> void:
 	var display_size = OS.get_screen_size()
 	var window_size  = G.window
 
-	if rec == true:
-		window_size *= Vector2(1.16, 1.16)
-	else:
+	if screen == screens.normal:
 		window_size *= Vector2(4, 4)
+	elif screen == screens.dev:
+		window_size *= Vector2(1.1, 1.1)
+	else:
+		window_size *= Vector2(.44, .44)
 
 	if display_size.y <= window_size.y:
-		var scale_ratio = window_size.y / (display_size.y - 80)
+		var scale_ratio = window_size.y /(display_size.y -100)
 		window_size.x /= scale_ratio ; window_size.y /= scale_ratio
 
 	OS.window_size = window_size
-	window_size.y += 78
-	OS.window_position = display_size * .5 - window_size * .5
+	window_size.y += 64
+
+	var pos  = G.CONFIG.window_pos
+	if pos[0] == 0:
+		OS.window_position = display_size *.5 -window_size *.5
+	else:
+		OS.window_position  = Vector2(pos[0], pos[1])
+
+	var col  = Color(.06, .06, .06, 1) *G.CONFIG.BG_brightness
+	col.a    = 1
+	VisualServer.set_default_clear_color(col)
+
 
 
 
@@ -185,4 +202,5 @@ func countImages(path : String) -> int:
 
 func _exit_tree():
 #	$AudioStreamPlayer.playing = false
+	G.CONFIG.window_pos  = [OS.window_position.x, OS.window_position.y]
 	G.save_config()

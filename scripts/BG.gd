@@ -5,42 +5,21 @@ onready var _ball       = preload("res://scenes/BG/BG_object.tscn")
 onready var BG1_amount  = $"../../".BG1_amount
 onready var BG2_amount  = $"../../".BG2_amount
 
+## BG_transitions/colors stuff:
+onready var bg1      := $"%BG_main1"
+onready var bg2      := $"%BG_main2"
+onready var bg_tween :  SceneTreeTween
+
+export var bg_fade_dur      := 12.0      # in seconds (type:float)
+
 
 
 
 
 
 func _ready() -> void:
-	var path  ;  var num : String
-	var node  ;  var sca  ;  var val ; var dist
-	randomize() ; spawn_ball()
-
-	# BG1 texture is set in Inspector Tab, uses custom shader
-	dist   = .16   # (0 - 1)
-	val    = G.CONFIG.BG_color
-
-	val.r  = rand_range(val.r - dist, val.r + dist)
-	val.g  = rand_range(val.g - dist, val.g + dist)
-	val.b  = rand_range(val.b - dist, val.b + dist)
-	$"%BG_main".modulate  = val
-
-
-	node  = $"%BG_detail"
-	num   = str(floor(rand_range(1, BG2_amount)))
-
-	path   = "res://assets/graphics/level_bg/additional/BG_"
-	node.texture     = load(path+num+".png")
-	node.normal_map  = load(path+num+"_n.png")
-
-
-	node  = $"%BG_overlay"
-	num   = str(floor(rand_range(1, BG1_amount)))
-	sca   = node.scale
-	val   = rand_range(sca.x, sca.x * 1.2)
-
-	path   = "res://assets/graphics/level_bg/main/BG_"
-	node.texture     = load(path+num+".png")
-	node.scale       = Vector2(val, val)
+	BG_init()
+	spawn_BG_tiles()
 
 
 
@@ -48,10 +27,11 @@ func _ready() -> void:
 
 
 func _process(dt: float) -> void:
-	$"%BG_main".rotate    ( .024 * dt)
-	$"%BG_overlay".rotate (-.018 * dt)
-	$"%BG_detail".rotate  ( .022 * dt)
-	$"%Light".rotate      (-.032 * dt)
+	bg1.rotate    (.04 *dt)
+	bg2.rotate    (.02 *dt)
+	$"%BG_static".rotate  ( .160 *dt)
+	$"%BG_detail".rotate  (-.022 *dt)
+	$"%Light".rotate      (-.042 *dt)
 
 
 
@@ -74,17 +54,101 @@ func _input(event: InputEvent) -> void:
 
 
 
-func spawn_ball() -> void:
+func BG_init() -> void:
+	var node   :  Sprite
+	var bright :  float = G.CONFIG.BG_brightness
+	var num    := str(floor(rand_range(1, BG2_amount)))
+	var path   := "res://assets/graphics/level_bg/additional/BG_"
+	var tween  := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel()
+
+	node             = $"%BG_detail"
+	node.texture     = load(path+num+".png")
+	node.normal_map  = load(path+num+"_n.png")
+	node.scale       = Vector2(.12, .12)
+	tween.tween_property(node, "modulate:a", .14, 4)
+
+#	node             = $"%BG_static"
+#	tween.tween_property(node, "modulate",
+#		G.rgb_smooth(BG_color_change(1) *bright *.2, .6), 2)
+
+	bg1.modulate  = BG_color_change(.5, .24)
+	bg2.modulate  = BG_color_change(.5, .24)
+
+	BG_fade_cycle(true)
+
+
+
+
+
+
+func BG_fade_cycle(init:=false) -> void:
+	var bright   : float = G.CONFIG.BG_brightness
+	var duration : float = bg_fade_dur *.1 if init else bg_fade_dur
+
+	if bg_tween:
+		bg_tween.kill()
+	bg_tween = get_tree().create_tween().set_ease(Tween.EASE_IN_OUT).set_parallel()
+
+	bg_tween.tween_property(bg1, "modulate", BG_color_change(0, .4), duration)
+
+	bg_tween.tween_property(bg2, "modulate", BG_color_change(.8, .22), duration)
+
+	bg_tween.tween_property(
+		$"%BG_static", "modulate",
+		G.rgb_smooth(BG_color_change(.4, .18) *bright *.22, .1), duration *.6)
+	bg_tween.chain().tween_callback(self, "BG_swap")
+
+
+
+
+
+
+func BG_swap() -> void:
+	var temp  := bg1
+	var num  := str(floor(rand_range(1, BG1_amount)))
+	var path := "res://assets/graphics/level_bg/main/BG_"
+
+	bg1  = bg2
+	bg2  = temp
+	bg2.texture   = load(path+num+".png")
+#	bg2.modulate  = BG_color_change(0, .22)
+
+	BG_fade_cycle()
+
+
+
+
+
+
+func BG_color_change(alpha:=1.0, dist:=.16) -> Color:
+	var color  : Color = G.CONFIG.BG_color
+	var bright : float = clamp(G.CONFIG.BG_brightness, .4, 5)
+
+	dist    *= clamp((bright *.1), .1, .44)
+	bright   = rand_range(bright - bright*.25, bright + bright*.2)
+	color.r  = rand_range(color.r -dist, color.r +dist) *bright
+	color.g  = rand_range(color.g -dist, color.g +dist) *bright
+	color.b  = rand_range(color.b -dist, color.b +dist) *bright
+	color.a  = alpha
+
+	return color
+
+
+
+
+
+
+func spawn_BG_tiles() -> void:
 	yield(get_tree().create_timer(1), "timeout")
-	var offset := 32
+	var offset := 64
 	var TILE   : Node2D  = get_parent().board_data[0][0][0][0]
 	var sprite : Node2D
 
 	# spawnuje kratki:
 	for i in 4:
 		var tween := self.create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
-		var x     := rand_range(offset, G.window.x - offset) - G.window.x/2
-		var y     := rand_range(offset, G.window.y - offset) - G.window.y/2
+		var x     := rand_range(offset, G.window.x -offset) -G.window.x /2
+		var y     := rand_range(offset, G.window.y -offset) -G.window.y /2
 		var BALL  :  Node2D  = _ball.instance()
 
 		sprite     = BALL.get_node("CollisionShape2D/Sprite")
@@ -97,9 +161,9 @@ func spawn_ball() -> void:
 
 		sprite.texture     = TILE.get_node("Sprite").texture
 		sprite.modulate.a  = 0
-		tween.tween_property(sprite, "modulate", Color(col.r, col.g, col.b, col.a), 8)
+		tween.tween_property(sprite, "modulate", Color(col.r, col.g, col.b, col.a), 2)
 
-		var s = rand_range(1.2, 3.6)
+		var s = rand_range(.8, 1.8)
 		sprite.scale    = Vector2(sprite.scale.x*s, sprite.scale.y*s)
 		$BG_object/Holder.add_child(BALL)
 
@@ -108,20 +172,14 @@ func spawn_ball() -> void:
 
 
 
-func variate_color():
-	pass
-
-
-
-
-
-
 func parr(zoom : float) -> void:
 	var tween := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel()
-	var i     := 6 * zoom
+	var i     := 4 * zoom
 
-	tween.tween_property($BG_object,        "follow_viewport_scale", i*zoom*.12, 4.72).from_current()
-	tween.tween_property($BG_object/Holder, "scale",  $BG_object.scale * 2.6,  16.4)
+	tween.tween_property(
+		$BG_object,        "follow_viewport_scale", $BG_object.scale.x *.6*zoom, 4.42)
+	tween.tween_property(
+		$BG_object/Holder, "scale",  $BG_object.scale *1.2 *zoom, 8.4)
 
-	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .056,   12.4)
-	tween.tween_property($BG_detail/Holder, "scale",  Vector2(-i*3.2, -i*3.2),   2)
+	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .088,   1.8)
+	tween.tween_property($BG_detail/Holder, "scale",  Vector2(i*8.2, i*8.2),   2)
