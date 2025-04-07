@@ -3,17 +3,29 @@ extends Node2D
 
 var tiles_ready : int
 
+var system  = OS.get_name()
+var window_size_desktop := Vector2(680, 680)
+var window_size_mobile  := Vector2(320, 680)
 
-var window := Vector2(
-	ProjectSettings.get_setting("display/window/size/width" ),
-	ProjectSettings.get_setting("display/window/size/height")
-	)
+var window : Vector2#= Vector2(
+#	ProjectSettings.get_setting("display/window/size/width" ),
+#	ProjectSettings.get_setting("display/window/size/height")
+#	)
 
 
 
 
 
-var save_version  = 112211
+func _ready() -> void:
+	match system:
+		"Windows", "X11":
+			window  = window_size_desktop
+		"Android":
+			window  = window_size_mobile
+
+
+
+var save_version  = 1
 var CONFIG
 var config_path
 
@@ -24,29 +36,31 @@ func set_defaults():
 		"music_vol":          .6,
 		"theme":               1,
 		"zoom_level":          1,
-		"level":               40,
-		"BG_color":            Color(.1, 1, .2, 1),
-		"BG_brightness":       2,  ##   1 - 5
-		"tile_transparency":   .5,
+		"level":               1,
+		"BG_color":            Color(.1, .2, 1, 1),
+		"BG_brightness":       4,  ##    1-5 ??
+		"tile_transparency":   .45,
 		"tile_helper":         true,
 		"window_pos":          [0, 0],
 	}
-##  Hidan's purple:    Color(.4, .1, 1, 1)  Brightness: 4
+##  Hidan's purple:    Color(.44, .1, 1, 1)  Brightness: 3
 
 
 
 
 
-func save_config():
-#	var password = "87643287643876243876241"
-#	var key = password.sha256_buffer()
-	var config = ConfigFile.new()
 
-	config.set_value("config", "save_version", save_version)
-	config.set_value("config", "settings", CONFIG)
+func save_config(force:=false):
+	if force or save_version > 0:
+#		var password = "87643287643876243876241"
+#		var key = password.sha256_buffer()
+		var config  = ConfigFile.new()
 
-	config.save(config_path)
-#	config.save_encrypted(config_path, key)
+		config.set_value("config", "save_version", save_version)
+		config.set_value("config", "settings", CONFIG)
+
+		config.save(config_path)
+#		config.save_encrypted(config_path, key)
 
 
 
@@ -56,14 +70,13 @@ func save_config():
 func load_config():
 #	var password = "87643287643876243876241"
 #	var key = password.sha256_buffer()
-	var config = ConfigFile.new()
+	var config  = ConfigFile.new()
 
-	var system = OS.get_name()
 	match system:
 		"Windows", "X11":
-			config_path = "res://game_config.cfg"
+			config_path  = "res://game_config.cfg"
 		"Android":
-			config_path = "user://config.cfg"
+			config_path  = "user://config.cfg"
 
 	var check  = config.load(config_path)
 #	var check  = config.load_encrypted(config_path, key)
@@ -71,7 +84,7 @@ func load_config():
 		set_defaults()
 	else:
 		if config.get_value("config", "save_version") == save_version:
-			CONFIG   = config.get_value("config", "settings")
+			CONFIG  = config.get_value("config", "settings")
 		else:
 			set_defaults()
 
@@ -82,8 +95,8 @@ func load_config():
 
 func gen_offscreen_pos(add:float, pos:Vector2) -> Vector2:
 	var a      := randi() % 4 + 1
-	var dist_x :  float = (G.window.x * CONFIG.zoom_level) * .5
-	var dist_y :  float = (G.window.y * CONFIG.zoom_level) * .5
+	var dist_x :  float = (G.window.x *CONFIG.zoom_level) *.5
+	var dist_y :  float = (G.window.y *CONFIG.zoom_level) *.5
 
 	match a:
 		1:    #### LEFT
@@ -106,7 +119,22 @@ func gen_offscreen_pos(add:float, pos:Vector2) -> Vector2:
 
 
 
-func rgb_smooth(color:Color, mod:float):
+func board_center_define(object:Node2D, variable:String, amount:Vector2, tile_size:int) ->Vector2:
+	var pos   := Vector2.ZERO
+	var tween := get_tree().create_tween()
+
+	pos.x  = (G.window.x -(amount.x /tile_size)) *.5
+	pos.y  = (G.window.y -(amount.y /tile_size)) *.5
+
+	tween.tween_property(object, variable, pos, 1)
+	return pos
+
+
+
+
+
+
+func rgb_smooth(color:Color, mod:float) ->Color:
 	var sum  := 0.0
 	var col  := [color.r, color.g, color.b]
 

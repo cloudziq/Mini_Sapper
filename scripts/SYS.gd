@@ -1,5 +1,5 @@
-# Dziq 2022 - 2026
-# v0.3
+# Dziq 2022 - 2028
+# v0.31
 
 
 
@@ -7,11 +7,12 @@
 
 extends Node2D
 
-enum screens {normal, dev, rec}
+enum screens {normal, small, mini}
 export(screens) var screen  = screens.normal
 
 
 var tile_size_in_pixels := 32
+var window_size         :  Vector2
 
 # should be later affected by some kind of a performance setting?:
 #var board_max_tiles_w    := 60
@@ -21,8 +22,7 @@ var tile_size_in_pixels := 32
 var BG1_amount  = countImages("res://assets/graphics/level_bg/main")
 var BG2_amount  = countImages("res://assets/graphics/level_bg/additional")
 
-
-var level  = preload("res://scenes/level_main.tscn")  ; var LEVEL : Node2D
+var level  = preload("res://scenes/level_main.tscn")  ; var LEVEL: Node2D
 var menu   = preload("res://scenes/main_menu.tscn")
 
 
@@ -65,13 +65,13 @@ var theme_data = [
 ]
 
 
-#   board_x:  board_y:  bombs:  revealed tiles:
+#   x:         y:       bombs:  revealed_tiles:
 var level_data = [
-	[3,        3,       1,      0],        # 1
-	[4,        4,       1,      0],        # 2
-	[5,        5,       1,      0],        # 3
-	[5,        6,       1,      0],        # 4
-	[6,        6,       1,      1],        # 5
+	[3,        3,       2,      0],        # 1
+	[3,        4,       1,      0],        # 2
+	[4,        4,       1,      0],        # 3
+	[4,        5,       1,      0],        # 4
+	[5,        5,       1,      1],        # 5
 	[6,        7,       1,      1],        # 6
 	[7,        8,       1,      1],        # 7
 	[7,        8,       1,      1],        # 8
@@ -116,6 +116,7 @@ var level_data = [
 
 func _ready() -> void:
 	randomize()
+	if G.save_version == -1: G.save_version  = 1    ##-save_reset thingy
 	G.load_config()
 	window_prepare()
 
@@ -138,14 +139,15 @@ func start_game() -> void:
 
 func window_prepare() -> void:
 	var display_size = OS.get_screen_size()
-	var window_size  = G.window
+
+	window_size  = G.window
 
 	if screen == screens.normal:
 		window_size *= Vector2(4, 4)
-	elif screen == screens.dev:
-		window_size *= Vector2(1.1, 1.1)
+	elif screen == screens.small:
+		window_size *= Vector2(.745, .745)
 	else:
-		window_size *= Vector2(.44, .44)
+		window_size *= Vector2(.6, .6)
 
 	if display_size.y <= window_size.y:
 		var scale_ratio = window_size.y /(display_size.y -100)
@@ -160,7 +162,7 @@ func window_prepare() -> void:
 	else:
 		OS.window_position  = Vector2(pos[0], pos[1])
 
-	var col  = Color(.06, .06, .06, 1) *G.CONFIG.BG_brightness
+	var col  = Color(.06, .06, .06, 1) *G.CONFIG.BG_brightness *1.14
 	col.a    = 1
 	VisualServer.set_default_clear_color(col)
 
@@ -172,9 +174,7 @@ func window_prepare() -> void:
 
 func countImages(path : String) -> int:
 	var num := 0
-
 	var dir := Directory.new()
-#	var path       = "res://assets/graphics/level_bg/OLD"
 
 	if dir.open(path) == OK:
 		var _nic  = dir.list_dir_begin()

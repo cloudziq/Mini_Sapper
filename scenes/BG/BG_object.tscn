@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://assets/shaders/outline.shader" type="Shader" id=1]
+[ext_resource path="res://assets/shaders/silouette.shader" type="Shader" id=1]
 
 [sub_resource type="PhysicsMaterial" id=6]
 friction = 0.0
@@ -11,8 +11,7 @@ radius = 36.0
 
 [sub_resource type="ShaderMaterial" id=8]
 shader = ExtResource( 1 )
-shader_param/outline_width = 4.48
-shader_param/outline_color = Color( 0.0980392, 0.0980392, 0.0980392, 1 )
+shader_param/modulate = Color( 0.411765, 0.411765, 0.411765, 0.235294 )
 
 [node name="RigidBody2D" type="RigidBody2D" groups=["BG_object"]]
 modulate = Color( 0.219608, 0.219608, 0.219608, 0.494118 )
@@ -24,10 +23,10 @@ linear_damp = 0.0
 angular_damp = 0.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-scale = Vector2( 0.34, 0.34 )
+scale = Vector2( 0.4, 0.4 )
 shape = SubResource( 7 )
 
 [node name="Sprite" type="Sprite" parent="CollisionShape2D"]
-modulate = Color( 0.372549, 0.372549, 0.372549, 0.0313726 )
+modulate = Color( 0.211765, 0.211765, 0.211765, 0.0313726 )
 material = SubResource( 8 )
 scale = Vector2( 10.1, 10.6 )

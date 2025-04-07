@@ -3,24 +3,25 @@ extends Area2D
 
 
 
-export(PackedScene) var _particles ;  var PARTICLES
+export(PackedScene) var _particles_main ;  var PARTICLES_main
+export(PackedScene) var _particles_move ;  var PARTICLES_move
 export(PackedScene) var _bump      ;  var BUMP
 
-onready var shader_revealed  = preload("res://assets/shaders/blur.shader")
+onready var shader_revealed    = preload("res://assets/shaders/blur.shader")
+onready var level              = get_parent()
+onready var tile_bounce_sound  : AudioStreamPlayer = $"../sounds/TileBounce"
 
-
-var velocity     = Vector2.ZERO
-var v_velocity   = 0.0
-var z_offset     = 0.0
+var velocity    := Vector2.ZERO
+var v_velocity  := 0.0
+var z_offset    := 0.0
 
 var path        := "res://assets/graphics/tiles/TILE_"
-#var dark_color  := Color(.24, .32, .36, .6)
 var reduce_mov  := false    #for 'empty revealed' tiles only
-var reduce_rot  := false    #for revealed tiles with > 0 count only
+var reduce_rot  := false    #for tiles with revealed numbers
 var num_tiles   :  int
 var def_pos     :  Vector2
 var def_sca     :  Vector2
-var def_col     :  Color = G.CONFIG.BG_color * .62
+var def_col     :  Color = G.CONFIG.BG_color *.62
 var def_rot     :  float
 
 
@@ -31,8 +32,9 @@ var tween_rev   : SceneTreeTween
 var tween_col   : SceneTreeTween
 
 
-var allow_idle_anim  := false
-var allow_color_anim := true
+var allow_idle_anim      := false
+var allow_color_anim     := false
+var allow_move_particles := false
 
 onready var	theme       = G.CONFIG.theme
 onready var	theme_data  = $"../../".theme_data[theme-1]
@@ -46,39 +48,37 @@ func _ready() -> void:
 	set_physics_process(false)
 	def_col.a  = G.CONFIG.tile_transparency
 
-	$Sprite.flip_v    = true if randf() > .5 else  false
-	$Sprite.flip_h    = true if randf() > .5 else  false
+	allow_move_particles  = false
 
-	$Sprite.modulate             = Color(.4, .4, .4, 0)
-#	$Sprite.modulate.a           = 0
-#	$Sprite.material.blend_mode  = G.CONFIG.theme_style
+	$"%Sprite".flip_v    = true if randf() > .5 else  false
+	$"%Sprite".flip_h    = true if randf() > .5 else  false
+	$"%Sprite".modulate  = Color(.4, .4, .4, 0)
 
 	if theme_data[0] == 1:
 		if theme_data[2] == false:
-			$Sprite.texture = load(path + str(theme) + ".png")
+			$"%Sprite".texture = load(path + str(theme) + ".png")
 		else:
-			$Sprite.texture = load(path + str(theme) + "_OFF.png")
+			$"%Sprite".texture = load(path + str(theme) + "_OFF.png")
 	else:
 		var a = randi() % theme_data[0] + 1
-		$Sprite.texture = load(path + str(theme) +"_"+ str(a) + ".png")
+		$"%Sprite".texture = load(path + str(theme) +"_"+ str(a) + ".png")
 
 	if theme_data[1] == 1:
 		rotation_degrees = 90 if randf() > .5 else 0
 	else:
 		rotation_degrees = rand_range(0, 360)
 
-	io_anim()
 
 
 
 
 
-
+# only for explosion handling:
 func _physics_process(delta: float) -> void:
-	var damp := 6
-	var gravity       = -1600
-	var max_scale     = 4
-	var max_z_offset = 200.0
+	var damp         := 4
+	var gravity      := -2000
+	var max_scale    := 4
+	var max_z_offset := 200.0
 
 	global_position += velocity *delta
 	velocity = velocity.linear_interpolate(Vector2.ZERO, damp *delta)
@@ -87,12 +87,44 @@ func _physics_process(delta: float) -> void:
 	z_offset   += v_velocity *delta
 
 	if z_offset < 0:
-		z_offset  = 0
+		z_offset    = 0
 		v_velocity  = -v_velocity *damp *.1
 
-	var t            = clamp(z_offset /max_z_offset, 0, 1)
-	var scale_factor = lerp(1, max_scale, t)
-	$Sprite.scale = Vector2(scale_factor, scale_factor)
+		if v_velocity> 100:
+			tile_bounce_sound.stream  = $"../".tile_bounce_sounds[randi() % 3]
+			tile_bounce_sound.pitch_scale  = rand_range(1, 3)
+			tile_bounce_sound.play()
+
+	var t             = clamp(z_offset /max_z_offset, 0, 1)
+	var scale_factor  = lerp(1, max_scale, t)
+	$"%Sprite".scale  = Vector2(scale_factor, scale_factor)
+
+
+
+
+
+
+#### type:
+#### true  = intro (restart level)        false  = outro (after explosion)
+func tile_ready(type:=true) -> void:
+	G.tiles_ready += 1
+
+	if type:
+		if G.tiles_ready == level.num_tiles:
+			G.tiles_ready  = 0
+			level.reveal_starter_tiles()
+			level.allow_board_input  = true
+			level.player_fail        = false
+
+		allow_idle_anim   = true
+		allow_color_anim  = true
+		idle_anim()
+	else:
+		if G.tiles_ready == level.num_tiles:
+			G.tiles_ready  = 0
+			yield(get_tree().create_timer(2), "timeout")
+			level.player_fail  = true
+			level.reset_board(true)
 
 
 
@@ -101,45 +133,50 @@ func _physics_process(delta: float) -> void:
 
 func io_anim(type := 0) -> void:
 	if type == 0:
-		var node : Camera2D = get_parent().get_node("ZoomCam")
-		var a    := rand_range(.1, .8)
+		var node : Camera2D = level.get_node("ZoomCam")
+		var val  : float
+		var col  = $"%Sprite".modulate  ;  col.a  = def_col.a
 
-		var col   = $Sprite.modulate  ;  col.a  = def_col.a
-#		var time  =  .8
-
-		def_pos  = position
 		def_rot  = rotation_degrees
 		def_sca  = scale * 0.92
 
-		position          = G.gen_offscreen_pos(60, node.position)
-		rotation_degrees  = rand_range(-360, 360)
-		scale             = Vector2(a, a)
-		allow_idle_anim   = true
+		tween_io  = get_tree().create_tween().set_trans(1).set_ease(2)
 
+#		PARTICLES.modulate.a  = 1
+
+		if level.player_fail:
+			val               = rand_range(.8, 1.4)
+#			print(allow_move_particles)
+			tile_particle_spawn(2, 6)
+			PARTICLES_move  = _particles_move.instance()
+			add_child(PARTICLES_move)
+			PARTICLES_move.get_node("particles_move").emitting  = true
+		else:
+			val               = rand_range(.32, .44)
+			position          = G.gen_offscreen_pos(60, node.position)
+			scale             = Vector2(0.01, 0.01)
+			rotation_degrees  = rand_range(-360, 360)
+
+		#PHASE :
+		tween_io.tween_property(self, "position", def_pos, val)
 
 		#PHASE 1:
-		tween_io  = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
 		tween_io.set_parallel(true)
 		tween_io.tween_property(self, "rotation_degrees", def_rot,
-			rand_range(.64, 1.82)).set_delay(.2)
+			rand_range(.44, .82)).set_delay(.1)
 
 		tween_io.tween_property(self, "scale", def_sca, .3)
 
-		a  = rand_range(.62, 1.1)
-		tween_io.tween_property(self, "position", def_pos, a)
-
 #		col.a = .4
-#		$Sprite.modulate  = col
-#		tween_io.tween_property($Sprite, "modulate", col, time - (time*.1))
-		tile_color_anim_accents(.22, .72, 3, true)
-
+#		$"%Sprite".modulate  = col
+#		tween_io.tween_property($"%Sprite", "modulate", col, time - (time*.1))
+#		tile_color_anim_accents(.32, .72, 3, true)
+		tile_color_anim_accents(.26, .6 , 4.4, true)
 
 		#tile spawn sound
-		if OS.get_system_time_msecs() >= get_parent().sound_timeout:
-			get_parent().sound_timeout  = OS.get_system_time_msecs() + 12
-			tween_io.tween_callback(get_parent().get_node("TileMain"), "play").set_delay(a)
-
+		if OS.get_system_time_msecs() >= level.sound_timeout:
+			level.sound_timeout  = OS.get_system_time_msecs() + 12
+			tween_io.tween_callback($"../sounds/TileMain", "play").set_delay(val)
 
 		#PHASE 2:
 		tween_io.set_parallel(false)
@@ -148,45 +185,21 @@ func io_anim(type := 0) -> void:
 		tween_io.tween_property(self, "scale", def_sca, .16
 			).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-		tween_io.tween_callback(self, "tile_ready").set_delay(.012)
+		tween_io.tween_callback(self, "tile_ready").set_delay(.04)
 
 
 	else:
-		var time         = rand_range(.4, .6)
-		var node         = get_parent().get_node("ZoomCam")
-		def_pos          = G.gen_offscreen_pos(20, node.position)
-		allow_idle_anim  = false
-
-		tween_io  = self.create_tween().set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
-		tween_io.tween_property(self, "position", def_pos, time)
-		var col  = modulate ; col.a  = 0
-		tween_io.parallel().tween_property(self, "modulate", col, time - (time*.1))
-		tween_io.tween_callback(self, "tile_ready", [false])
-
-
-
-
-
-
-#### type:
-#### true  = intro        false  = outro
-func tile_ready(type := true) -> void:
-	G.tiles_ready  += 1
-
-	if type:
-		if G.tiles_ready == get_parent().num_tiles:
-			get_parent().reveal_starter_tiles()
-			get_parent().allow_board_input  = true
-			G.tiles_ready  = 0
-
-		idle_anim([0, 1])
-	else:
-		if G.tiles_ready == get_parent().num_tiles:
-			G.tiles_ready  = 0
-			yield(get_tree().create_timer(2), "timeout")
-			for i in get_tree().get_nodes_in_group("tile"):
-				i.queue_free()
-			get_parent()._ready()    ## start the level in level_main
+		pass
+#		var time         = rand_range(.2, .6)
+#		var node         = get_parent().get_node("ZoomCam")
+#		def_pos          = G.gen_offscreen_pos(60, node.position)
+#		allow_idle_anim  = false
+#
+#		tween_io  = self.create_tween().set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
+#		tween_io.tween_property(self, "position", def_pos, time)
+##		var col  = modulate ; col.a  = 0
+#		tween_io.parallel().tween_property(self, "modulate:a", 0, time - (time*.1))
+#		tween_io.tween_callback(self, "tile_ready", [false])
 
 
 
@@ -194,44 +207,37 @@ func tile_ready(type := true) -> void:
 
 
 # type:
-#  -1  : init
 #	0  : position
 #	1  : rotation
+#   2  : scale
 
-func idle_anim(type_list := [0]) -> void:
+func idle_anim() -> void:
 	var pos        := def_pos
 	var rot        := def_rot
-	var time       := rand_range(4, 6)
+	var sca        := def_sca
+	var time       := rand_range(2, 3)
 
 	if allow_idle_anim:
-		tween_idle = self.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween_idle =  self.create_tween().set_trans(1).set_ease(2).set_parallel()
 
-		for type in type_list:
-			match type:
-				0:
-					var scale_temp :  Vector2 = $Sprite.scale
-					var distance   := 3.6 if not reduce_mov else 2.8
-					pos.x         += rand_range(-distance, distance)
-					pos.y         += rand_range(-distance, distance)
+		var distance   := 2.8 if not reduce_mov else 2.2
+		pos.x         += rand_range(-distance, distance)
+		pos.y         += rand_range(-distance, distance)
+		tween_idle.tween_property(
+			self, "position", pos, time)
 
-					tween_idle.tween_property(self, "position", pos, time)
+		rot += rand_range(-40, 40)
+		if reduce_rot:
+			rot *= .4
+		tween_idle.tween_property(
+			self, "rotation_degrees", rot, time *2.6)
 
-					tween_idle.tween_property(
-						$Sprite, "scale", $Sprite.scale *rand_range(.8, 1.1), time *.5)
-					tween_idle.chain().tween_property(
-						$Sprite, "scale", scale_temp, time *.5).set_delay(time *.2)
+		tween_idle.tween_property(
+			self,"scale",
+			sca *rand_range(.92, 1.04), time *.6)
 
-					tween_idle.tween_callback(self, "idle_anim").set_delay(time *.2)
-				1:
-					rot += rand_range(-28, 28)
-					if reduce_rot:
-						rot *= .4
-
-					tween_idle.tween_property(self, "rotation_degrees", rot, time)
-					tween_idle.tween_callback(self, "idle_anim", [[1]]).set_delay(time *.2)
-#				2:
-#					var col  = G.CONFIG.BG_color
-#					tween_idle.tween_property($Sprite, "material:shader_param/aura_color", col, 2)
+		tween_idle.chain().tween_callback(
+			self, "idle_anim")
 
 
 
@@ -242,7 +248,7 @@ func tile_color_anim_accents(dist:float, smoothness:float, time:float, init:=fal
 	var col  : Color = def_col
 	var t    := time *.4
 
-	tween_col  = self.create_tween().set_trans(1).set_ease(2)
+	tween_col  = self.create_tween().set_trans(1).set_ease(2).set_parallel()
 	col.r   += rand_range(-dist *.6, dist)
 	col.g   += rand_range(-dist *.6, dist)
 	col.b   += rand_range(-dist *.6, dist)
@@ -250,12 +256,12 @@ func tile_color_anim_accents(dist:float, smoothness:float, time:float, init:=fal
 	col      = G.rgb_smooth(col, smoothness)
 	time     = rand_range(time -t, time +t)
 
-	tween_col.tween_property($Sprite, "modulate", col, time)
+	tween_col.tween_property($"%Sprite", "modulate", col, time)
 
 	tween_col.tween_property(
-		$Sprite, "material:shader_param/aura_width", int(rand_range(2, 10)), time *.5)
+		$"%Sprite", "material:shader_param/amount", rand_range(.1, .4), time *.5)
 	tween_col.chain().tween_property(
-		$Sprite, "material:shader_param/aura_width", 5, time *.5)
+		$"%Sprite", "material:shader_param/amount", .1, time *.5)
 
 	time  *= 2 if not init else 1
 	if allow_color_anim:
@@ -272,15 +278,11 @@ func reveal(counter:int) -> void:
 	var time_mod : float
 	var scale_to : Vector2
 
-#	if theme_data[2] == false:
-#		$Sprite.modulate  = dark_color
-#	else:
-#		$Sprite.texture   = load(path + str(theme) + "_ON.png")
-
+	tweens_disable()
 	tween_rev  = self.create_tween().set_ease(Tween.EASE_OUT).set_parallel()
 
 	if counter == 0:
-		scale_to    = Vector2(.1, .1)
+		scale_to    = Vector2(.04, .04)
 		trans       = Tween.TRANS_BOUNCE
 		time_mod    = rand_range(-.8, .8)
 		delay       = rand_range(.12, .28)
@@ -288,8 +290,8 @@ func reveal(counter:int) -> void:
 		change_alpha(time_mod, delay, trans, .28)
 
 	else:
-		var mult    = counter * .02
-		scale_to    = Vector2(.125, .125) + Vector2(mult, mult)
+		var add    := counter *.02
+		scale_to    = Vector2(.06 +add, .06 +add)
 		trans       = Tween.TRANS_ELASTIC
 		time_mod    = rand_range(-.6, .6)
 		delay       = rand_range(.06, .1)
@@ -297,18 +299,28 @@ func reveal(counter:int) -> void:
 		reduce_rot  = true
 
 		change_alpha(time_mod, delay, trans, .4)
-		tile_particle_spawn()
+		tile_particle_spawn(1, 4)
 
-	tween_rev.tween_property(self, "scale", scale_to, 3.24 + time_mod
-		).set_trans(trans).set_delay(delay)
+	tween_rev.tween_property(self, "scale", scale_to, 3.24 +time_mod
+		).set_trans(trans)
+	tween_rev.chain().tween_callback(self, "post_reveal")
 
 	## blur material applied:
-	var mat  := ShaderMaterial.new()
-	mat.shader = shader_revealed
-	mat.set_shader_param("radius", 6)
-	$Sprite.material  = mat
+	var mat    := ShaderMaterial.new()
+	mat.shader  = shader_revealed
+	mat.set_shader_param("radius", 8)
+	$"%Sprite".material  = mat
 
-	if tween_col: tween_col.kill()
+
+
+
+
+
+func post_reveal() -> void:
+	def_sca          = scale
+	allow_idle_anim  = true
+	idle_anim()
+
 
 
 
@@ -319,8 +331,8 @@ func change_alpha(time:float, delay:float, trans:int, mod:=1.0) -> void:
 	var col := def_col
 	col.a   *= mod
 
-	tween_rev.tween_property($Sprite, "modulate", col, time
-		).set_trans(trans).set_delay(delay)
+	tween_rev.tween_property(
+		$"%Sprite", "modulate", col, time).set_trans(trans).set_delay(delay)
 
 
 
@@ -330,37 +342,51 @@ func change_alpha(time:float, delay:float, trans:int, mod:=1.0) -> void:
 func tile_helper_spawn() -> void:
 	BUMP  = _bump.instance()
 	add_child(BUMP)
-	tile_particle_spawn(true)
+	tile_particle_spawn(true, 6)
 
 
 
 
 
 
-func tile_particle_spawn(type:=false) -> void:
+func tile_particle_spawn(type:int=0, lifetime:float=2) -> void:
 	var node1 : CPUParticles2D
 	var node2 : CPUParticles2D
 
-	PARTICLES  = _particles.instance()
-	add_child(PARTICLES)
+	PARTICLES_main  = _particles_main.instance()
+	add_child(PARTICLES_main)
 
-	if type:    #### tile_helper
-		node1              = PARTICLES.get_node("particles_small")
-		node1.emitting     = true
-		node1.modulate.a   = .40
-		node1.speed_scale  = .22
-		node1.scale        = Vector2(2,2)
-	else:       #### normal reveal
-		node1              = PARTICLES.get_node("particles_small")
-		node1.emitting     = true
-		node1.modulate.a   = .40
-		node1.speed_scale  = 1.6
-		node1.scale        = Vector2(2,2)
+	match type:
+		0:    ## reveal
+			node1              = PARTICLES_main.get_node("particles_small")
+			node1.emitting     = true
+			node1.modulate.a   = .40
+			node1.speed_scale  = 1
+#			node1.scale        = Vector2(2,2)
 
-		node2              = PARTICLES.get_node("particles_blink")
-		node2.emitting     = true
-		node2.modulate.a   = .20
-		node2.speed_scale  = .11
+			node2              = PARTICLES_main.get_node("particles_blink")
+			node2.emitting     = true
+			node2.modulate.a   = .20
+			node2.speed_scale  = 1
+		1:    ## tile helper
+			node1              = PARTICLES_main.get_node("particles_blink")
+			node1.lifetime     = lifetime
+			node1.emitting     = true
+			node1.modulate.a   = .8
+			node1.speed_scale  = .2
+			node1.scale_amount = 4
+			node1.z_index      = -1
+		2:    ## respawn blink
+			node1              = PARTICLES_main.get_node("particles_helper")
+			node1.lifetime     = lifetime
+			node1.emitting     = true
+			node1.modulate.a   = 1
+			node1.speed_scale  = 8
+			node1.scale_amount = 5
+			node1.z_index      = 2
+
+	var lifetime_offset  = lifetime *node1.speed_scale
+	PARTICLES_main.delay(lifetime *lifetime_offset)
 
 
 
@@ -386,27 +412,41 @@ func og_tile_shake_anim(count:int, shake_speed:float):
 
 
 
-func tile_blast(pos:Vector2) -> void:
-	var radius        = 600.0
-	var power         = rand_range(600, 1200)
-	var bounce_power  = rand_range(250, 600)
+func tile_blast_motion(pos:Vector2) -> void:
+	var radius        = 260.0
+	var power         = rand_range(400, 600)
+	var bounce_power  = rand_range(600, 1000)
 
 	var diff          = global_position -pos
 	var distance      = diff.length()
 
+	if distance < radius:
+		allow_idle_anim   = false
+		allow_color_anim  = false
+		tweens_disable()
+
+		var factor        = 1.0 -(distance /radius)
+		velocity          = diff.normalized() *power *factor
+		v_velocity        = bounce_power *factor
+		rotation_degrees  = rand_range(-40, 40)
+		set_physics_process(true)
+
+		allow_move_particles  = true
+	tile_ready(false)
+
+
+
+
+
+
+func tweens_disable() -> void:
 	allow_idle_anim   = false
 	allow_color_anim  = false
-	tween_idle.kill()
-	tile_ready(false)
-	set_physics_process(true)
-
-	if distance < radius:
-		var factor  = 1.0 -(distance /radius)
-		velocity    = diff.normalized() *power *factor
-		v_velocity  = bounce_power *factor
-
-		$Sprite.rotation_degrees  = rand_range(-40, 40)
-
+	if tween_idle: tween_idle.kill()
+	if tween_bump: tween_bump.kill()
+	if tween_rev:  tween_rev.kill()
+	if tween_col:  tween_col.kill()
+	if tween_io:   tween_io.kill()
 
 
 

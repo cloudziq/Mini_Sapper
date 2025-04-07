@@ -6,13 +6,14 @@ export(PackedScene) var _explosion  ;  var EXPLOSION : Node2D
 
 onready var def_sca : Vector2  = scale
 
+var rot       :  float
+var skew_dist := 16
 
 
 
 
 
 func _ready() -> void:
-	pass
 	visible  = false
 
 
@@ -21,8 +22,25 @@ func _ready() -> void:
 
 
 func reveal_bomb() -> void:
-	visible   = true
-	rotation  = 0 - abs(get_parent().rotation)
+	visible  = true
+	animate_pos()
+
+
+
+
+
+
+func animate_pos() -> void:
+	var tween  = self.create_tween()
+
+	rot  = -get_parent().rotation_degrees
+	rot += rand_range(-skew_dist, skew_dist)
+
+	tween.tween_property(self, "rotation_degrees", rot, rand_range(.8, 1.2)
+		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+#	if get_parent().allow_idle_anim:
+	tween.tween_callback(self, "animate_pos").set_delay(0.2)
 
 
 
@@ -61,7 +79,9 @@ func new_shake_pos() -> void:
 
 
 
-func explode() -> void:
+func explosion_visuals() -> void:
 	EXPLOSION  = _explosion.instance()
 	EXPLOSION.position  = get_parent().position
 	$"../../".add_child(EXPLOSION)
+	get_parent().get_node("%Sprite").visible  = false
+	get_tree().call_group("bomb", "visible", [false])

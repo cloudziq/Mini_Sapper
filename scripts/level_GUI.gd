@@ -6,16 +6,8 @@ extends CanvasLayer
 
 
 
-# random note:
-# kratki zeby wypierdlało łańcuchowo ^.^  ??
-
-
-
-
-
-
 func _ready() -> void:
-	$VBoxContainer.modulate  = Color(1,1,1,0)
+	$VBoxContainer.modulate               = Color(1,1,1,0)
 	$VBoxContainer/Lower/Button.disabled  = true
 
 
@@ -31,9 +23,9 @@ func _on_Restart_Button_pressed() -> void:
 	button.disabled  = true
 
 	if get_parent().player_fail:
-		tween.tween_property(node, "modulate", Color(1,1,1,0), .6)
+		tween.tween_property(node, "modulate", Color(1,1,1,0), .8)
 	else:
-		tween.tween_property(node, "modulate", Color(1,1,1,0), .4)
+		tween.tween_property(node, "modulate", Color(1,1,1,0), .2)
 
 	get_parent().reset_board()
 

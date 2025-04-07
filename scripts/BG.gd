@@ -10,7 +10,7 @@ onready var bg1      := $"%BG_main1"
 onready var bg2      := $"%BG_main2"
 onready var bg_tween :  SceneTreeTween
 
-export var bg_fade_dur      := 12.0      # in seconds (type:float)
+export var bg_fade_dur      := 8.0      # in seconds (type:float)
 
 
 
@@ -20,6 +20,13 @@ export var bg_fade_dur      := 12.0      # in seconds (type:float)
 func _ready() -> void:
 	BG_init()
 	spawn_BG_tiles()
+
+	yield(get_tree().create_timer(.1), "timeout")
+	var pos  = get_parent().board_center
+
+	$BG_static.offset  = pos
+	$BG_detail.offset  = pos
+	$BG_object.offset  = pos
 
 
 
@@ -41,13 +48,13 @@ func _process(dt: float) -> void:
 func _input(event: InputEvent) -> void:
 	if get_parent().allow_board_input:
 		if event.is_action_pressed("reload_BG"):
-			var _i  = get_tree().reload_current_scene()
-		elif event.is_action_pressed("change_tile"):
-			var theme  = int(floor(rand_range(1, $"../../".theme_data.size())))
-			print("tile_theme = "  +str(theme))
-			G.CONFIG.theme  = theme
-			G.save_config()
-			var _i  = get_tree().reload_current_scene()
+			get_tree().call_group("tile", "tweens_disable")  # resets warnings
+			yield(get_tree().create_timer(.1), "timeout")
+			get_tree().reload_current_scene()
+
+		elif event.is_action_pressed("save_reset"):
+			G.save_version  = -1
+			G.save_config(true)
 
 
 
@@ -65,11 +72,11 @@ func BG_init() -> void:
 	node.texture     = load(path+num+".png")
 	node.normal_map  = load(path+num+"_n.png")
 	node.scale       = Vector2(.12, .12)
-	tween.tween_property(node, "modulate:a", .14, 4)
+	tween.tween_property(node, "modulate:a", .02, 4)
 
 #	node             = $"%BG_static"
 #	tween.tween_property(node, "modulate",
-#		G.rgb_smooth(BG_color_change(1) *bright *.2, .6), 2)
+#		G.rgb_smooth(BG_color_change(1) *bright *.26, .6), 2)
 
 	bg1.modulate  = BG_color_change(.5, .24)
 	bg2.modulate  = BG_color_change(.5, .24)
@@ -95,7 +102,8 @@ func BG_fade_cycle(init:=false) -> void:
 
 	bg_tween.tween_property(
 		$"%BG_static", "modulate",
-		G.rgb_smooth(BG_color_change(.4, .18) *bright *.22, .1), duration *.6)
+		G.rgb_smooth(BG_color_change(.4, .28) *bright *.1, .1), duration *.6)
+
 	bg_tween.chain().tween_callback(self, "BG_swap")
 
 
@@ -141,7 +149,7 @@ func BG_color_change(alpha:=1.0, dist:=.16) -> Color:
 func spawn_BG_tiles() -> void:
 	yield(get_tree().create_timer(1), "timeout")
 	var offset := 64
-	var TILE   : Node2D  = get_parent().board_data[0][0][0][0]
+	var TILE   : Node2D  = $"../".board_data[0][0][0][0]
 	var sprite : Node2D
 
 	# spawnuje kratki:
@@ -174,12 +182,12 @@ func spawn_BG_tiles() -> void:
 
 func parr(zoom : float) -> void:
 	var tween := get_tree().create_tween().set_ease(Tween.EASE_OUT).set_parallel()
-	var i     := 4 * zoom
+	var i     := 6 *zoom
 
 	tween.tween_property(
 		$BG_object,        "follow_viewport_scale", $BG_object.scale.x *.6*zoom, 4.42)
 	tween.tween_property(
 		$BG_object/Holder, "scale",  $BG_object.scale *1.2 *zoom, 8.4)
 
-	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .088,   1.8)
+	tween.tween_property($BG_detail,        "follow_viewport_scale", i* .12,   1.8)
 	tween.tween_property($BG_detail/Holder, "scale",  Vector2(i*8.2, i*8.2),   2)

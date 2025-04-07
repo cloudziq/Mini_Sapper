@@ -11,5 +11,6 @@ light_mode = 1
 light_mask = 0
 material = SubResource( 1 )
 scale = Vector2( 1.25, 1.25 )
+z_index = 2
 texture = ExtResource( 2 )
 script = ExtResource( 1 )

@@ -5,7 +5,7 @@ export(PackedScene) var _tile
 export(PackedScene) var _bomb
 export(PackedScene) var _label
 export(PackedScene) var _marker
-export(PackedScene) var _touch      ;  var TOUCH:Node2D
+export(PackedScene) var _touch    ;  var TOUCH:Node2D
 
 
 var tile_size          :  int
@@ -14,6 +14,7 @@ var marker_amount      :  int
 var tiles_left         :  int
 var board_size         :  Vector2
 var tile_coord         :  Vector2
+var board_center       :  Vector2
 var hold_touch_time    := 0.0
 var sound_timeout      := 0.0
 var allow_board_input  := false
@@ -21,16 +22,29 @@ var num_tiles          := 0    # helper_var
 var player_fail        :  bool
 
 
+var tile_bounce_sounds = [
+	preload("res://assets/sounds/tile_bounce/tile_bounce1.ogg"),
+	preload("res://assets/sounds/tile_bounce/tile_bounce2.ogg"),
+	preload("res://assets/sounds/tile_bounce/tile_bounce3.ogg")
+
+]
+
+
+onready var shader_unrevealed  = preload("res://assets/shaders/glow.shader")
+
+
+
 ################################################################################
 var board_data         :  Array
 # board_data contents:
 # [tile_id, marker_id, bomb_id, label_id], *tile_status, bomb_count]
 # *tile status:
-# 0: standard (unrevealed?)
+# 0: standard (unrevealed)
 # 1: contains a bomb
 # 2: empty (revealed)
 # 3: ????
 ################################################################################
+
 
 
 
@@ -42,14 +56,15 @@ func _ready() -> void:
 	var val_2      = get_parent().level_data[level][1]
 
 	board_size     = Vector2(val_1, val_2)
-	num_tiles      = int(val_1 * val_2)    # just helper var for childs
+	num_tiles      = int(val_1 *val_2)    # just helper var for child objects
 	tile_size      = get_parent().tile_size_in_pixels
-	player_fail    = false
-	marker_amount  = 0
 
 	$GUI.get_node("VBoxContainer/Lower/Button/Label").text  = "RESTART"
 
-	$ZoomCam.center(board_size, tile_size)
+	board_center   = G.board_center_define(
+		$ZoomCam, "new_pos", board_size, tile_size)
+
+	generate_tile_instances()
 	generate_board()
 
 
@@ -63,7 +78,7 @@ func _process(_dt) -> void:
 
 	if hold_touch_time > 0:
 		if OS.get_system_time_msecs() > hold_touch_time:
-			hold_touch_time  =  -1
+			hold_touch_time  = -1
 			if not TOUCH:  add_touch()
 
 
@@ -90,14 +105,15 @@ func _input(event) -> void:
 
 
 
-####>> some touching
+
+####>> some touching ;)
 func add_touch() -> void:
 	var pos        := get_global_mouse_position()
 
 	TOUCH           = _touch.instance()
 	TOUCH.position  = pos
 	add_child(TOUCH)
-	yield(get_tree().create_timer(.02), "timeout")
+	yield(get_tree().create_timer(.1), "timeout")
 	TOUCH.queue_free()
 	TOUCH           = null
 
@@ -105,12 +121,13 @@ func add_touch() -> void:
 
 
 
-#### called from touch collision
+
+#### called from 'touch object' collision
 func check_clicked_tile() -> void:
-	var pos         := get_global_mouse_position()
-	var x            = floor((pos.x - (G.window.x - (board_size.x * tile_size)) / 2) / tile_size)
-	var y            = floor((pos.y - (G.window.y - (board_size.y * tile_size)) / 2) / tile_size)
-	var shake_speed_scale := .8
+	var pos := get_global_mouse_position()
+	var x    = floor((pos.x -(G.window.x -(board_size.x *tile_size)) /2) /tile_size)
+	var y    = floor((pos.y -(G.window.y -(board_size.y *tile_size)) /2) /tile_size)
+	var shake_speed_scale : float = .8
 
 	#setup:
 	if x == clamp(x, 0, board_size.x-1) and y == clamp(y, 0, board_size.y-1):
@@ -123,7 +140,7 @@ func check_clicked_tile() -> void:
 
 		if not tile_data[0][1]:
 			if tile_data[1] == 0:
-				$TileRevealSingle.play()
+				$sounds/TileRevealSingle.play()
 				tile_reveal(tile_coord)
 			elif tile_data[1] == 1:
 				game_over(tile_coord)
@@ -135,8 +152,8 @@ func check_clicked_tile() -> void:
 		else:
 			i  = shake_speed_scale
 
-		if tile_stat == 2:
-			tile_helper_remove(10)
+#		if tile_stat == 2:
+		tile_helper_remove(100)
 		tile_helper_add(tile_coord, i)
 
 	else:    # when hold
@@ -160,17 +177,126 @@ func add_marker() -> void:    # result of check_clicked_tile()
 			marker_amount += 1
 			board_data[x][y][0][0].add_child(node)
 			board_data[x][y][0][1]   = node
-			$TileMarker.pitch_scale  = 3.22
+			$sounds/TileMarker.pitch_scale  = 3.22
 			node.tint_type = true if board_data[x][y][1] == 1 else false
 		else:
 			marker_amount -= 1
 			board_data[x][y][0][1].queue_free()
 			board_data[x][y][0][1]   = null
-			$TileMarker.pitch_scale  = 6.48
+			$sounds/TileMarker.pitch_scale  = 6.48
 
-	$GUI.update()
-	$TileMarker.play()
+	$sounds/TileMarker.play()
 	hold_touch_time  = 0
+	$GUI.update()
+
+
+
+
+
+
+func generate_tile_instances() -> void:
+	var node  : Area2D
+
+	board_data  = []
+	for x in board_size.x:
+		board_data.append([])
+		for y in board_size.y:
+			node  = _tile.instance()
+			add_child(node)
+			board_data[x].append([[node, null, null, null], 0, 0])
+
+
+
+
+
+
+func generate_board() -> void:
+	var x_def := (G.window.x -(board_size.x *tile_size)) /2 +(tile_size /2)
+	var y_def := (G.window.y -(board_size.y *tile_size)) /2 +(tile_size /2)
+	var pos   := Vector2(x_def, y_def)
+	var TILE  :  Node2D
+	var BOMB  :  Node2D
+
+	#reset stuff:
+	G.tiles_ready  = 0
+	bombs_amount   = 0
+	sound_timeout  = 0.0
+
+	#### TILE PLACEMENT:
+	for x in board_size.x:
+		for y in board_size.y:
+			TILE  = board_data[x][y][0][0]
+
+			TILE.def_pos   = pos
+			TILE.scale     = Vector2(.25, .25)
+
+			pos.y         += tile_size
+			board_data[x][y] = [[TILE, null, null, null], 0, 0]
+
+			## aura material applied:
+			var mat    := ShaderMaterial.new()
+			mat.shader  = shader_unrevealed
+			mat.set_shader_param("radius", 1)
+			mat.set_shader_param("amount", .2)
+			TILE.get_node("%Sprite").material  = mat
+			TILE.get_node("%Sprite").visible   = true
+			TILE.io_anim()
+
+		pos.x += tile_size
+		pos.y  = y_def
+
+
+	#### GENERATE BOMBS:
+	for a in G.CONFIG.level:
+		bombs_amount  += get_parent().level_data[a][2]
+
+	tiles_left = int(board_size.x *board_size.y -bombs_amount)
+
+	pos  = gen_pos()
+	for a in bombs_amount:
+		while board_data[pos.x][pos.y][1] == 1:
+			pos  = gen_pos()
+		board_data[pos.x][pos.y][1]  = 1
+		BOMB  = _bomb.instance()
+		board_data[pos.x][pos.y][0][2]  = BOMB
+		board_data[pos.x][pos.y][0][0].add_child(BOMB)
+
+
+	#### GENERATE NUMBERS:
+	for x in board_size.x:
+		for y in board_size.y:
+			if board_data[x][y][1] != 1:    #### if tile contains no bomb
+				gen_num(x, y)
+
+	$GUI.update(1)
+
+
+
+
+
+
+#### from reset button or explosion:
+func reset_board(force:=false) -> void:
+	hold_touch_time    = 0
+	allow_board_input  = false
+
+	if not player_fail or force:
+		get_tree().call_group("label",  "queue_free")
+		get_tree().call_group("bomb",   "queue_free")
+		get_tree().call_group("marker", "queue_free")
+		get_tree().call_group("tile_particle", "queue_free")
+#		get_tree().call_group()
+		tile_helper_remove(16)
+
+		for i in get_tree().get_nodes_in_group("tile"):
+			i.get_node("%Sprite").visible  = true
+			i.tweens_disable()
+			i.set_physics_process(false)
+
+		$GUI.get_node("VBoxContainer/Lower/Button/Label").text  = "RESTART"
+		generate_board()
+	else:
+		board_data[tile_coord.x][tile_coord.y][0][2].explosion_visuals()
 
 
 
@@ -179,7 +305,11 @@ func add_marker() -> void:    # result of check_clicked_tile()
 
 func level_complete() -> void:
 	G.CONFIG.level += 1
-	reset_board()
+#	get_tree().call_group("tile", "tweens_disable")
+	get_tree().call_group("tile", "queue_free")
+	yield(get_tree().create_timer(.2), "timeout")
+#	reset_board()
+	_ready()
 
 
 
@@ -187,18 +317,14 @@ func level_complete() -> void:
 
 
 func game_over(tile : Vector2) -> void:
-#	allow_board_input  = false
+#	allow_board_input  = false    ##-TEMPORARY DISABLED
 	player_fail        = true
 
-	for i in get_tree().get_nodes_in_group("bomb"):
-		i.reveal_bomb()
-
-	for i in get_tree().get_nodes_in_group("marker"):
-		i.color_tint()
+	get_tree().call_group("bomb"  , "reveal_bomb")
+	get_tree().call_group("marker", "color_tint")
 
 	board_data[tile.x][tile.y][0][2].bomb_anim()
-
-	$GUI.get_node("VBoxContainer/Lower/Button/Label").text  = "TRY AGAIN"
+	$GUI.get_node("VBoxContainer/Lower/Button/Label").text  = "CONTINUE"
 
 
 
@@ -211,24 +337,24 @@ var near_coords := [
 	[-1,  1], [0,  1], [1,  1]
 ]
 
+
 func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) -> void:
 	var tx : int
 	var ty : int
 
 	match count:
 		2:
-			$TileRevealMedium.pitch_scale += rand_range(-.4, .4)
-			$TileRevealMedium.play()
+			$sounds/TileRevealMedium.pitch_scale += rand_range(-.4, .4)
+			$sounds/TileRevealMedium.play()
 		22:
-			$TileRevealBig.pitch_scale    += rand_range(-.08, .08)
-			$TileRevealBig.play()
+			$sounds/TileRevealBig.pitch_scale    += rand_range(-.08, .08)
+			$sounds/TileRevealBig.play()
 
 	tiles_left -= 1
 	$GUI.update()
 
 	if tiles_left == 0:
 		level_complete()
-#		return
 
 	var tile_og  = board_data[coord.x][coord.y]
 
@@ -237,8 +363,7 @@ func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) ->
 
 	# reveal label:
 	if tile_og[1] == 0 and tile_og[2] > 0:
-		var angle = tile_og[0][0].rotation_degrees
-		tile_og[0][3].reveal(angle)
+		tile_og[0][3].reveal()
 
 	# remove marker:
 	if tile_og[0][1]:
@@ -277,11 +402,11 @@ func tile_helper_add(coord:Vector2, shake_speed_scale:float) -> void:
 	var data : Array = board_data[coord.x][coord.y]
 
 	if G.CONFIG.tile_helper and data[2] > 0 and data[1] == 2:
-		var tx          :  int
-		var ty          :  int
+		var tx : int
+		var ty : int
 
-		$TileBump.pitch_scale  = 0 + (.68 + rand_range(-.06, .06))
-		$TileBump.play()
+		$sounds/TileBump.pitch_scale  = .68 +rand_range(-.06, .06)
+		$sounds/TileBump.play()
 
 		# create new tile_bumps:
 		for index in near_coords:
@@ -302,73 +427,15 @@ func tile_helper_add(coord:Vector2, shake_speed_scale:float) -> void:
 
 
 
-func tile_helper_remove(speed_scale := 1.0) -> void:
+func tile_helper_remove(speed_scale:= 1.0) -> void:
 	# remove previous tile_helper highlights:
 	for node in get_tree().get_nodes_in_group("tile_bump"):
 		node.remove_from_group("tile_bump")
-		node.t.set_speed_scale(speed_scale)
+		node.tween.set_speed_scale(speed_scale)
 	for node in get_tree().get_nodes_in_group("tile_particle"):
 		node.remove_from_group("tile_particle")
-		node.t.set_speed_scale(speed_scale)
+		node.tween.set_speed_scale(speed_scale)
 
-
-
-
-
-
-func generate_board() -> void:
-	var x_def := (G.window.x -(board_size.x *tile_size)) /2 +(tile_size /2)
-	var y_def := (G.window.y -(board_size.y *tile_size)) /2 +(tile_size /2)
-	var pos   := Vector2(x_def, y_def)
-	var TILE  :  Node2D
-	var BOMB  :  Node2D
-
-	#reset stuff:
-	G.tiles_ready  = 0
-	board_data     = []
-	bombs_amount   = 0
-	sound_timeout  = 0.0
-
-
-	#### GENERATE TILES:
-	for x in board_size.x:
-		board_data.append([])
-
-		for y in board_size.y:
-			TILE           = _tile.instance()
-			TILE.position  = pos
-			TILE.scale     = Vector2(.25, .25)
-			pos.y         += tile_size
-			add_child(TILE)
-			board_data[x].append([[TILE, null, null, null], 0, 0])
-
-		pos.x += tile_size
-		pos.y = y_def
-
-
-	#### GENERATE BOMBS:
-#	for a in G.CONFIG.level:d
-	bombs_amount  = 20
-
-	tiles_left = int(board_size.x * board_size.y - bombs_amount)
-
-	pos  = gen_pos()
-	for a in bombs_amount:
-		while board_data[pos.x][pos.y][1] == 1:
-			pos  = gen_pos()
-		board_data[pos.x][pos.y][1]  = 1
-		BOMB  = _bomb.instance()
-		board_data[pos.x][pos.y][0][2]  = BOMB
-		board_data[pos.x][pos.y][0][0].add_child(BOMB)
-
-
-	#### GENERATE NUMBERS:
-	for x in board_size.x:
-		for y in board_size.y:
-			if board_data[x][y][1] != 1:   #if tile have no bomb
-				gen_num(x, y)
-
-	$GUI.update(1)
 
 
 
@@ -382,22 +449,20 @@ func reveal_starter_tiles() -> void:
 			pos  = gen_pos()
 
 		tile_reveal(pos, [], 0, true)
-#		yield(get_tree().create_timer(.01), "timeout")
 
 
 
 
 
 
-func reset_board() -> void:
-	hold_touch_time    = 0
-	allow_board_input  = false
+func reveal_empty_tiles() -> void:
+	var node  : Area2D
 
-	if not player_fail:
-		for i in get_tree().get_nodes_in_group("tile"):
-			i.io_anim(1)
-	else:
-		board_data[tile_coord.x][tile_coord.y][0][2].explode()
+	board_data  = []
+	for x in board_size.x:
+		for y in board_size.y:
+			node  = board_data[x][y][0][0]
+
 
 
 

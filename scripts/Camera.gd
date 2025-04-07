@@ -20,7 +20,7 @@ var is_moving            := false
 
 
 func _ready():
-	position = Vector2.ZERO
+	position = Vector2(G.window.x /2, 340)
 
 	var i  = G.CONFIG.zoom_level
 
@@ -33,27 +33,28 @@ func _ready():
 
 
 
-func _process(delta: float) -> void:
+func _process(dt: float) -> void:
 	#camera zoom
 	if zoom != target_zoom:
 		var i        = clamp(target_zoom.x, min_zoom, max_zoom)
 		target_zoom  = Vector2(i,i)
-		zoom         = lerp(zoom, target_zoom, zoom_step * 20 * delta)
+		zoom         = lerp(zoom, target_zoom, zoom_step *20 *dt)
 
 		#send zoom info to BG parallax effect:
-		get_parent().get_node("BG").parr(target_zoom.x)
+		$"../BG".parr(target_zoom.x)
+#		$"../../Viewport/BG".get_node("BG").parr(target_zoom.x)
 
 	#drag limits
-	var x1       = -cam_limit_coords.x + G.window.x/2
-	var x2       = cam_limit_coords.x + G.window.x/2
-	var y1       = -cam_limit_coords.y + G.window.y/2
-	var y2       = cam_limit_coords.y + G.window.y/2
+	var x1       = -cam_limit_coords.x +G.window.x /2
+	var x2       = cam_limit_coords.x  +G.window.x /2
+	var y1       = -cam_limit_coords.y +G.window.y /2
+	var y2       = cam_limit_coords.y  +G.window.y /2
 
 	new_pos.x    = clamp(new_pos.x, x1, x2)
 	new_pos.y    = clamp(new_pos.y, y1, y2)
 
 	if position.snapped(Vector2(1,1)) != new_pos.snapped(Vector2(1,1)):
-		position   = position.linear_interpolate(new_pos, 10 * delta)
+		position   = position.linear_interpolate(new_pos, 10 *dt)
 		is_moving  = false
 
 
@@ -98,11 +99,4 @@ func _input(event: InputEvent) -> void:
 
 
 
-func center(val : Vector2, tile_size : int) -> void:
-	var pos   := Vector2.ZERO
-	var tween := get_tree().create_tween()
 
-	pos.x  = (G.window.x - (val.x / tile_size)) * .5
-	pos.y  = (G.window.y - (val.y / tile_size)) * .5
-
-	tween.tween_property(self, "new_pos", pos, 1)

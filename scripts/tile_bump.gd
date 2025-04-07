@@ -6,60 +6,60 @@ onready var def_col  :  Color    = get_parent().def_col
 onready var rot      := 0.0
 onready var ttl      := 6
 
-var t : SceneTreeTween
+var tween : SceneTreeTween
 
 
 
 
 func _ready() -> void:
-	t   = self.create_tween()
+#	if tween: tween.kill()
+#	$"%Sprite".material.set_shader_param("fattyness", 2.0)
+#	yield(get_tree().create_timer(.1), "timeout")
 
-	var i      : float
-	i  = rand_range(-.04, .02)
-	var s_min  : Vector2  = def_sca * 3.6 + Vector2(i, i)
-	i  = rand_range(-.02, .06)
-	var s_max  : Vector2  = def_sca * 4.16 + Vector2(i, i)
+	tween  = self.create_tween().set_ease(2).set_trans(Tween.TRANS_CIRC).set_parallel(true)
 
-	var col  = def_col
-	col =   G.CONFIG.BG_color * 4
-	col.a = 1
-#	col.r   *= 8
-#	col.g   *= 4.4
-#	col.b   *= .4
+#	i  = rand_range(-.04, .02)
+#	var s_min  : Vector2  = def_sca * 3.6 + Vector2(i, i)
+	var i := rand_range(-.02, .06)
+	var s_max  : Vector2  = def_sca * 5.2 + Vector2(i, i)
 
-	$Sprite.texture  = get_parent().get_node("Sprite").texture
+	var col : Color  = G.CONFIG.BG_color *(4 +G.CONFIG.BG_brightness)
+	col.a  = 1
+	var angle := 32 if randf() >.5 else -32
+
+	$"%Sprite".texture  = get_parent().get_node("%Sprite").texture
 
 
-	t.tween_property(self, "scale", s_min, .16 + rand_range(-.02, .04)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", s_max, .22 + rand_range(-.06, .10))
+#
+#	tween.tween_property(self, "scale", s_max, .12 + rand_range(-.04, .04)
+#		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
+	tween.tween_property($"%Sprite", "modulate", col, .36 + rand_range(-.04, .04))
+	tween.tween_property(self, "rotation_degrees", rotation_degrees +angle, rand_range(.2, .4))
+#	tween.tween_property(self, "rotation_degrees", rotation_degrees -180, .4
+#		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
 
-	t.tween_property(self, "scale", s_max, .12 + rand_range(-.04, .04)
-		).set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_OUT_IN).set_delay(.06)
+	tween.chain().tween_property(self, "rotation_degrees", rotation_degrees -angle *1.5, .1)
 
-	t.parallel().tween_property($Sprite, "modulate", col,
-		.36 + rand_range(-.04, .04)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
+	tween.tween_property(
+		$"%Sprite", "material:shader_param/fattyness", .6, 4)
 
-#	i  = rand_range(.12, .24)
-#	t.parallel().tween_property(self, "scale", def_sca * 4.4 + Vector2(i, i),
-#		.14 + rand_range(-.06, .06)
-#		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT).set_delay(.06)
+	i  = rand_range(.12, .24)
+	tween.tween_property(self, "scale", def_sca *4.4 +Vector2(i, i), .08 +rand_range(-.04, .06))
 
 	rot += rand_range(-6, 6)
-	t.parallel().tween_property(self, "rotation_degrees", rot,
-		.22 + rand_range(-.08, .08)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "rotation_degrees", rot,
+		.22 + rand_range(-.08, .08))
 
-	i  = rand_range(.06, .08)
-	t.tween_property(self, "scale", def_sca * 4.8 + Vector2(i, i),
-		4 + rand_range(-.1, .1)
-		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.1)
 
 
 	#back to default:
-	def_col.a  = 0
-	t.parallel().tween_property($Sprite, "modulate", def_col,
+#	def_col.a  = 0
+
+	tween.tween_property($"%Sprite", "modulate:a", 0,
 		ttl + rand_range(-ttl * .14 , ttl * .12)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT).set_delay(.01)
 
-	t.tween_callback(self, "queue_free")
+	tween.tween_property(self, "scale", def_sca *4.4, .04)
+
+	tween.chain().tween_callback(self, "queue_free")

@@ -5,6 +5,7 @@
 
 [node name="Sys" type="Node2D"]
 script = ExtResource( 2 )
+screen = 1
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 3 )

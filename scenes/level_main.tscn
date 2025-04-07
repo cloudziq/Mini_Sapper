@@ -34,53 +34,55 @@ _marker = ExtResource( 7 )
 _touch = ExtResource( 11 )
 
 [node name="ZoomCam" type="Camera2D" parent="."]
-position = Vector2( 160, 340 )
 current = true
 smoothing_speed = 4.0
 editor_draw_limits = true
 editor_draw_drag_margin = true
 script = ExtResource( 2 )
+min_zoom = 0.4
 
 [node name="BG" parent="." instance=ExtResource( 5 )]
 z_index = -1
 
 [node name="GUI" parent="." instance=ExtResource( 6 )]
 
-[node name="TileRevealSingle" type="AudioStreamPlayer" parent="."]
+[node name="sounds" type="Node2D" parent="."]
+
+[node name="TileRevealSingle" type="AudioStreamPlayer" parent="sounds"]
 stream = ExtResource( 8 )
 volume_db = -30.0
 pitch_scale = 0.84
 mix_target = 2
 
-[node name="TileRevealMedium" type="AudioStreamPlayer" parent="."]
+[node name="TileRevealMedium" type="AudioStreamPlayer" parent="sounds"]
 stream = SubResource( 1 )
 volume_db = -6.0
 pitch_scale = 2.44
 mix_target = 2
 
-[node name="TileRevealBig" type="AudioStreamPlayer" parent="."]
+[node name="TileRevealBig" type="AudioStreamPlayer" parent="sounds"]
 stream = SubResource( 2 )
 volume_db = -34.0
 pitch_scale = 1.25
 mix_target = 2
 bus = "sfx"
 
-[node name="TileMarker" type="AudioStreamPlayer" parent="."]
+[node name="TileMarker" type="AudioStreamPlayer" parent="sounds"]
 stream = SubResource( 3 )
 volume_db = -20.0
 pitch_scale = 3.2
 
-[node name="TileBump" type="AudioStreamPlayer" parent="."]
+[node name="TileBump" type="AudioStreamPlayer" parent="sounds"]
 stream = SubResource( 4 )
 volume_db = -28.0
 pitch_scale = 0.6
 mix_target = 2
 bus = "sfx"
 
-[node name="TileMain" type="AudioStreamPlayer" parent="."]
+[node name="TileMain" type="AudioStreamPlayer" parent="sounds"]
 stream = ExtResource( 9 )
 volume_db = -12.0
 pitch_scale = 1.16
 
-[node name="TileBounce" type="AudioStreamPlayer" parent="."]
-volume_db = -12.0
+[node name="TileBounce" type="AudioStreamPlayer" parent="sounds"]
+volume_db = -18.0
