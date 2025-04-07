@@ -38,7 +38,7 @@ func set_defaults():
 		"zoom_level":          1,
 		"level":               1,
 		"BG_color":            Color(.1, .2, 1, 1),
-		"BG_brightness":       4,  ##    1-5 ??
+		"BG_brightness":       2,  ##    1-5 ??
 		"tile_transparency":   .45,
 		"tile_helper":         true,
 		"window_pos":          [0, 0],

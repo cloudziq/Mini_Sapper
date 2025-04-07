@@ -10,7 +10,7 @@ onready var bg1      := $"%BG_main1"
 onready var bg2      := $"%BG_main2"
 onready var bg_tween :  SceneTreeTween
 
-export var bg_fade_dur      := 8.0      # in seconds (type:float)
+export var bg_fade_dur      := 10.0      # in seconds (type:float)
 
 
 
@@ -34,11 +34,11 @@ func _ready() -> void:
 
 
 func _process(dt: float) -> void:
-	bg1.rotate    (.04 *dt)
+	bg1.rotate    (.08 *dt)
 	bg2.rotate    (.02 *dt)
-	$"%BG_static".rotate  ( .160 *dt)
+	$"%BG_static".rotate  ( .040 *dt)
 	$"%BG_detail".rotate  (-.022 *dt)
-	$"%Light".rotate      (-.042 *dt)
+	$"%Light".rotate      (-.060 *dt)
 
 
 
@@ -71,8 +71,8 @@ func BG_init() -> void:
 	node             = $"%BG_detail"
 	node.texture     = load(path+num+".png")
 	node.normal_map  = load(path+num+"_n.png")
-	node.scale       = Vector2(.12, .12)
-	tween.tween_property(node, "modulate:a", .02, 4)
+	node.scale       = Vector2(.1, .1)
+	tween.tween_property(node, "modulate:a", .32, 4)
 
 #	node             = $"%BG_static"
 #	tween.tween_property(node, "modulate",
@@ -102,7 +102,7 @@ func BG_fade_cycle(init:=false) -> void:
 
 	bg_tween.tween_property(
 		$"%BG_static", "modulate",
-		G.rgb_smooth(BG_color_change(.4, .28) *bright *.1, .1), duration *.6)
+		G.rgb_smooth(BG_color_change(.6, .32) *G.CONFIG.BG_brightness *.2, .2), duration *.8)
 
 	bg_tween.chain().tween_callback(self, "BG_swap")
 

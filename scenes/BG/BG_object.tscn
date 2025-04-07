@@ -10,8 +10,9 @@ bounce = 1.0
 radius = 36.0
 
 [sub_resource type="ShaderMaterial" id=8]
+render_priority = 1
 shader = ExtResource( 1 )
-shader_param/modulate = Color( 0.411765, 0.411765, 0.411765, 0.235294 )
+shader_param/modulate = Color( 1, 1, 1, 0.682353 )
 
 [node name="RigidBody2D" type="RigidBody2D" groups=["BG_object"]]
 modulate = Color( 0.219608, 0.219608, 0.219608, 0.494118 )
@@ -27,6 +28,6 @@ scale = Vector2( 0.4, 0.4 )
 shape = SubResource( 7 )
 
 [node name="Sprite" type="Sprite" parent="CollisionShape2D"]
-modulate = Color( 0.211765, 0.211765, 0.211765, 0.0313726 )
+modulate = Color( 0, 0, 0, 0.0862745 )
 material = SubResource( 8 )
 scale = Vector2( 10.1, 10.6 )

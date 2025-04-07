@@ -162,8 +162,8 @@ func window_prepare() -> void:
 	else:
 		OS.window_position  = Vector2(pos[0], pos[1])
 
-	var col  = Color(.06, .06, .06, 1) *G.CONFIG.BG_brightness *1.14
-	col.a    = 1
+	var val  = lerp(.04, .6, G.CONFIG.BG_brightness *.2)
+	var col  = Color(val, val, val, 1)
 	VisualServer.set_default_clear_color(col)
 
 
