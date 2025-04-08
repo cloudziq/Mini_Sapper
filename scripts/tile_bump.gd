@@ -23,8 +23,8 @@ func _ready() -> void:
 	var i := rand_range(-.02, .06)
 	var s_max  : Vector2  = def_sca * 5.2 + Vector2(i, i)
 
-	var col : Color  = G.CONFIG.BG_color *(4 +G.CONFIG.BG_brightness)
-	col.a  = 1
+	var col : Color  = G.CONFIG.BG_color *G.CONFIG.BG_brightness
+	col.a  = .68
 	var angle := 32 if randf() >.5 else -32
 
 	$"%Sprite".texture  = get_parent().get_node("%Sprite").texture

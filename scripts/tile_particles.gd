@@ -32,7 +32,7 @@ func delay(delay:float):
 
 func fade() -> void:
 	tween  = get_tree().create_tween()
-	tween.tween_property(self, "modulate:a", 0, .2)
+	tween.tween_property(self, "modulate:a", 0, .4)
 	tween.tween_callback(self, "queue_free")
 
 

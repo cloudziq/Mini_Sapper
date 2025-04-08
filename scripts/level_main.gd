@@ -233,11 +233,11 @@ func generate_board() -> void:
 			pos.y         += tile_size
 			board_data[x][y] = [[TILE, null, null, null], 0, 0]
 
-			## aura material applied:
+			## glow material applied:
 			var mat    := ShaderMaterial.new()
 			mat.shader  = shader_unrevealed
-			mat.set_shader_param("radius", 1)
-			mat.set_shader_param("amount", .2)
+			mat.set_shader_param("radius", -8)
+			mat.set_shader_param("amount", 8)
 			TILE.get_node("%Sprite").material  = mat
 			TILE.get_node("%Sprite").visible   = true
 			TILE.io_anim()
@@ -455,13 +455,13 @@ func reveal_starter_tiles() -> void:
 
 
 
-func reveal_empty_tiles() -> void:
-	var node  : Area2D
-
-	board_data  = []
-	for x in board_size.x:
-		for y in board_size.y:
-			node  = board_data[x][y][0][0]
+#func reveal_empty_tiles() -> void:
+#	var node  : Area2D
+#
+#	board_data  = []
+#	for x in board_size.x:
+#		for y in board_size.y:
+#			node  = board_data[x][y][0][0]
 
 
 

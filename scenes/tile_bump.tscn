@@ -16,4 +16,3 @@ unique_name_in_owner = true
 modulate = Color( 0.870588, 0.882353, 0.913725, 1 )
 light_mask = 0
 material = SubResource( 1 )
-z_index = 2

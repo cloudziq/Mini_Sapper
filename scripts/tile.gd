@@ -34,7 +34,7 @@ var tween_col   : SceneTreeTween
 
 var allow_idle_anim      := false
 var allow_color_anim     := false
-var allow_move_particles := false
+#var allow_move_particles := false
 
 onready var	theme       = G.CONFIG.theme
 onready var	theme_data  = $"../../".theme_data[theme-1]
@@ -48,7 +48,7 @@ func _ready() -> void:
 	set_physics_process(false)
 	def_col.a  = G.CONFIG.tile_transparency
 
-	allow_move_particles  = false
+#	allow_move_particles  = false
 
 	$"%Sprite".flip_v    = true if randf() > .5 else  false
 	$"%Sprite".flip_h    = true if randf() > .5 else  false
@@ -104,49 +104,24 @@ func _physics_process(delta: float) -> void:
 
 
 
-#### type:
-#### true  = intro (restart level)        false  = outro (after explosion)
-func tile_ready(type:=true) -> void:
-	G.tiles_ready += 1
-
-	if type:
-		if G.tiles_ready == level.num_tiles:
-			G.tiles_ready  = 0
-			level.reveal_starter_tiles()
-			level.allow_board_input  = true
-			level.player_fail        = false
-
-		allow_idle_anim   = true
-		allow_color_anim  = true
-		idle_anim()
-	else:
-		if G.tiles_ready == level.num_tiles:
-			G.tiles_ready  = 0
-			yield(get_tree().create_timer(2), "timeout")
-			level.player_fail  = true
-			level.reset_board(true)
-
-
-
-
-
-
 func io_anim(type := 0) -> void:
 	if type == 0:
 		var node : Camera2D = level.get_node("ZoomCam")
 		var val  : float
-		var col  = $"%Sprite".modulate  ;  col.a  = def_col.a
+		var col  = $"%Sprite".modulate
+		col.a  = def_col.a
 
 		def_rot  = rotation_degrees
 		def_sca  = scale * 0.92
 
 		tween_io  = get_tree().create_tween().set_trans(1).set_ease(2)
 
-#		PARTICLES.modulate.a  = 1
+		allow_color_anim  = true
+		tile_color_anim_accents(.16, .64 , 4.4, true)
+
 
 		if level.player_fail:
 			val               = rand_range(.8, 1.4)
-#			print(allow_move_particles)
 			tile_particle_spawn(2, 6)
 			PARTICLES_move  = _particles_move.instance()
 			add_child(PARTICLES_move)
@@ -157,7 +132,7 @@ func io_anim(type := 0) -> void:
 			scale             = Vector2(0.01, 0.01)
 			rotation_degrees  = rand_range(-360, 360)
 
-		#PHASE :
+		#PHASE ZERO:
 		tween_io.tween_property(self, "position", def_pos, val)
 
 		#PHASE 1:
@@ -166,12 +141,6 @@ func io_anim(type := 0) -> void:
 			rand_range(.44, .82)).set_delay(.1)
 
 		tween_io.tween_property(self, "scale", def_sca, .3)
-
-#		col.a = .4
-#		$"%Sprite".modulate  = col
-#		tween_io.tween_property($"%Sprite", "modulate", col, time - (time*.1))
-#		tile_color_anim_accents(.32, .72, 3, true)
-		tile_color_anim_accents(.26, .6 , 4.4, true)
 
 		#tile spawn sound
 		if OS.get_system_time_msecs() >= level.sound_timeout:
@@ -244,6 +213,32 @@ func idle_anim() -> void:
 
 
 
+#### type:
+#### true  = intro (restart level)        false  = outro (after explosion)
+func tile_ready(type:=true) -> void:
+	G.tiles_ready += 1
+
+	if type:
+		if G.tiles_ready == level.num_tiles:
+			G.tiles_ready  = 0
+			level.reveal_starter_tiles()
+			level.allow_board_input  = true
+			level.player_fail        = false
+
+		allow_idle_anim   = true
+		idle_anim()
+	else:
+		if G.tiles_ready == level.num_tiles:
+			G.tiles_ready  = 0
+			yield(get_tree().create_timer(2), "timeout")
+			level.player_fail  = true
+			level.reset_board(true)
+
+
+
+
+
+
 func tile_color_anim_accents(dist:float, smoothness:float, time:float, init:=false) -> void:
 	var col  : Color = def_col
 	var t    := time *.4
@@ -259,13 +254,18 @@ func tile_color_anim_accents(dist:float, smoothness:float, time:float, init:=fal
 	tween_col.tween_property($"%Sprite", "modulate", col, time)
 
 	tween_col.tween_property(
-		$"%Sprite", "material:shader_param/amount", rand_range(.1, .4), time *.5)
+		$"%Sprite", "material:shader_param/amount", rand_range(2, 3),  time *.5)
+	tween_col.tween_property(
+		$"%Sprite", "material:shader_param/radius", rand_range(-2, 2), time *.5)
+
 	tween_col.chain().tween_property(
-		$"%Sprite", "material:shader_param/amount", .1, time *.5)
+		$"%Sprite", "material:shader_param/amount", 2.5, time *.5)
+	tween_col.tween_property(
+		$"%Sprite", "material:shader_param/radius", 0.0, time *.5)
 
 	time  *= 2 if not init else 1
 	if allow_color_anim:
-		tween_col.tween_callback(self, "tile_color_anim_accents", [dist, smoothness, time])
+		tween_col.chain().tween_callback(self, "tile_color_anim_accents", [dist, smoothness, time])
 
 
 
@@ -342,7 +342,7 @@ func change_alpha(time:float, delay:float, trans:int, mod:=1.0) -> void:
 func tile_helper_spawn() -> void:
 	BUMP  = _bump.instance()
 	add_child(BUMP)
-	tile_particle_spawn(true, 6)
+	tile_particle_spawn(1, 6)
 
 
 
@@ -369,12 +369,13 @@ func tile_particle_spawn(type:int=0, lifetime:float=2) -> void:
 			node2.modulate.a   = .20
 			node2.speed_scale  = 1
 		1:    ## tile helper
-			node1              = PARTICLES_main.get_node("particles_blink")
+			node1              = PARTICLES_main.get_node("particles_helper")
 			node1.lifetime     = lifetime
+			node1.modulate     = G.CONFIG.BG_color *rand_range(.2, .8)
 			node1.emitting     = true
-			node1.modulate.a   = .8
-			node1.speed_scale  = .2
-			node1.scale_amount = 4
+			node1.modulate.a   = .6
+			node1.speed_scale  = .1
+			node1.scale_amount = 3.6
 			node1.z_index      = -1
 		2:    ## respawn blink
 			node1              = PARTICLES_main.get_node("particles_helper")
@@ -386,7 +387,7 @@ func tile_particle_spawn(type:int=0, lifetime:float=2) -> void:
 			node1.z_index      = 2
 
 	var lifetime_offset  = lifetime *node1.speed_scale
-	PARTICLES_main.delay(lifetime *lifetime_offset)
+	PARTICLES_main.delay(lifetime + lifetime -lifetime_offset)
 
 
 
@@ -431,7 +432,7 @@ func tile_blast_motion(pos:Vector2) -> void:
 		rotation_degrees  = rand_range(-40, 40)
 		set_physics_process(true)
 
-		allow_move_particles  = true
+#		allow_move_particles  = true
 	tile_ready(false)
 
 
