@@ -1,13 +1,13 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scripts/tile_marker.gd" type="Script" id=1]
-[ext_resource path="res://assets/graphics/particles/marker.png" type="Texture" id=2]
+[ext_resource path="res://assets/graphics/particles/marker.png" type="Texture2D" id=2]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
 light_mode = 1
 
-[node name="Sprite" type="Sprite" groups=["marker"]]
+[node name="Sprite2D" type="Sprite2D" groups=["marker"]]
 light_mask = 0
 material = SubResource( 1 )
 scale = Vector2( 1.25, 1.25 )

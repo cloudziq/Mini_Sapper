@@ -1,15 +1,19 @@
 [remap]
 
-importer="ogg_vorbis"
-type="AudioStreamOGGVorbis"
-path="res://.import/menu_music.ogg-06e8410e036f1b230766f6b9a2eca29c.oggstr"
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dltli84bngdox"
+path="res://.godot/imported/menu_music.ogg-06e8410e036f1b230766f6b9a2eca29c.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/graphics/sfx/menu_music.ogg"
-dest_files=[ "res://.import/menu_music.ogg-06e8410e036f1b230766f6b9a2eca29c.oggstr" ]
+dest_files=["res://.godot/imported/menu_music.ogg-06e8410e036f1b230766f6b9a2eca29c.oggvorbisstr"]
 
 [params]
 
 loop=true
 loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

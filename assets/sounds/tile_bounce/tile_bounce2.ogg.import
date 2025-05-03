@@ -1,15 +1,19 @@
 [remap]
 
-importer="ogg_vorbis"
-type="AudioStreamOGGVorbis"
-path="res://.import/tile_bounce2.ogg-f49b7a8a4f401bfadd04aef2b74ca9ac.oggstr"
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dlyei4ulkc4ug"
+path="res://.godot/imported/tile_bounce2.ogg-f49b7a8a4f401bfadd04aef2b74ca9ac.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/sounds/tile_bounce/tile_bounce2.ogg"
-dest_files=[ "res://.import/tile_bounce2.ogg-f49b7a8a4f401bfadd04aef2b74ca9ac.oggstr" ]
+dest_files=["res://.godot/imported/tile_bounce2.ogg-f49b7a8a4f401bfadd04aef2b74ca9ac.oggvorbisstr"]
 
 [params]
 
 loop=false
 loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

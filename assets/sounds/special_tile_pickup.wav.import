@@ -1,13 +1,14 @@
 [remap]
 
 importer="wav"
-type="AudioStreamSample"
-path="res://.import/special_tile_pickup.wav-9307174c8724a2f111cbbecfcc60833e.sample"
+type="AudioStreamWAV"
+uid="uid://dwudnlya4r4kd"
+path="res://.godot/imported/special_tile_pickup.wav-9307174c8724a2f111cbbecfcc60833e.sample"
 
 [deps]
 
 source_file="res://assets/sounds/special_tile_pickup.wav"
-dest_files=[ "res://.import/special_tile_pickup.wav-9307174c8724a2f111cbbecfcc60833e.sample" ]
+dest_files=["res://.godot/imported/special_tile_pickup.wav-9307174c8724a2f111cbbecfcc60833e.sample"]
 
 [params]
 
@@ -17,5 +18,7 @@ force/max_rate=false
 force/max_rate_hz=44100
 edit/trim=false
 edit/normalize=false
-edit/loop=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
 compress/mode=0

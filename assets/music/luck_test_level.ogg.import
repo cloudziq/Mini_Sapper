@@ -1,15 +1,19 @@
 [remap]
 
-importer="ogg_vorbis"
-type="AudioStreamOGGVorbis"
-path="res://.import/luck_test_level.ogg-4e497aeb12bea91532b88c3e6d641660.oggstr"
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cpejvtbiqgmr4"
+path="res://.godot/imported/luck_test_level.ogg-4e497aeb12bea91532b88c3e6d641660.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/music/luck_test_level.ogg"
-dest_files=[ "res://.import/luck_test_level.ogg-4e497aeb12bea91532b88c3e6d641660.oggstr" ]
+dest_files=["res://.godot/imported/luck_test_level.ogg-4e497aeb12bea91532b88c3e6d641660.oggvorbisstr"]
 
 [params]
 
 loop=true
 loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

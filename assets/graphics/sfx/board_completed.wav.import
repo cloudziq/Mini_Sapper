@@ -1,13 +1,14 @@
 [remap]
 
 importer="wav"
-type="AudioStreamSample"
-path="res://.import/board_completed.wav-69fea5c58520beba766127482fb17284.sample"
+type="AudioStreamWAV"
+uid="uid://1mstie1khaoq"
+path="res://.godot/imported/board_completed.wav-69fea5c58520beba766127482fb17284.sample"
 
 [deps]
 
 source_file="res://assets/graphics/sfx/board_completed.wav"
-dest_files=[ "res://.import/board_completed.wav-69fea5c58520beba766127482fb17284.sample" ]
+dest_files=["res://.godot/imported/board_completed.wav-69fea5c58520beba766127482fb17284.sample"]
 
 [params]
 
@@ -17,5 +18,7 @@ force/max_rate=false
 force/max_rate_hz=44100
 edit/trim=false
 edit/normalize=false
-edit/loop=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
 compress/mode=0

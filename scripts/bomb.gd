@@ -1,10 +1,10 @@
-extends Sprite
+extends Sprite2D
 
 
-export(PackedScene) var _explosion  ;  var EXPLOSION : Node2D
+@export var _explosion: PackedScene  ;  var EXPLOSION : Node2D
 
 
-onready var def_sca : Vector2  = scale
+@onready var def_sca : Vector2  = scale
 
 var rot       :  float
 var skew_dist := 16
@@ -34,13 +34,13 @@ func animate_pos() -> void:
 	var tween  = self.create_tween()
 
 	rot  = -get_parent().rotation_degrees
-	rot += rand_range(-skew_dist, skew_dist)
+	rot += randf_range(-skew_dist, skew_dist)
 
-	tween.tween_property(self, "rotation_degrees", rot, rand_range(.8, 1.2)
+	tween.tween_property(self, "rotation_degrees", rot, randf_range(.8, 1.2)
 		).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 #	if get_parent().allow_idle_anim:
-	tween.tween_callback(self, "animate_pos").set_delay(0.2)
+	tween.tween_callback(Callable(self, "animate_pos")).set_delay(0.2)
 
 
 
@@ -66,13 +66,13 @@ func bomb_anim() -> void:    # animates a bomb which was clicked (ready to blow)
 
 func new_shake_pos() -> void:
 	var pos := Vector2.ZERO
-	pos.x += rand_range(-6, 6)
-	pos.y += rand_range(-6, 6)
+	pos.x += randf_range(-6, 6)
+	pos.y += randf_range(-6, 6)
 
 	var t_pos  = self.create_tween()
 
 	t_pos.tween_property(self, "position", pos, .2).set_delay(.01)
-	t_pos.tween_callback(self, "new_shake_pos")
+	t_pos.tween_callback(Callable(self, "new_shake_pos"))
 
 
 
@@ -80,8 +80,8 @@ func new_shake_pos() -> void:
 
 
 func explosion_visuals() -> void:
-	EXPLOSION  = _explosion.instance()
+	EXPLOSION  = _explosion.instantiate()
 	EXPLOSION.position  = get_parent().position
 	$"../../".add_child(EXPLOSION)
-	get_parent().get_node("%Sprite").visible  = false
+	get_parent().get_node("%Sprite2D").visible  = false
 	get_tree().call_group("bomb", "visible", [false])

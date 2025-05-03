@@ -1,11 +1,11 @@
 extends Node2D
 
 
-export(PackedScene) var _tile
-export(PackedScene) var _bomb
-export(PackedScene) var _label
-export(PackedScene) var _marker
-export(PackedScene) var _touch    ;  var TOUCH:Node2D
+@export var _tile: PackedScene
+@export var _bomb: PackedScene
+@export var _label: PackedScene
+@export var _marker: PackedScene
+@export var _touch: PackedScene    ;  var TOUCH:Node2D
 
 
 var tile_size          :  int
@@ -30,7 +30,7 @@ var tile_bounce_sounds = [
 ]
 
 
-onready var shader_unrevealed  = preload("res://assets/shaders/glow.shader")
+@onready var shader_unrevealed  = preload("res://assets/shaders/glow.gdshader")
 
 
 
@@ -77,7 +77,7 @@ func _process(_dt) -> void:
 		hold_touch_time  =  0
 
 	if hold_touch_time > 0:
-		if OS.get_system_time_msecs() > hold_touch_time:
+		if Time.get_ticks_msec() > hold_touch_time:
 			hold_touch_time  = -1
 			if not TOUCH:  add_touch()
 
@@ -90,14 +90,14 @@ func _input(event) -> void:
 	if allow_board_input:
 		if event is InputEventScreenTouch:
 			if event.is_pressed():
-				hold_touch_time  = OS.get_system_time_msecs() + 500
+				hold_touch_time  = Time.get_ticks_msec() + 500
 
 			elif not event.is_pressed() and not $ZoomCam.is_moving and hold_touch_time > 0:
 					hold_touch_time  = 0
 					if not TOUCH:  add_touch()
 
 		elif event is InputEventMouseButton and event.is_pressed():
-			if event.button_index == BUTTON_RIGHT:
+			if event.button_index == MOUSE_BUTTON_RIGHT:
 				hold_touch_time  = -1
 				if not TOUCH:  add_touch()
 
@@ -110,10 +110,10 @@ func _input(event) -> void:
 func add_touch() -> void:
 	var pos        := get_global_mouse_position()
 
-	TOUCH           = _touch.instance()
+	TOUCH           = _touch.instantiate()
 	TOUCH.position  = pos
 	add_child(TOUCH)
-	yield(get_tree().create_timer(.1), "timeout")
+	await get_tree().create_timer(.1).timeout
 	TOUCH.queue_free()
 	TOUCH           = null
 
@@ -173,7 +173,7 @@ func add_marker() -> void:    # result of check_clicked_tile()
 
 	if board_data[x][y][1] < 2:
 		if not node:
-			node           = _marker.instance()
+			node           = _marker.instantiate()
 			marker_amount += 1
 			board_data[x][y][0][0].add_child(node)
 			board_data[x][y][0][1]   = node
@@ -201,7 +201,7 @@ func generate_tile_instances() -> void:
 	for x in board_size.x:
 		board_data.append([])
 		for y in board_size.y:
-			node  = _tile.instance()
+			node  = _tile.instantiate()
 			add_child(node)
 			board_data[x].append([[node, null, null, null], 0, 0])
 
@@ -233,13 +233,13 @@ func generate_board() -> void:
 			pos.y         += tile_size
 			board_data[x][y] = [[TILE, null, null, null], 0, 0]
 
-			## glow material applied:
-			var mat    := ShaderMaterial.new()
-			mat.shader  = shader_unrevealed
-			mat.set_shader_param("radius", -8)
-			mat.set_shader_param("amount", 8)
-			TILE.get_node("%Sprite").material  = mat
-			TILE.get_node("%Sprite").visible   = true
+			### glow material applied:
+			#var mat    := ShaderMaterial.new()
+			#mat.gdshader  = shader_unrevealed
+			#mat.set_shader_parameter("radius", -8)
+			#mat.set_shader_parameter("amount", 8)
+			#TILE.get_node("%Sprite2D").material  = mat
+			TILE.get_node("%Sprite2D").visible   = true
 			TILE.io_anim()
 
 		pos.x += tile_size
@@ -257,7 +257,7 @@ func generate_board() -> void:
 		while board_data[pos.x][pos.y][1] == 1:
 			pos  = gen_pos()
 		board_data[pos.x][pos.y][1]  = 1
-		BOMB  = _bomb.instance()
+		BOMB  = _bomb.instantiate()
 		board_data[pos.x][pos.y][0][2]  = BOMB
 		board_data[pos.x][pos.y][0][0].add_child(BOMB)
 
@@ -289,7 +289,7 @@ func reset_board(force:=false) -> void:
 		tile_helper_remove(16)
 
 		for i in get_tree().get_nodes_in_group("tile"):
-			i.get_node("%Sprite").visible  = true
+			i.get_node("%Sprite2D").visible  = true
 			i.tweens_disable()
 			i.set_physics_process(false)
 
@@ -307,7 +307,7 @@ func level_complete() -> void:
 	G.CONFIG.level += 1
 #	get_tree().call_group("tile", "tweens_disable")
 	get_tree().call_group("tile", "queue_free")
-	yield(get_tree().create_timer(.2), "timeout")
+	await get_tree().create_timer(.2).timeout
 #	reset_board()
 	_ready()
 
@@ -344,10 +344,10 @@ func tile_reveal(coord:Vector2, neighbours:=[], count:=0, single_tile:=false) ->
 
 	match count:
 		2:
-			$sounds/TileRevealMedium.pitch_scale += rand_range(-.4, .4)
+			$sounds/TileRevealMedium.pitch_scale += randf_range(-.4, .4)
 			$sounds/TileRevealMedium.play()
 		22:
-			$sounds/TileRevealBig.pitch_scale    += rand_range(-.08, .08)
+			$sounds/TileRevealBig.pitch_scale    += randf_range(-.08, .08)
 			$sounds/TileRevealBig.play()
 
 	tiles_left -= 1
@@ -405,7 +405,7 @@ func tile_helper_add(coord:Vector2, shake_speed_scale:float) -> void:
 		var tx : int
 		var ty : int
 
-		$sounds/TileBump.pitch_scale  = .68 +rand_range(-.06, .06)
+		$sounds/TileBump.pitch_scale  = .68 +randf_range(-.06, .06)
 		$sounds/TileBump.play()
 
 		# create new tile_bumps:
@@ -470,8 +470,8 @@ func reveal_starter_tiles() -> void:
 
 
 func gen_pos() -> Vector2:
-	var x = floor(rand_range(0, board_size.x))
-	var y = floor(rand_range(0, board_size.y))
+	var x = floor(randf_range(0, board_size.x))
+	var y = floor(randf_range(0, board_size.y))
 	return Vector2(x, y)
 
 
@@ -492,7 +492,7 @@ func gen_num(x, y) -> void:
 				counter += 1
 
 	if counter > 0:
-		LABEL                         = _label.instance()
+		LABEL                         = _label.instantiate()
 		board_data[x][y][0][3]        = LABEL
 		board_data[x][y][2]           = counter
 		board_data[x][y][0][0].add_child(LABEL)    #assign as a child of tile

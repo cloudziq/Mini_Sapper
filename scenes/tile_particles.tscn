@@ -1,8 +1,8 @@
 [gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://assets/graphics/particles/spark.png" type="Texture" id=1]
+[ext_resource path="res://assets/graphics/particles/spark.png" type="Texture2D" id=1]
 [ext_resource path="res://scripts/tile_particles.gd" type="Script" id=2]
-[ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture" id=3]
+[ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture2D" id=3]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
@@ -22,16 +22,16 @@ bake_resolution = 20
 _data = [ Vector2( 0, 0.118738 ), 0.0, -0.0996199, 0, 0, Vector2( 0.0921576, 0.706856 ), 1.58806, 1.58806, 0, 0, Vector2( 0.307438, 0.407813 ), -2.76976, -2.76976, 0, 0, Vector2( 0.550201, 0.0888335 ), -0.801772, -0.801772, 0, 0, Vector2( 1, 0 ), -0.107298, 0.0, 0, 0 ]
 
 [sub_resource type="Gradient" id=4]
-offsets = PoolRealArray( 0, 0.171717, 0.368687, 0.966292, 1 )
-colors = PoolColorArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.432704, 1, 1, 1, 0, 1, 1, 1, 0 )
+offsets = PackedFloat32Array( 0, 0.171717, 0.368687, 0.966292, 1 )
+colors = PackedColorArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.432704, 1, 1, 1, 0, 1, 1, 1, 0 )
 
 [sub_resource type="Curve" id=15]
 max_value = 4.0
 _data = [ Vector2( 0, 1.66168 ), 0.0, 0.0, 0, 0, Vector2( 0.342023, 0 ), 0.0, 0.0, 0, 0 ]
 
 [sub_resource type="Gradient" id=14]
-offsets = PoolRealArray( 0, 0.405797, 0.942029 )
-colors = PoolColorArray( 1, 1, 1, 1, 1, 1, 1, 0.772549, 1, 1, 1, 0 )
+offsets = PackedFloat32Array( 0, 0.405797, 0.942029 )
+colors = PackedColorArray( 1, 1, 1, 1, 1, 1, 1, 0.772549, 1, 1, 1, 0 )
 
 [sub_resource type="Curve" id=12]
 max_value = 20.0

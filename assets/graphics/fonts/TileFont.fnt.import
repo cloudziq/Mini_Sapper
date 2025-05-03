@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://bnxt28tjw3cfh"
+path="res://.godot/imported/TileFont.fnt-110f60864c0c2ee1f2ab34060e4b63ef.fontdata"
+
+[deps]
+
+source_file="res://assets/graphics/fonts/TileFont.fnt"
+dest_files=["res://.godot/imported/TileFont.fnt-110f60864c0c2ee1f2ab34060e4b63ef.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

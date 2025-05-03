@@ -101,15 +101,15 @@ func gen_offscreen_pos(add:float, pos:Vector2) -> Vector2:
 	match a:
 		1:    #### LEFT
 			pos.x = pos.x - dist_x - add
-			pos.y = rand_range(pos.y - dist_y -add, pos.y + dist_y + add)
+			pos.y = randf_range(pos.y - dist_y -add, pos.y + dist_y + add)
 		2:    #### RIGHT
 			pos.x = pos.x + dist_x + add
-			pos.y = rand_range(pos.y - dist_y -add, pos.y + dist_y + add)
+			pos.y = randf_range(pos.y - dist_y -add, pos.y + dist_y + add)
 		3:    #### UP
-			pos.x = rand_range(pos.x - dist_x -add, pos.x + dist_x + add)
+			pos.x = randf_range(pos.x - dist_x -add, pos.x + dist_x + add)
 			pos.y = pos.y - dist_y - add
 		4:    #### DOWN
-			pos.x = rand_range(pos.x - dist_x -add, pos.x + dist_x + add)
+			pos.x = randf_range(pos.x - dist_x -add, pos.x + dist_x + add)
 			pos.y = pos.y + dist_y + add
 
 	return pos

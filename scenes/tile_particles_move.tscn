@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scenes/tile_particles_move.gd" type="Script" id=1]
-[ext_resource path="res://assets/graphics/particles/spark.png" type="Texture" id=2]
+[ext_resource path="res://assets/graphics/particles/spark.png" type="Texture2D" id=2]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 resource_local_to_scene = true

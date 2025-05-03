@@ -1,13 +1,14 @@
 [remap]
 
 importer="wav"
-type="AudioStreamSample"
-path="res://.import/tile_mark.wav-e057931fd7ef56c06b3d5f0311625fad.sample"
+type="AudioStreamWAV"
+uid="uid://8mp8abfxwfsl"
+path="res://.godot/imported/tile_mark.wav-e057931fd7ef56c06b3d5f0311625fad.sample"
 
 [deps]
 
 source_file="res://assets/graphics/sfx/tile_mark.wav"
-dest_files=[ "res://.import/tile_mark.wav-e057931fd7ef56c06b3d5f0311625fad.sample" ]
+dest_files=["res://.godot/imported/tile_mark.wav-e057931fd7ef56c06b3d5f0311625fad.sample"]
 
 [params]
 
@@ -17,5 +18,7 @@ force/max_rate=false
 force/max_rate_hz=44100
 edit/trim=false
 edit/normalize=false
-edit/loop=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
 compress/mode=0

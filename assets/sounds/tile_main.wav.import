@@ -1,13 +1,14 @@
 [remap]
 
 importer="wav"
-type="AudioStreamSample"
-path="res://.import/tile_main.wav-a36a910fbb9237e2d98f20b68a20f38d.sample"
+type="AudioStreamWAV"
+uid="uid://c3ktn3s3g4uxn"
+path="res://.godot/imported/tile_main.wav-a36a910fbb9237e2d98f20b68a20f38d.sample"
 
 [deps]
 
 source_file="res://assets/sounds/tile_main.wav"
-dest_files=[ "res://.import/tile_main.wav-a36a910fbb9237e2d98f20b68a20f38d.sample" ]
+dest_files=["res://.godot/imported/tile_main.wav-a36a910fbb9237e2d98f20b68a20f38d.sample"]
 
 [params]
 

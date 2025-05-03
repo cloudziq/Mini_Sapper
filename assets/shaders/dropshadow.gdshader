@@ -3,7 +3,7 @@ render_mode blend_mix;
 
 //  outline shadow:
 uniform float radius = 6.0;
-uniform vec4  modulate: hint_color;
+uniform vec4  modulate: source_color;
 
 
 

@@ -1,9 +1,9 @@
 extends Camera2D
 
 
-export var zoom_step  := 0.2
-export var max_zoom   := 1.4
-export var min_zoom   := 0.6
+@export var zoom_step  := 0.2
+@export var max_zoom   := 1.4
+@export var min_zoom   := 0.6
 
 
 var target_zoom          := Vector2.ZERO
@@ -24,7 +24,7 @@ func _ready():
 
 	var i  = G.CONFIG.zoom_level
 
-	yield(get_tree().create_timer(.01), "timeout")
+	await get_tree().create_timer(.01).timeout
 	cam_limit_coords  = ($"../".board_size * $"../".tile_size) / 2.225
 	target_zoom       = Vector2(i, i)
 
@@ -54,7 +54,7 @@ func _process(dt: float) -> void:
 	new_pos.y    = clamp(new_pos.y, y1, y2)
 
 	if position.snapped(Vector2(1,1)) != new_pos.snapped(Vector2(1,1)):
-		position   = position.linear_interpolate(new_pos, 10 *dt)
+		position   = position.lerp(new_pos, 10 *dt)
 		is_moving  = false
 
 

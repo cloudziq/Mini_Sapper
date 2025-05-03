@@ -1,13 +1,13 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture" id=1]
+[ext_resource path="res://assets/graphics/particles/light_sprite.png" type="Texture2D" id=1]
 [ext_resource path="res://scripts/level_light.gd" type="Script" id=2]
 
 [node name="Node2D" type="Node2D" groups=["light"]]
 z_index = 20
 script = ExtResource( 2 )
 
-[node name="Light" type="Light2D" parent="."]
+[node name="Light3D" type="PointLight2D" parent="."]
 position = Vector2( 127.5, 302 )
 scale = Vector2( 9.84933, 20.3683 )
 texture = ExtResource( 1 )

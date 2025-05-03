@@ -1,15 +1,19 @@
 [remap]
 
-importer="ogg_vorbis"
-type="AudioStreamOGGVorbis"
-path="res://.import/reveal_main.ogg-d82793c6bf24f1457a85cc277feb588d.oggstr"
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dngbjojusetyn"
+path="res://.godot/imported/reveal_main.ogg-d82793c6bf24f1457a85cc277feb588d.oggvorbisstr"
 
 [deps]
 
 source_file="res://assets/graphics/sfx/reveal_main.ogg"
-dest_files=[ "res://.import/reveal_main.ogg-d82793c6bf24f1457a85cc277feb588d.oggstr" ]
+dest_files=["res://.godot/imported/reveal_main.ogg-d82793c6bf24f1457a85cc277feb588d.oggvorbisstr"]
 
 [params]
 
 loop=true
 loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

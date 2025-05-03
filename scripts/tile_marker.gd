@@ -1,7 +1,7 @@
-extends Sprite
+extends Sprite2D
 
 
-var t_sca     :  SceneTreeTween
+var t_sca     :  Tween
 var tint_type :  bool
 var scale_def := scale
 
@@ -12,7 +12,7 @@ var scale_def := scale
 
 func _ready()  -> void:
 	modulate          = Color(.4, 2, 1, 1)
-	rotation_degrees  = rand_range(0, 360)
+	rotation_degrees  = randf_range(0, 360)
 	marker_anim()
 
 
@@ -42,7 +42,7 @@ func marker_anim(dir := false) -> void:
 
 	t_sca = self.create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	t_sca.tween_property(self, "scale", scale_to, .8).set_delay(.1)
-	t_sca.tween_callback(self, "marker_anim", [dir]).set_delay(.1)
+	t_sca.tween_callback(Callable(self, "marker_anim").bind(dir)).set_delay(.1)
 
 
 
@@ -62,4 +62,4 @@ func remove() -> void:
 	t_sca = self.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t_sca.tween_property(           self, "scale",    sca,  1)
 	t_sca.parallel().tween_property(self, "modulate", col, .9).set_trans(Tween.TRANS_LINEAR)
-	t_sca.tween_callback(           self, "queue_free").set_delay(.1)
+	t_sca.tween_callback(Callable(self, "queue_free")).set_delay(.1)

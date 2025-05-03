@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://assets/shaders/silouette.shader" type="Shader" id=1]
+[ext_resource path="res://assets/shaders/silouette.gdshader" type="Shader" id=1]
 
 [sub_resource type="PhysicsMaterial" id=6]
 friction = 0.0
@@ -27,7 +27,7 @@ angular_damp = 0.0
 scale = Vector2( 0.4, 0.4 )
 shape = SubResource( 7 )
 
-[node name="Sprite" type="Sprite" parent="CollisionShape2D"]
+[node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
 modulate = Color( 0, 0, 0, 0.0862745 )
 material = SubResource( 8 )
 scale = Vector2( 10.1, 10.6 )

@@ -8,7 +8,7 @@
 extends Node2D
 
 enum screens {normal, small, mini}
-export(screens) var screen  = screens.normal
+@export var screen: screens  = screens.normal
 
 
 var tile_size_in_pixels := 32
@@ -120,8 +120,8 @@ func _ready() -> void:
 	G.load_config()
 	window_prepare()
 
-	LEVEL  = level.instance()
-	add_child(menu.instance())
+	LEVEL  = level.instantiate()
+	add_child(menu.instantiate())
 #	$AudioStreamPlayer.play()
 
 
@@ -138,7 +138,7 @@ func start_game() -> void:
 
 
 func window_prepare() -> void:
-	var display_size = OS.get_screen_size()
+	var display_size = DisplayServer.screen_get_size()
 
 	window_size  = G.window
 
@@ -153,18 +153,18 @@ func window_prepare() -> void:
 		var scale_ratio = window_size.y /(display_size.y -100)
 		window_size.x /= scale_ratio ; window_size.y /= scale_ratio
 
-	OS.window_size = window_size
+	get_window().size = window_size
 	window_size.y += 64
 
 	var pos  = G.CONFIG.window_pos
 	if pos[0] == 0:
-		OS.window_position = display_size *.5 -window_size *.5
+		get_window().position = display_size *.5 -window_size *.5
 	else:
-		OS.window_position  = Vector2(pos[0], pos[1])
+		get_window().position  = Vector2(pos[0], pos[1])
 
 	var val  = lerp(.04, .6, G.CONFIG.BG_brightness *.2)
 	var col  = Color(val, val, val, 1)
-	VisualServer.set_default_clear_color(col)
+	RenderingServer.set_default_clear_color(col)
 
 
 
@@ -174,10 +174,10 @@ func window_prepare() -> void:
 
 func countImages(path : String) -> int:
 	var num := 0
-	var dir := Directory.new()
+	var dir := DirAccess.open(path)
 
-	if dir.open(path) == OK:
-		var _nic  = dir.list_dir_begin()
+	if dir:
+		var _nic  = dir.list_dir_begin() # TODOConverter3To4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 		var file  = dir.get_next()
 
 		while file != "":
@@ -186,7 +186,7 @@ func countImages(path : String) -> int:
 
 			if file.begins_with("BG_") and file.ends_with(".png"):
 				var digits  = file.substr(startIndex, endIndex - startIndex)
-				if digits.is_valid_integer():
+				if digits.is_valid_int():
 					num += 1
 			file =  dir.get_next()
 
@@ -202,5 +202,5 @@ func countImages(path : String) -> int:
 
 func _exit_tree():
 #	$AudioStreamPlayer.playing = false
-	G.CONFIG.window_pos  = [OS.window_position.x, OS.window_position.y]
+	G.CONFIG.window_pos  = [get_window().position.x, get_window().position.y]
 	G.save_config()

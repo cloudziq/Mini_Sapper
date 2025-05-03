@@ -1,7 +1,7 @@
 extends Node2D
 
 
-onready var tween : SceneTreeTween
+@onready var tween : Tween
 
 
 
@@ -23,7 +23,7 @@ func _ready() -> void:
 
 func delay(delay:float):
 	tween  = get_tree().create_tween()
-	tween.tween_callback(self, "fade").set_delay(delay)
+	tween.tween_callback(Callable(self, "fade")).set_delay(delay)
 
 
 
@@ -33,7 +33,7 @@ func delay(delay:float):
 func fade() -> void:
 	tween  = get_tree().create_tween()
 	tween.tween_property(self, "modulate:a", 0, .4)
-	tween.tween_callback(self, "queue_free")
+	tween.tween_callback(Callable(self, "queue_free"))
 
 
 
